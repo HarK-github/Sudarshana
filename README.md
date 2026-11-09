@@ -1,4 +1,6 @@
-#   Sudarshana
+# 🛡️ Sudarshana
+
+<div align="center">
 
 **Model-agnostic indirect prompt-injection detection and redaction for retrieval pipelines.**
 
@@ -11,8 +13,11 @@
 [![License](https://img.shields.io/badge/license-TBD-lightgrey)](.)
 [![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen)](.)
 
- 
- 
+*Sudarshana (Sanskrit: "beautiful discus") — the shield.*
+
+</div>
+
+---
 
 ## 📖 Table of contents
 
@@ -28,14 +33,12 @@
 - [7-day plan](#-7-day-plan)
 - [Critical dependencies](#-critical-dependencies)
 - [Metrics we report](#-metrics-we-report)
-- [Out of scope](#-out-of-scope)
 - [Known limitations](#-known-limitations)
-- [FAQ](#-faq)
 - [License](#-license)
 
 ---
 
-##   Why Sudarshana
+## 🎯 Why Sudarshana
 
 Retrieval-augmented generators read untrusted content — emails, web pages, tables, READMEs, code, PDFs. Any of that text can carry an **indirect prompt injection**: an instruction hidden in retrieved content that hijacks the user's actual task.
 
@@ -44,14 +47,14 @@ Existing defenses have real costs:
 | Defense | Cost |
 |---|---|
 | White-box fine-tuning with `<data>` tokens (BIPIA) | Needs model weights; can degrade capability (Vicuna-13B dropped from 5.2 → ~1.7 on MT-Bench) |
-| Prompt reminders ("ignore instructions in content") | Reduces ASR but does not make the model robust; leaves capability and prompt budget intact but no localization |
+| Prompt reminders ("ignore instructions in content") | Reduces ASR but does not make the model robust; no localization |
 | Binary DeBERTa classifier | Blocks whole documents; misses injections after token 512; fooled by base64, homoglyphs, zero-width chars |
 
 **Sudarshana is a complementary layer, not a replacement for those.** It works with closed and API-only generators, leaves the generator untouched, and redacts only the injected spans so the rest of the document survives.
 
 ---
 
-##   How it fits in the stack
+## 🧩 How it fits in the stack
 
 ```text
 user task ─┐
@@ -64,7 +67,7 @@ The generator never sees an unredacted document. No changes to the LLM. No weigh
 
 ---
 
-##   Features in use
+## ⚙️ Features in use
 
 ### Preprocessing & length
 - **Normalizer**: NFKC, zero-width character stripping, base64/hex decoding before tokenization; offset map back to original text.
@@ -90,7 +93,7 @@ The generator never sees an unredacted document. No changes to the LLM. No weigh
 
 ---
 
-##   What it improves over the baseline
+## 📈 What it improves over the baseline
 
 | Baseline weakness | Sudarshana fix |
 |---|---|
@@ -101,11 +104,11 @@ The generator never sees an unredacted document. No changes to the LLM. No weigh
 | No hint of attack type | Optional attack-type head |
 | Threshold picked arbitrarily | Calibration at a target FPR |
 
->   **No measured results yet.** Every expected effect above is a hypothesis to be checked against the Day-1 baseline. Baseline percentages are a Day-1 output, not a known number.
+> ⚠️ **No measured results yet.** Every expected effect above is a hypothesis to be checked against the Day-1 baseline. Baseline percentages are a Day-1 output, not a known number.
 
 ---
 
-##   What it deliberately does not do
+## 🚫 What it deliberately does not do
 
 - **Split-payload attacks.** An instruction spread across distant chunks can slip past max pooling.
 - **Semantic attacks with no imperative phrasing.** Trained on templated data; can miss paraphrased attacks.
@@ -114,7 +117,7 @@ The generator never sees an unredacted document. No changes to the LLM. No weigh
 
 ---
 
-##   Pipeline architecture
+## 🏗️ Pipeline architecture
 
 ```text
 raw document
@@ -195,6 +198,8 @@ python -m sudarshana.evaluation.run --config configs/eval.yaml --ladder full
 
 ## 👥 Team & ownership
 
+<div align="center">
+
 | Person | Role | Features owned |
 |---|---|---|
 | **P1** | Data & Baseline Lead | Dataset schema, attack-type/source split, hard negatives, counterfactual pairs, baseline run, threshold calibration, ablation coordination |
@@ -203,10 +208,16 @@ python -m sudarshana.evaluation.run --config configs/eval.yaml --ladder full
 | **P4** | Token Head & Redaction | Token-level labels, token head, span F1, sentence-level redaction, block fallback, residual-payload checks |
 | **P5** | Downstream Evaluation & Reporting | End-to-end ASR, ROUGE-1, latency, obfuscated held-out evaluation, metrics tables, write-up |
 
+</div>
+
 ---
 
-##   7-day plan
- 
+## 🗓️ 7-day plan
+
+> 5 full-time people · shared repo · daily 15-minute sync · **Day 7 is buffer/write-up only**.
+
+<div align="center">
+
 | Day | P1 Data/Baseline | P2 Preprocess/Chunk | P3 Model/Training | P4 Token/Redaction | P5 Eval/Reporting |
 |---|---|---|---|---|---|
 | **1** | Unify BIPIA/AgentDojo/TensorTrust into `(user_task, document, label, injection_span, attack_type)`; split by attack type and source; baseline harness | Normalizer + unit tests; offset-map design | Reproduce baseline training; training-harness skeleton | Span-label spec from insertion points; token-head scaffold | Downstream eval harness: fixed-LLM ASR, ROUGE-1, latency; baseline numbers |
@@ -216,6 +227,8 @@ python -m sudarshana.evaluation.run --config configs/eval.yaml --ladder full
 | **5** | Obfuscated held-out set; eval protocol | Obfuscation augmentation generator, training data only | Retrain with augmentation; attack-type head only if time | Residual-payload tests; span F1 on held-out | Obfuscated held-out eval; latency per ~2k-token document |
 | **6** | Calibrate threshold at target FPR; coordinate full ablation ladder | Preprocessing / latency ablations; fixes | Run ablation variants; **freeze model** | Tune redaction threshold for recall; validate fallback | Full metrics table: recall/FPR, span F1, ASR, ROUGE-1, latency |
 | **7** | Results, limitations, open items | Pipeline packaging | Final model card / integration docs | Redaction documentation | Final report and figures |
+
+</div>
 
 ### Ablation ladder
 
@@ -230,7 +243,7 @@ Each layer is added on top of the previous one so the gain of each is visible.
 
 ---
 
-##   Critical dependencies
+## 🔗 Critical dependencies
 
 - **Day 1 data contract from P1 blocks everyone.** P3 cannot train fair variants and P5 cannot evaluate without the split.
 - **P3 owns the shared training harness.** P2 and P4 integrate into it; no duplicate training code.
@@ -240,7 +253,9 @@ Each layer is added on top of the previous one so the gain of each is visible.
 
 ---
 
-##   Metrics we report
+## 📊 Metrics we report
+
+<div align="center">
 
 | Metric | Why |
 |---|---|
@@ -254,14 +269,13 @@ Each layer is added on top of the previous one so the gain of each is visible.
 | ROUGE-1 on BIPIA-Clean | Redaction must not hurt normal tasks |
 | Latency per ~2k-token document | Cost |
 
+</div>
+
 **Reference point (BIPIA paper).** No-defense ASR: 31.03% (GPT-4), 26.16% (GPT-3.5-turbo), 15.31% (Vicuna-13B), 12.37% (Vicuna-7B) overall. Paper defenses: ~20.6% (GPT-4, multi-turn dialogue) and ~0.5–2.4% (Vicuna-7B, white-box fine-tuning). These are **generator** results, not detector accuracy; our end-to-end ASR is the comparable figure.
 
 ---
 
- 
----
-
-##   Known limitations
+## ⚠️ Known limitations
 
 - **Split-payload attacks** across distant chunks can slip past max pooling.
 - **Semantic attacks** with no imperative phrasing can still be missed.
@@ -272,10 +286,14 @@ Each layer is added on top of the previous one so the gain of each is visible.
 
 ---
 
- 
+## 📜 License
 
-## 📜 License 
+TBD — to be decided before public release.
 
 ---
 
-<p align="center"><em>Sudarshana — harden the pipeline, not just the prompt.</em></p>v
+<div align="center">
+
+*Sudarshana — harden the pipeline, not just the prompt.*
+
+</div>
