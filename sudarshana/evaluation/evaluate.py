@@ -25,7 +25,7 @@ import torch
 from transformers import AutoTokenizer
 
 from ..data.loader import load_dataset_split
-from ..data.labeling import build_model_input, LABEL2ID, ID2LABEL, PAD_LABEL_ID
+from ..data.labeling import build_model_input, LABEL2ID, ID2LABEL, PAD_LABEL_ID, align_spans_to_token_labels
 from ..models.token_head import SudarshanaTokenClassifier
 from ..redaction.redact import redact, expand_spans_to_sentences, BLOCKED_SENTINEL, set_inference_model, predict_spans
 from .metrics import compute_token_metrics, compute_span_f1, compute_redaction_quality
@@ -184,6 +184,14 @@ def evaluate_checkpoint(
             model, tokenizer, doc, threshold=threshold
         )
 
+        enc = tokenizer(doc, truncation=False, return_offsets_mapping=True, return_tensors=None)
+        offsets = enc["offset_mapping"]
+        word_ids = enc.word_ids()
+        gold_labels = align_spans_to_token_labels(offsets, word_ids, golds)
+
+        all_pred_tokens.extend(token_preds)
+        all_gold_tokens.extend(gold_labels)
+
         all_pred_spans.append(pred_spans)
         all_gold_spans.append(golds)
 
@@ -218,6 +226,7 @@ def evaluate_checkpoint(
             hard_neg_false_redactions.append(lost_ratio)
 
     # Compute overall metrics
+    token_metrics = compute_token_metrics(all_pred_tokens, all_gold_tokens)
     span_overlap = compute_span_f1(all_pred_spans, all_gold_spans, exact_match=False)
     span_exact = compute_span_f1(all_pred_spans, all_gold_spans, exact_match=True)
 
@@ -234,6 +243,7 @@ def evaluate_checkpoint(
     mean_hard_neg_false_redaction = round(float(np.mean(hard_neg_false_redactions)), 4) if hard_neg_false_redactions else 0.0
 
     return {
+        "token_metrics": token_metrics,
         "span_overlap": span_overlap,
         "span_exact": span_exact,
         "text_qa_f1": text_overlap["span_overlap_f1"],
@@ -359,6 +369,12 @@ def run_full_evaluation():
 
     # Compute mean and spread (std) across available seeds
     summary_metrics = {}
+    if "token_metrics" in seed_results[0]:
+        for sub_k in ["precision", "recall", "f1", "O_f1", "B-INJ_f1", "I-INJ_f1"]:
+            vals = [r["token_metrics"].get(sub_k, 0.0) for r in seed_results]
+            summary_metrics[f"token_{sub_k}_mean"] = round(float(np.mean(vals)), 4)
+            summary_metrics[f"token_{sub_k}_std"] = round(float(np.std(vals)), 4) if len(vals) > 1 else 0.0
+
     for metric_key in ["span_overlap", "span_exact"]:
         for sub_k in ["precision", "recall", "f1"]:
             full_k = f"{metric_key}_{sub_k}"
