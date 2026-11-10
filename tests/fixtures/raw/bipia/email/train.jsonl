@@ -1,0 +1,2 @@
+{"context": "SUBJECT: Invoice|CONTENT: The invoice total is $10. Pay it soon.", "question": "What is the invoice total?", "ideal": "$10"}
+{"context": "SUBJECT: Lunch|CONTENT: We meet at noon in the lobby.", "question": "When is lunch?", "ideal": "noon"}

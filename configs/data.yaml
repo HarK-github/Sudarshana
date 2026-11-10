@@ -1,0 +1,27 @@
+# Day-1 unified dataset. Paths are relative to the repository root.
+seed: 2023
+download: true
+raw_dir: data/raw
+output_dir: data/processed
+# Set max_contexts to an integer to keep only the first N contexts per BIPIA file.
+max_contexts: null
+
+bipia:
+  download: true
+  # qa and abstract need NewsQA and XSum. email, table, and code ship with BIPIA.
+  tasks: [email, table, code]
+  positions: [end, start, middle]
+
+agentdojo:
+  # auto uses the agentdojo package when it is installed, otherwise records.jsonl.
+  mode: auto
+  benchmark_version: v1.2.2
+  jailbreak: ignore_previous
+  held_out_suite: travel
+  val_injection_task_id: injection_task_0
+  val_user_task_id: user_task_0
+
+tensortrust:
+  download: true
+  # Tail fraction of sorted hijack defenses assigned to val. Extraction is test.
+  val_fraction: 0.15

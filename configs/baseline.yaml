@@ -1,0 +1,16 @@
+# Ablation step 1: truncated single string. The user task is not an input.
+data_dir: data/processed
+model: lexical
+max_tokens: 512
+threshold: 0.5
+output: data/processed/baseline_metrics.json
+
+# Switch model to deberta for the DeBERTa-v3 single-string baseline.
+# That path needs torch and transformers, and it truncates at max_length.
+deberta:
+  model_name: microsoft/deberta-v3-base
+  max_length: 512
+  epochs: 1
+  learning_rate: 2.0e-5
+  batch_size: 8
+  seed: 2023
