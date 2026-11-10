@@ -19,6 +19,11 @@ TensorTrust
     ``prompt_extraction`` is the held-out attack type and is test.
     Hijacking defenses are sorted by defense id. A tail slice is validation
     and the rest is train. The clean access-code row follows its defense.
+
+Hard negatives
+    The held-out category (shell) is test.
+    Other categories are sorted by document group. A tail slice is validation
+    and the rest is train. A document group is never split.
 """
 
 from __future__ import annotations
@@ -87,6 +92,30 @@ def _hijack_val_groups(examples: list[UnifiedExample], fraction: float) -> set[s
     return set(groups[-count:]) if count else set()
 
 
+def _hard_negative_val_groups(
+    examples: list[UnifiedExample],
+    held_out_category: str,
+    fraction: float,
+) -> set[str]:
+    groups = sorted(
+        {
+            example.document_group
+            for example in examples
+            if example.source == "hard_negative" and example.document_source != held_out_category
+        }
+    )
+    count = val_group_count(len(groups), fraction)
+    return set(groups[-count:]) if count else set()
+
+
+def _assign_hard_negative(example: UnifiedExample, held_out_category: str, val_groups: set[str]) -> str:
+    if example.document_source == held_out_category:
+        return "test"
+    if example.document_group in val_groups:
+        return "val"
+    return "train"
+
+
 def assign_splits(
     examples: list[UnifiedExample],
     *,
@@ -95,6 +124,8 @@ def assign_splits(
     val_injection_task_id: str = VAL_INJECTION_TASK_ID,
     val_user_task_id: str = VAL_USER_TASK_ID,
     tensortrust_val_fraction: float = 0.15,
+    held_out_hard_negative_category: str = "shell",
+    hard_negative_val_fraction: float = 0.15,
 ) -> list[UnifiedExample]:
     val_names = set(val_attack_names)
     hijack_val = _hijack_val_groups(examples, tensortrust_val_fraction)
@@ -103,6 +134,9 @@ def assign_splits(
         for example in examples
         if example.source == "tensortrust" and example.attack_type == "prompt_hijack"
     }
+    hard_negative_val = _hard_negative_val_groups(
+        examples, held_out_hard_negative_category, hard_negative_val_fraction
+    )
     for example in examples:
         if example.source == "bipia":
             example.split = _assign_bipia(example, val_names)
@@ -117,6 +151,10 @@ def assign_splits(
                 example.split = "val" if example.document_group in hijack_val else "train"
             else:
                 example.split = "test"
+        elif example.source == "hard_negative":
+            example.split = _assign_hard_negative(
+                example, held_out_hard_negative_category, hard_negative_val
+            )
         else:
             raise ValueError(f"unknown source {example.source}")
     return examples

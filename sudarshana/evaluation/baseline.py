@@ -24,7 +24,7 @@ from typing import Any
 import yaml
 
 from sudarshana.data.io import read_jsonl
-from sudarshana.evaluation.metrics import grouped_recall, summarize
+from sudarshana.evaluation.metrics import grouped_recall, hard_negative_fpr_by_source, negative_fpr, summarize
 
 TOKEN_RE = re.compile(r"[A-Za-z0-9_']+")
 
@@ -105,6 +105,11 @@ def evaluate_predictions(rows: list[dict], predictions: list[int]) -> dict[str, 
     labels = [int(row["label"]) for row in rows]
     return {
         "overall": summarize(labels, predictions),
+        "fpr_clean": negative_fpr(rows, predictions, lambda row: row.get("attack_category") == "none"),
+        "fpr_hard_negative": negative_fpr(
+            rows, predictions, lambda row: row.get("attack_category") == "hard_negative"
+        ),
+        "fpr_hard_negative_by_document_source": hard_negative_fpr_by_source(rows, predictions),
         "recall_by_attack_type": grouped_recall(rows, predictions, "attack_type"),
         "recall_by_attack_category": grouped_recall(rows, predictions, "attack_category"),
         "recall_by_source": grouped_recall(rows, predictions, "source"),
@@ -157,8 +162,10 @@ def run_deberta_baseline(
     seed: int = 2023,
 ) -> dict[str, Any]:
     """Truncated single-string DeBERTa. The user task is not an input."""
+    import os
     import random
 
+    os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
     import torch
     from torch.utils.data import DataLoader, Dataset
     from transformers import AutoModelForSequenceClassification, AutoTokenizer
@@ -227,6 +234,105 @@ def run_deberta_baseline(
     return report
 
 
+def _git_head() -> str | None:
+    import subprocess
+
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "HEAD"],
+            stderr=subprocess.DEVNULL,
+            text=True,
+        ).strip()
+    except (OSError, subprocess.CalledProcessError):
+        return None
+
+
+def _deberta_import_error() -> str | None:
+    import os
+
+    os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
+    try:
+        import torch  # noqa: F401
+        import transformers  # noqa: F401
+    except ImportError as exc:
+        return str(exc)
+    return None
+
+
+def _deberta_skip_reason(n_train: int) -> str | None:
+    missing = _deberta_import_error()
+    if missing:
+        return missing
+    import torch
+
+    if not torch.cuda.is_available() and n_train > 512:
+        return (
+            "torch is installed but CUDA is not available. "
+            f"Skipped the one-epoch DeBERTa run on {n_train} training rows."
+        )
+    return None
+
+
+def record_day2_baselines(
+    train_rows: list[dict],
+    eval_rows: dict[str, list[dict]],
+    *,
+    max_tokens: int = 512,
+    threshold: float = 0.5,
+    seed: int = 2023,
+    deberta_config: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Run the lexical baseline and DeBERTa when its libraries import.
+
+    Scores are written only for runs that finish. A missing DeBERTa install
+    leaves that run null and sets status to lexical_only.
+    """
+    lexical = run_lexical_baseline(
+        train_rows,
+        eval_rows,
+        max_tokens=max_tokens,
+        threshold=threshold,
+    )
+    deberta_report = None
+    deberta_note = _deberta_skip_reason(len(train_rows))
+    if deberta_note is None:
+        deberta = deberta_config or {}
+        deberta_report = run_deberta_baseline(
+            train_rows,
+            eval_rows,
+            model_name=str(deberta.get("model_name", "microsoft/deberta-v3-base")),
+            max_length=int(deberta.get("max_length", max_tokens)),
+            epochs=int(deberta.get("epochs", 1)),
+            learning_rate=float(deberta.get("learning_rate", 2e-5)),
+            batch_size=int(deberta.get("batch_size", 8)),
+            threshold=threshold,
+            seed=int(deberta.get("seed", seed)),
+        )
+    if lexical and deberta_report:
+        status = "deberta+lexical"
+    elif lexical:
+        status = "lexical_only"
+    else:
+        status = "not_run"
+    return {
+        "schema_version": "1.1",
+        "status": status,
+        "threshold": threshold,
+        "seed": seed,
+        "input": "document",
+        "uses_user_task": False,
+        "max_tokens": max_tokens,
+        "row_counts": {
+            "train": len(train_rows),
+            "val": len(eval_rows.get("val") or []),
+            "test": len(eval_rows.get("test") or []),
+        },
+        "git_head": _git_head(),
+        "deberta_note": deberta_note,
+        "runs": {"lexical": lexical, "deberta": deberta_report},
+    }
+
+
 def _resolve(config_path: Path, value: str) -> Path:
     path = Path(value)
     if path.is_absolute():
@@ -244,6 +350,32 @@ def run_from_config(config: dict[str, Any], config_path: Path) -> dict[str, Any]
     }
     model_name = str(config.get("model", "lexical"))
     threshold = float(config.get("threshold", 0.5))
+    if config.get("record"):
+        recorded = record_day2_baselines(
+            train_rows,
+            eval_rows,
+            max_tokens=int(config.get("max_tokens", 512)),
+            threshold=threshold,
+            seed=int((config.get("deberta") or {}).get("seed", 2023)),
+            deberta_config=config.get("deberta") or {},
+        )
+        record_path = _resolve(config_path, str(config["record"]))
+        record_path.parent.mkdir(parents=True, exist_ok=True)
+        payload = json.dumps(recorded, indent=2)
+        record_path.write_text(payload, encoding="utf-8")
+        output = _resolve(config_path, config.get("output", "data/processed/baseline_metrics.json"))
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(payload, encoding="utf-8")
+        test_run = recorded["runs"]["lexical"]["splits"]["test"]["overall"]
+        print(
+            "recorded baseline status={status} test recall={recall} fpr={fpr} -> {path}".format(
+                status=recorded["status"],
+                recall=None if test_run is None else test_run["recall"],
+                fpr=None if test_run is None else test_run["fpr"],
+                path=record_path,
+            )
+        )
+        return recorded
     if model_name == "lexical":
         report = run_lexical_baseline(
             train_rows,

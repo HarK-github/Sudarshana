@@ -1,4 +1,7 @@
-"""Frozen Day-1 record contract.
+"""Frozen Day-2 record contract (schema 1.1).
+
+Field names were frozen after hard negatives landed. A new field or a new
+source requires a new schema version and a matching edit to ``contract.json``.
 
 Every source is written as one JSON object with the same keys. The five fields
 the rest of the pipeline trains and evaluates on are:
@@ -22,7 +25,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-SCHEMA_VERSION = "1"
+SCHEMA_VERSION = "1.1"
 
 CORE_FIELDS = (
     "user_task",
@@ -49,9 +52,10 @@ METADATA_FIELDS = (
 
 UNIFIED_FIELDS = CORE_FIELDS + METADATA_FIELDS
 
-SOURCES = ("bipia", "agentdojo", "tensortrust")
+SOURCES = ("bipia", "agentdojo", "tensortrust", "hard_negative")
 SPLITS = ("train", "val", "test")
 LABELS = (0, 1)
+CLEAN_ATTACK_CATEGORIES = ("none", "hard_negative")
 
 
 @dataclass
@@ -156,7 +160,18 @@ def validate_example(row: dict[str, Any]) -> None:
             raise ValueError(f"clean record {row.get('id')} must have null injection_span")
         if row["attack_type"] != "none":
             raise ValueError(f"clean record {row.get('id')} must have attack_type 'none'")
+        if row["attack_category"] not in CLEAN_ATTACK_CATEGORIES:
+            raise ValueError(
+                f"clean record {row.get('id')} has attack_category {row['attack_category']!r}"
+            )
+        if row["source"] == "hard_negative" and row["attack_category"] != "hard_negative":
+            raise ValueError(f"hard-negative record {row.get('id')} must use attack_category 'hard_negative'")
+        if row["attack_category"] == "hard_negative" and row["source"] != "hard_negative":
+            raise ValueError(f"record {row.get('id')} uses hard_negative category without that source")
         return
+
+    if row["source"] == "hard_negative" or row["attack_category"] == "hard_negative":
+        raise ValueError(f"injected record {row.get('id')} cannot be a hard negative")
 
     if not isinstance(span, list) or not span:
         raise ValueError(f"injected record {row.get('id')} needs at least one span")
@@ -181,11 +196,14 @@ def validate_split(rows: list[dict[str, Any]]) -> None:
 
     by_attack: dict[str, set[str]] = {}
     bipia_groups: dict[str, set[str]] = {}
+    hard_negative_groups: dict[str, set[str]] = {}
     for row in rows:
         if row["label"] == 1:
             by_attack.setdefault(row["attack_type_id"], set()).add(row["split"])
         if row["source"] == "bipia":
             bipia_groups.setdefault(row["document_group"], set()).add(row["split"])
+        if row["source"] == "hard_negative":
+            hard_negative_groups.setdefault(row["document_group"], set()).add(row["split"])
 
     for attack_id, splits in by_attack.items():
         if "train" in splits and "test" in splits:
@@ -198,3 +216,7 @@ def validate_split(rows: list[dict[str, Any]]) -> None:
     for group, splits in bipia_groups.items():
         if "test" in splits and ("train" in splits or "val" in splits):
             raise ValueError(f"BIPIA document group {group} leaks into train or val")
+
+    for group, splits in hard_negative_groups.items():
+        if len(splits) > 1:
+            raise ValueError(f"hard-negative document group {group} is in {sorted(splits)}")

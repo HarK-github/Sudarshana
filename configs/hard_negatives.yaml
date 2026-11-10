@@ -1,0 +1,113 @@
+# Pinned hard-negative sources. File order is the download order.
+# Shell pages are fetched from tldr-pages separately (MIT).
+
+readme:
+  - id: fastapi
+    title: FastAPI
+    url: https://raw.githubusercontent.com/fastapi/fastapi/master/README.md
+    license: MIT
+    origin: https://github.com/fastapi/fastapi
+  - id: pydantic
+    title: Pydantic
+    url: https://raw.githubusercontent.com/pydantic/pydantic/main/README.md
+    license: MIT
+    origin: https://github.com/pydantic/pydantic
+  - id: rich
+    title: Rich
+    url: https://raw.githubusercontent.com/Textualize/rich/master/README.md
+    license: MIT
+    origin: https://github.com/Textualize/rich
+  - id: black
+    title: Black
+    url: https://raw.githubusercontent.com/psf/black/main/README.md
+    license: MIT
+    origin: https://github.com/psf/black
+  - id: ruff
+    title: Ruff
+    url: https://raw.githubusercontent.com/astral-sh/ruff/main/README.md
+    license: MIT
+    origin: https://github.com/astral-sh/ruff
+  - id: requests
+    title: Requests
+    url: https://raw.githubusercontent.com/psf/requests/main/README.md
+    license: Apache-2.0
+    origin: https://github.com/psf/requests
+  - id: urllib3
+    title: urllib3
+    url: https://raw.githubusercontent.com/urllib3/urllib3/main/README.md
+    license: MIT
+    origin: https://github.com/urllib3/urllib3
+  - id: transformers
+    title: Transformers
+    url: https://raw.githubusercontent.com/huggingface/transformers/main/README.md
+    license: Apache-2.0
+    origin: https://github.com/huggingface/transformers
+
+tutorial:
+  - id: installing-software
+    title: install the software for web development
+    url: https://raw.githubusercontent.com/mdn/content/main/files/en-us/learn_web_development/getting_started/environment_setup/installing_software/index.md
+    license: CC-BY-SA-2.5
+    origin: https://developer.mozilla.org/en-US/docs/Learn_web_development/Getting_started/Environment_setup/Installing_software
+  - id: basic-html-syntax
+    title: write basic HTML syntax
+    url: https://raw.githubusercontent.com/mdn/content/main/files/en-us/learn_web_development/core/structuring_content/basic_html_syntax/index.md
+    license: CC-BY-SA-2.5
+    origin: https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Structuring_content/Basic_HTML_syntax
+  - id: what-is-javascript
+    title: understand what JavaScript is
+    url: https://raw.githubusercontent.com/mdn/content/main/files/en-us/learn_web_development/core/scripting/what_is_javascript/index.md
+    license: CC-BY-SA-2.5
+    origin: https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Scripting/What_is_JavaScript
+  - id: css-getting-started
+    title: start styling pages with CSS
+    url: https://raw.githubusercontent.com/mdn/content/main/files/en-us/learn_web_development/core/styling_basics/getting_started/index.md
+    license: CC-BY-SA-2.5
+    origin: https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Styling_basics/Getting_started
+  - id: html-basics
+    title: create a basic HTML page
+    url: https://raw.githubusercontent.com/mdn/content/main/files/en-us/learn_web_development/getting_started/your_first_website/creating_the_content/index.md
+    license: CC-BY-SA-2.5
+    origin: https://developer.mozilla.org/en-US/docs/Learn_web_development/Getting_started/Your_first_website/Creating_the_content
+
+recipe:
+  - id: pancakes
+    title: Cookbook:Pancake
+    format: mediawiki
+    license: CC-BY-SA-4.0
+    origin: https://en.wikibooks.org/wiki/Cookbook:Pancakes
+  - id: oatmeal
+    title: Cookbook:Oatmeal
+    format: mediawiki
+    license: CC-BY-SA-4.0
+    origin: https://en.wikibooks.org/wiki/Cookbook:Oatmeal
+  - id: guacamole
+    title: Cookbook:Guacamole I
+    format: mediawiki
+    license: CC-BY-SA-4.0
+    origin: https://en.wikibooks.org/wiki/Cookbook:Guacamole
+  - id: hummus
+    title: Cookbook:Hummus
+    format: mediawiki
+    license: CC-BY-SA-4.0
+    origin: https://en.wikibooks.org/wiki/Cookbook:Hummus
+  - id: french-toast
+    title: Cookbook:French_Toast
+    format: mediawiki
+    license: CC-BY-SA-4.0
+    origin: https://en.wikibooks.org/wiki/Cookbook:French_Toast
+  - id: lentil-soup
+    title: Cookbook:Red Lentil Soup
+    format: mediawiki
+    license: CC-BY-SA-4.0
+    origin: https://en.wikibooks.org/wiki/Cookbook:Lentil_Soup
+  - id: mashed-potatoes
+    title: Cookbook:Mashed_Potatoes
+    format: mediawiki
+    license: CC-BY-SA-4.0
+    origin: https://en.wikibooks.org/wiki/Cookbook:Mashed_Potatoes
+  - id: fried-rice
+    title: Cookbook:Fried_Rice
+    format: mediawiki
+    license: CC-BY-SA-4.0
+    origin: https://en.wikibooks.org/wiki/Cookbook:Fried_Rice

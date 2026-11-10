@@ -4,6 +4,7 @@ model: lexical
 max_tokens: 512
 threshold: 0.5
 output: data/processed/baseline_metrics.json
+record: results/baseline_day2.json
 
 # Switch model to deberta for the DeBERTa-v3 single-string baseline.
 # That path needs torch and transformers, and it truncates at max_length.

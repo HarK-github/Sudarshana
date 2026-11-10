@@ -17,6 +17,7 @@ from ``raw_dir``:
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import Any
 
@@ -59,6 +60,21 @@ def render_jailbreak(
         .replace("{model}", model)
         .replace("{task}", task)
     )
+
+
+def find_payload_spans(text: str, needle: str) -> list[dict[str, int]]:
+    """Locate a payload, including one that YAML wrapped onto several lines."""
+    exact = find_spans(text, needle)
+    if exact:
+        return exact
+    tokens = needle.split()
+    if not tokens:
+        return []
+    pattern = r"\s+".join(re.escape(token) for token in tokens)
+    return [
+        {"start": match.start(), "end": match.end()}
+        for match in re.finditer(pattern, text)
+    ]
 
 
 def find_spans(text: str, needle: str) -> list[dict[str, int]]:
@@ -258,7 +274,7 @@ def load_agentdojo_package(benchmark_version: str, jailbreak: str) -> list[Unifi
                 for key in candidates:
                     injected[key] = payload
                 document = _run_transcript(suite, user_task, injected)
-                spans = find_spans(document, payload)
+                spans = find_payload_spans(document, payload)
                 if not spans:
                     print(
                         "skipping AgentDojo example with no located payload: "

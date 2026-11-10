@@ -69,6 +69,8 @@ class ContractTests(unittest.TestCase):
                 path = Path(tmp) / f"{name}.jsonl"
                 rows.extend(json.loads(line) for line in path.read_text(encoding="utf-8").splitlines())
             validate_split(rows)
+            self.assertEqual(card["schema_version"], "1.1")
+            self.assertTrue(card["frozen"])
             self.assertEqual(card["core_fields"], [
                 "user_task",
                 "document",
@@ -111,6 +113,25 @@ class ContractTests(unittest.TestCase):
             for attack_id, attack_splits in by_id.items():
                 if attack_id.startswith("tensortrust::prompt_hijack::"):
                     self.assertEqual(len(attack_splits), 1)
+
+            shell = [
+                row
+                for row in rows
+                if row["source"] == "hard_negative" and row["document_source"] == "shell"
+            ]
+            self.assertTrue(shell)
+            self.assertTrue(all(row["split"] == "test" and row["label"] == 0 for row in shell))
+            self.assertTrue(all(row["injection_span"] is None and row["attack_type"] == "none" for row in shell))
+            hard_groups: dict[str, set[str]] = {}
+            hard_splits = set()
+            for row in rows:
+                if row["source"] != "hard_negative":
+                    continue
+                hard_groups.setdefault(row["document_group"], set()).add(row["split"])
+                hard_splits.add(row["split"])
+            self.assertTrue(all(len(parts) == 1 for parts in hard_groups.values()))
+            self.assertIn("train", hard_splits)
+            self.assertIn("val", hard_splits)
 
             travel = [row for row in rows if row["document_source"] == "travel"]
             self.assertTrue(travel)
@@ -170,6 +191,9 @@ class ContractTests(unittest.TestCase):
             self.assertIn("recall", report["splits"]["test"]["overall"])
             self.assertIn("fpr", report["splits"]["test"]["overall"])
             self.assertIn("recall_by_position", report["splits"]["test"])
+            self.assertIn("fpr_hard_negative", report["splits"]["test"])
+            self.assertIn("fpr_clean", report["splits"]["test"])
+            self.assertGreater(report["splits"]["test"]["fpr_hard_negative"]["support"], 0)
 
             baseline_config = root / "baseline.yaml"
             baseline_config.write_text(
@@ -210,7 +234,7 @@ class BaselineTests(unittest.TestCase):
 
     def test_clean_span_is_rejected(self) -> None:
         row = {
-            "schema_version": "1",
+            "schema_version": "1.1",
             "id": "x",
             "user_task": "task",
             "document": "doc",

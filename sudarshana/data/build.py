@@ -13,9 +13,10 @@ from typing import Any
 import yaml
 
 from sudarshana.data.io import write_jsonl
-from sudarshana.data.schema import UNIFIED_FIELDS, validate_split
+from sudarshana.data.schema import SCHEMA_VERSION, UNIFIED_FIELDS, validate_split
 from sudarshana.data.sources.agentdojo import load_agentdojo
 from sudarshana.data.sources.bipia import POSITIONS, load_bipia
+from sudarshana.data.sources.hard_negatives import load_hard_negatives
 from sudarshana.data.sources.tensortrust import load_tensortrust
 from sudarshana.data.splits import assign_splits, split_report
 
@@ -40,6 +41,7 @@ def build_from_config(config: dict[str, Any], config_path: Path) -> dict[str, An
     bipia_cfg = config.get("bipia") or {}
     agent_cfg = config.get("agentdojo") or {}
     trust_cfg = config.get("tensortrust") or {}
+    hard_cfg = config.get("hard_negatives") or {}
     tasks = list(bipia_cfg.get("tasks") or ["email", "table", "code"])
     positions = tuple(bipia_cfg.get("positions") or POSITIONS)
 
@@ -68,6 +70,13 @@ def build_from_config(config: dict[str, Any], config_path: Path) -> dict[str, An
             download_missing=download_missing and bool(trust_cfg.get("download", True)),
         )
     )
+    hard_max = hard_cfg.get("max_per_category", 400)
+    hard_examples, hard_provenance = load_hard_negatives(
+        raw_root / "hard_negatives",
+        download_missing=download_missing and bool(hard_cfg.get("download", True)),
+        max_per_category=None if hard_max is None else int(hard_max),
+    )
+    examples.extend(hard_examples)
     if not examples:
         raise RuntimeError("no examples were loaded")
 
@@ -77,6 +86,8 @@ def build_from_config(config: dict[str, Any], config_path: Path) -> dict[str, An
         val_injection_task_id=str(agent_cfg.get("val_injection_task_id", "injection_task_0")),
         val_user_task_id=str(agent_cfg.get("val_user_task_id", "user_task_0")),
         tensortrust_val_fraction=float(trust_cfg.get("val_fraction", 0.15)),
+        held_out_hard_negative_category=str(hard_cfg.get("held_out_category", "shell")),
+        hard_negative_val_fraction=float(hard_cfg.get("val_fraction", 0.15)),
     )
     rows = [example.to_dict() for example in examples]
     validate_split(rows)
@@ -86,7 +97,8 @@ def build_from_config(config: dict[str, Any], config_path: Path) -> dict[str, An
         write_jsonl(output_dir / f"{name}.jsonl", [row for row in rows if row["split"] == name])
     report = split_report(rows)
     card = {
-        "schema_version": "1",
+        "schema_version": SCHEMA_VERSION,
+        "frozen": True,
         "fields": list(UNIFIED_FIELDS),
         "core_fields": [
             "user_task",
@@ -100,9 +112,12 @@ def build_from_config(config: dict[str, Any], config_path: Path) -> dict[str, An
             "BIPIA test attack files and test contexts are test. "
             "One train attack type per BIPIA category is val. "
             "AgentDojo suite 'travel' is test. injection_task_0 is val elsewhere. "
-            "TensorTrust prompt_extraction is test. A sorted tail of hijack defenses is val."
+            "TensorTrust prompt_extraction is test. A sorted tail of hijack defenses is val. "
+            "Hard-negative category 'shell' is test. A sorted tail of the other "
+            "hard-negative documents is val."
         ),
         "seed": seed,
+        "hard_negative_provenance": hard_provenance,
         "report": report,
     }
     (output_dir / "split_report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")

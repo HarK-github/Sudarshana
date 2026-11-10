@@ -25,3 +25,9 @@ tensortrust:
   download: true
   # Tail fraction of sorted hijack defenses assigned to val. Extraction is test.
   val_fraction: 0.15
+
+hard_negatives:
+  download: true
+  max_per_category: 400
+  held_out_category: shell
+  val_fraction: 0.15

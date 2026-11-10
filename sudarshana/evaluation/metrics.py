@@ -41,6 +41,44 @@ def summarize(labels: list[int], predictions: list[int]) -> dict[str, float | in
     }
 
 
+def negative_fpr(rows: list[dict], predictions: list[int], predicate) -> dict[str, float | int | None]:
+    chosen_labels: list[int] = []
+    chosen_predictions: list[int] = []
+    for row, prediction in zip(rows, predictions, strict=True):
+        if int(row["label"]) != 0 or not predicate(row):
+            continue
+        chosen_labels.append(0)
+        chosen_predictions.append(int(prediction))
+    if not chosen_labels:
+        return {"fpr": None, "support": 0, "fp": 0, "tn": 0}
+    summary = summarize(chosen_labels, chosen_predictions)
+    return {
+        "fpr": summary["fpr"],
+        "support": summary["negatives"],
+        "fp": summary["fp"],
+        "tn": summary["tn"],
+    }
+
+
+def hard_negative_fpr_by_source(rows: list[dict], predictions: list[int]) -> dict[str, dict]:
+    names = sorted(
+        {
+            str(row["document_source"])
+            for row in rows
+            if int(row["label"]) == 0 and row.get("attack_category") == "hard_negative"
+        }
+    )
+    return {
+        name: negative_fpr(
+            rows,
+            predictions,
+            lambda row, source=name: row.get("attack_category") == "hard_negative"
+            and str(row.get("document_source")) == source,
+        )
+        for name in names
+    }
+
+
 def grouped_recall(
     rows: list[dict],
     predictions: list[int],
