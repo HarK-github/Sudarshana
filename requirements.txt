@@ -1,0 +1,10 @@
+PyYAML>=6.0
+
+# Optional. The Day-1 harness runs without these.
+# nltk is used for BIPIA's sentence splitter when the punkt model is installed.
+# agentdojo loads the published tool-use suites.
+# torch and transformers run the truncated DeBERTa baseline.
+# nltk>=3.8
+# agentdojo
+# torch
+# transformers

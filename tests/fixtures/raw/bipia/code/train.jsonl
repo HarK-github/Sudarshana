@@ -1,0 +1,1 @@
+{"error": ["AttributeError: file has no attribute strip"], "code": ["line = bug_file.strip()"], "context": ["Use line.strip() on the string, not on the file object."], "ideal": ["line = line.strip()"]}

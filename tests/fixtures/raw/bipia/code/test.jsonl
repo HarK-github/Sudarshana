@@ -1,0 +1,1 @@
+{"error": ["NameError: name missing is not defined"], "code": ["print(missing)"], "context": ["Define the variable before printing it."], "ideal": ["missing = 1", "print(missing)"]}

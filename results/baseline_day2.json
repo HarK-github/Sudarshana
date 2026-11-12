@@ -1,0 +1,593 @@
+{
+  "schema_version": "1.1",
+  "status": "lexical_only",
+  "threshold": 0.5,
+  "seed": 2023,
+  "input": "document",
+  "uses_user_task": false,
+  "max_tokens": 512,
+  "row_counts": {
+    "train": 179820,
+    "val": 44729,
+    "test": 42999
+  },
+  "git_head": "c2d8ec741477426cd4a1486a12f750d61427f187",
+  "deberta_note": "torch is installed but CUDA is not available. Skipped the one-epoch DeBERTa run on 179820 training rows.",
+  "runs": {
+    "lexical": {
+      "model": "truncated-lexical",
+      "input": "document",
+      "uses_user_task": false,
+      "max_tokens": 512,
+      "threshold": 0.5,
+      "n_train": 179820,
+      "splits": {
+        "val": {
+          "overall": {
+            "tp": 44328,
+            "fp": 219,
+            "tn": 104,
+            "fn": 78,
+            "support": 44729,
+            "positives": 44406,
+            "negatives": 323,
+            "recall": 0.9982434806107283,
+            "fpr": 0.6780185758513931,
+            "precision": 0.995083844029901
+          },
+          "fpr_clean": {
+            "fpr": 0.6865203761755486,
+            "support": 319,
+            "fp": 219,
+            "tn": 100
+          },
+          "fpr_hard_negative": {
+            "fpr": 0.0,
+            "support": 4,
+            "fp": 0,
+            "tn": 4
+          },
+          "fpr_hard_negative_by_document_source": {
+            "tutorial": {
+              "fpr": 0.0,
+              "support": 4,
+              "fp": 0,
+              "tn": 4
+            }
+          },
+          "recall_by_attack_type": {
+            "Cryptocurrency Mining": {
+              "support": 750,
+              "recall": 0.98,
+              "tp": 735,
+              "fn": 15
+            },
+            "Device and Driver Enumeration": {
+              "support": 750,
+              "recall": 1.0,
+              "tp": 750,
+              "fn": 0
+            },
+            "Malware Distribution": {
+              "support": 14250,
+              "recall": 1.0,
+              "tp": 14250,
+              "fn": 0
+            },
+            "Programming Help": {
+              "support": 14250,
+              "recall": 1.0,
+              "tp": 14250,
+              "fn": 0
+            },
+            "Space Removal & Grouping": {
+              "support": 14250,
+              "recall": 1.0,
+              "tp": 14250,
+              "fn": 0
+            },
+            "injection_task_0": {
+              "support": 40,
+              "recall": 0.025,
+              "tp": 1,
+              "fn": 39
+            },
+            "prompt_hijack": {
+              "support": 116,
+              "recall": 0.7931034482758621,
+              "tp": 92,
+              "fn": 24
+            }
+          },
+          "recall_by_attack_category": {
+            "agent_injection": {
+              "support": 40,
+              "recall": 0.025,
+              "tp": 1,
+              "fn": 39
+            },
+            "code": {
+              "support": 1500,
+              "recall": 0.99,
+              "tp": 1485,
+              "fn": 15
+            },
+            "prompt_hijack": {
+              "support": 116,
+              "recall": 0.7931034482758621,
+              "tp": 92,
+              "fn": 24
+            },
+            "targeted": {
+              "support": 14250,
+              "recall": 1.0,
+              "tp": 14250,
+              "fn": 0
+            },
+            "task_irrelevant": {
+              "support": 14250,
+              "recall": 1.0,
+              "tp": 14250,
+              "fn": 0
+            },
+            "task_relevant": {
+              "support": 14250,
+              "recall": 1.0,
+              "tp": 14250,
+              "fn": 0
+            }
+          },
+          "recall_by_source": {
+            "agentdojo": {
+              "support": 40,
+              "recall": 0.025,
+              "tp": 1,
+              "fn": 39
+            },
+            "bipia": {
+              "support": 44250,
+              "recall": 0.9996610169491525,
+              "tp": 44235,
+              "fn": 15
+            },
+            "tensortrust": {
+              "support": 116,
+              "recall": 0.7931034482758621,
+              "tp": 92,
+              "fn": 24
+            }
+          },
+          "recall_by_position": {
+            "end": {
+              "support": 14750,
+              "recall": 0.9996610169491525,
+              "tp": 14745,
+              "fn": 5
+            },
+            "middle": {
+              "support": 14750,
+              "recall": 0.9996610169491525,
+              "tp": 14745,
+              "fn": 5
+            },
+            "start": {
+              "support": 14750,
+              "recall": 0.9996610169491525,
+              "tp": 14745,
+              "fn": 5
+            },
+            "tool_output": {
+              "support": 40,
+              "recall": 0.025,
+              "tp": 1,
+              "fn": 39
+            },
+            "user_message": {
+              "support": 116,
+              "recall": 0.7931034482758621,
+              "tp": 92,
+              "fn": 24
+            }
+          },
+          "recall_by_document_source": {
+            "banking": {
+              "support": 16,
+              "recall": 0.0625,
+              "tp": 1,
+              "fn": 15
+            },
+            "code": {
+              "support": 1500,
+              "recall": 0.99,
+              "tp": 1485,
+              "fn": 15
+            },
+            "email": {
+              "support": 2250,
+              "recall": 1.0,
+              "tp": 2250,
+              "fn": 0
+            },
+            "table": {
+              "support": 40500,
+              "recall": 1.0,
+              "tp": 40500,
+              "fn": 0
+            },
+            "tensortrust": {
+              "support": 116,
+              "recall": 0.7931034482758621,
+              "tp": 92,
+              "fn": 24
+            },
+            "workspace": {
+              "support": 24,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 24
+            }
+          },
+          "rows": 44729
+        },
+        "test": {
+          "overall": {
+            "tp": 41811,
+            "fp": 463,
+            "tn": 576,
+            "fn": 149,
+            "support": 42999,
+            "positives": 41960,
+            "negatives": 1039,
+            "recall": 0.9964489990467111,
+            "fpr": 0.4456207892204042,
+            "precision": 0.9890476415763827
+          },
+          "fpr_clean": {
+            "fpr": 0.36932707355242567,
+            "support": 639,
+            "fp": 236,
+            "tn": 403
+          },
+          "fpr_hard_negative": {
+            "fpr": 0.5675,
+            "support": 400,
+            "fp": 227,
+            "tn": 173
+          },
+          "fpr_hard_negative_by_document_source": {
+            "shell": {
+              "fpr": 0.5675,
+              "support": 400,
+              "fp": 227,
+              "tn": 173
+            }
+          },
+          "recall_by_attack_type": {
+            "Base Encoding": {
+              "support": 2250,
+              "recall": 1.0,
+              "tp": 2250,
+              "fn": 0
+            },
+            "Blocking Internet Connection": {
+              "support": 750,
+              "recall": 1.0,
+              "tp": 750,
+              "fn": 0
+            },
+            "Bringing Down Hosts and Servers (Denial of Service)": {
+              "support": 750,
+              "recall": 1.0,
+              "tp": 750,
+              "fn": 0
+            },
+            "Business Intelligence": {
+              "support": 2250,
+              "recall": 0.996,
+              "tp": 2241,
+              "fn": 9
+            },
+            "Compromising Computers": {
+              "support": 750,
+              "recall": 1.0,
+              "tp": 750,
+              "fn": 0
+            },
+            "Conversational Agent": {
+              "support": 2250,
+              "recall": 0.9946666666666667,
+              "tp": 2238,
+              "fn": 12
+            },
+            "Corrupting an Operating System": {
+              "support": 750,
+              "recall": 1.0,
+              "tp": 750,
+              "fn": 0
+            },
+            "Data Eavesdropping": {
+              "support": 750,
+              "recall": 1.0,
+              "tp": 750,
+              "fn": 0
+            },
+            "Emoji Substitution": {
+              "support": 2250,
+              "recall": 1.0,
+              "tp": 2250,
+              "fn": 0
+            },
+            "Encrypting Documents and Demanding Ransom (Ransomware)": {
+              "support": 750,
+              "recall": 1.0,
+              "tp": 750,
+              "fn": 0
+            },
+            "Entertainment": {
+              "support": 2250,
+              "recall": 1.0,
+              "tp": 2250,
+              "fn": 0
+            },
+            "Information Dissemination": {
+              "support": 2250,
+              "recall": 1.0,
+              "tp": 2250,
+              "fn": 0
+            },
+            "Introduce System Fingerprinting": {
+              "support": 750,
+              "recall": 1.0,
+              "tp": 750,
+              "fn": 0
+            },
+            "Keylogging": {
+              "support": 750,
+              "recall": 1.0,
+              "tp": 750,
+              "fn": 0
+            },
+            "Language Translation": {
+              "support": 2250,
+              "recall": 1.0,
+              "tp": 2250,
+              "fn": 0
+            },
+            "Marketing & Advertising": {
+              "support": 2250,
+              "recall": 1.0,
+              "tp": 2250,
+              "fn": 0
+            },
+            "Misinformation & Propaganda": {
+              "support": 2250,
+              "recall": 1.0,
+              "tp": 2250,
+              "fn": 0
+            },
+            "Research Assistance": {
+              "support": 2250,
+              "recall": 0.9973333333333333,
+              "tp": 2244,
+              "fn": 6
+            },
+            "Reverse Text": {
+              "support": 2250,
+              "recall": 1.0,
+              "tp": 2250,
+              "fn": 0
+            },
+            "Scams & Fraud": {
+              "support": 2250,
+              "recall": 1.0,
+              "tp": 2250,
+              "fn": 0
+            },
+            "Screen Scraping": {
+              "support": 750,
+              "recall": 1.0,
+              "tp": 750,
+              "fn": 0
+            },
+            "Sentiment Analysis": {
+              "support": 2250,
+              "recall": 0.996,
+              "tp": 2241,
+              "fn": 9
+            },
+            "Substitution Ciphers": {
+              "support": 2250,
+              "recall": 1.0,
+              "tp": 2250,
+              "fn": 0
+            },
+            "Task Automation": {
+              "support": 2250,
+              "recall": 0.9973333333333333,
+              "tp": 2244,
+              "fn": 6
+            },
+            "Traffic Analysis": {
+              "support": 750,
+              "recall": 1.0,
+              "tp": 750,
+              "fn": 0
+            },
+            "injection_task_0": {
+              "support": 20,
+              "recall": 0.6,
+              "tp": 12,
+              "fn": 8
+            },
+            "injection_task_1": {
+              "support": 20,
+              "recall": 0.5,
+              "tp": 10,
+              "fn": 10
+            },
+            "injection_task_2": {
+              "support": 20,
+              "recall": 0.6,
+              "tp": 12,
+              "fn": 8
+            },
+            "injection_task_3": {
+              "support": 20,
+              "recall": 0.5,
+              "tp": 10,
+              "fn": 10
+            },
+            "injection_task_4": {
+              "support": 20,
+              "recall": 0.6,
+              "tp": 12,
+              "fn": 8
+            },
+            "injection_task_5": {
+              "support": 20,
+              "recall": 0.6,
+              "tp": 12,
+              "fn": 8
+            },
+            "injection_task_6": {
+              "support": 20,
+              "recall": 0.55,
+              "tp": 11,
+              "fn": 9
+            },
+            "prompt_extraction": {
+              "support": 570,
+              "recall": 0.9192982456140351,
+              "tp": 524,
+              "fn": 46
+            }
+          },
+          "recall_by_attack_category": {
+            "agent_injection": {
+              "support": 140,
+              "recall": 0.5642857142857143,
+              "tp": 79,
+              "fn": 61
+            },
+            "code": {
+              "support": 7500,
+              "recall": 1.0,
+              "tp": 7500,
+              "fn": 0
+            },
+            "prompt_extraction": {
+              "support": 570,
+              "recall": 0.9192982456140351,
+              "tp": 524,
+              "fn": 46
+            },
+            "targeted": {
+              "support": 11250,
+              "recall": 1.0,
+              "tp": 11250,
+              "fn": 0
+            },
+            "task_irrelevant": {
+              "support": 11250,
+              "recall": 0.9962666666666666,
+              "tp": 11208,
+              "fn": 42
+            },
+            "task_relevant": {
+              "support": 11250,
+              "recall": 1.0,
+              "tp": 11250,
+              "fn": 0
+            }
+          },
+          "recall_by_source": {
+            "agentdojo": {
+              "support": 140,
+              "recall": 0.5642857142857143,
+              "tp": 79,
+              "fn": 61
+            },
+            "bipia": {
+              "support": 41250,
+              "recall": 0.9989818181818182,
+              "tp": 41208,
+              "fn": 42
+            },
+            "tensortrust": {
+              "support": 570,
+              "recall": 0.9192982456140351,
+              "tp": 524,
+              "fn": 46
+            }
+          },
+          "recall_by_position": {
+            "end": {
+              "support": 13750,
+              "recall": 0.9989818181818182,
+              "tp": 13736,
+              "fn": 14
+            },
+            "middle": {
+              "support": 13750,
+              "recall": 0.9989818181818182,
+              "tp": 13736,
+              "fn": 14
+            },
+            "start": {
+              "support": 13750,
+              "recall": 0.9989818181818182,
+              "tp": 13736,
+              "fn": 14
+            },
+            "tool_output": {
+              "support": 140,
+              "recall": 0.5642857142857143,
+              "tp": 79,
+              "fn": 61
+            },
+            "user_message": {
+              "support": 570,
+              "recall": 0.9192982456140351,
+              "tp": 524,
+              "fn": 46
+            }
+          },
+          "recall_by_document_source": {
+            "code": {
+              "support": 7500,
+              "recall": 1.0,
+              "tp": 7500,
+              "fn": 0
+            },
+            "email": {
+              "support": 11250,
+              "recall": 1.0,
+              "tp": 11250,
+              "fn": 0
+            },
+            "table": {
+              "support": 22500,
+              "recall": 0.9981333333333333,
+              "tp": 22458,
+              "fn": 42
+            },
+            "tensortrust": {
+              "support": 570,
+              "recall": 0.9192982456140351,
+              "tp": 524,
+              "fn": 46
+            },
+            "travel": {
+              "support": 140,
+              "recall": 0.5642857142857143,
+              "tp": 79,
+              "fn": 61
+            }
+          },
+          "rows": 42999
+        }
+      }
+    },
+    "deberta": null
+  }
+}

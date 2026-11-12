@@ -1,8 +1,15 @@
-"""Evaluation metrics for token-level injection detection and span redaction."""
+"""Evaluation metrics for token-level injection detection, span redaction, and detector evaluation."""
 
-from typing import Dict, List, Tuple, Any
+from __future__ import annotations
+
+from collections import defaultdict
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 import numpy as np
 
+
+# ==============================================================================
+# Token & Span Level Metrics (P4 Token Head & Redaction)
+# ==============================================================================
 
 def compute_token_metrics(
     flat_preds: List[int],
@@ -147,3 +154,105 @@ def compute_redaction_quality(
         "document_retained": round(retained_ratio, 4)
     }
 
+
+# ==============================================================================
+# Document & Detector Level Metrics (P1 Baseline Evaluation)
+# ==============================================================================
+
+def binary_counts(labels: Iterable[int], predictions: Iterable[int]) -> dict[str, int]:
+    counts = {"tp": 0, "fp": 0, "tn": 0, "fn": 0}
+    for label, prediction in zip(labels, predictions, strict=True):
+        if label not in (0, 1) or prediction not in (0, 1):
+            raise ValueError("labels and predictions must be 0 or 1")
+        if label == 1 and prediction == 1:
+            counts["tp"] += 1
+        elif label == 0 and prediction == 1:
+            counts["fp"] += 1
+        elif label == 0 and prediction == 0:
+            counts["tn"] += 1
+        else:
+            counts["fn"] += 1
+    return counts
+
+
+def _rate(numerator: int, denominator: int) -> float | None:
+    if denominator == 0:
+        return None
+    return numerator / denominator
+
+
+def summarize(labels: list[int], predictions: list[int]) -> dict[str, float | int | None]:
+    counts = binary_counts(labels, predictions)
+    return {
+        **counts,
+        "support": len(labels),
+        "positives": counts["tp"] + counts["fn"],
+        "negatives": counts["tn"] + counts["fp"],
+        "recall": _rate(counts["tp"], counts["tp"] + counts["fn"]),
+        "fpr": _rate(counts["fp"], counts["fp"] + counts["tn"]),
+        "precision": _rate(counts["tp"], counts["tp"] + counts["fp"]),
+    }
+
+
+def negative_fpr(rows: list[dict], predictions: list[int], predicate) -> dict[str, float | int | None]:
+    chosen_labels: list[int] = []
+    chosen_predictions: list[int] = []
+    for row, prediction in zip(rows, predictions, strict=True):
+        if int(row["label"]) != 0 or not predicate(row):
+            continue
+        chosen_labels.append(0)
+        chosen_predictions.append(int(prediction))
+    if not chosen_labels:
+        return {"fpr": None, "support": 0, "fp": 0, "tn": 0}
+    summary = summarize(chosen_labels, chosen_predictions)
+    return {
+        "fpr": summary["fpr"],
+        "support": summary["negatives"],
+        "fp": summary["fp"],
+        "tn": summary["tn"],
+    }
+
+
+def hard_negative_fpr_by_source(rows: list[dict], predictions: list[int]) -> dict[str, dict]:
+    names = sorted(
+        {
+            str(row["document_source"])
+            for row in rows
+            if int(row["label"]) == 0 and row.get("attack_category") == "hard_negative"
+        }
+    )
+    return {
+        name: negative_fpr(
+            rows,
+            predictions,
+            lambda row, source=name: row.get("attack_category") == "hard_negative"
+            and str(row.get("document_source")) == source,
+        )
+        for name in names
+    }
+
+
+def grouped_recall(
+    rows: list[dict],
+    predictions: list[int],
+    key: str,
+) -> dict[str, dict]:
+    buckets: dict[str, list[tuple[int, int]]] = defaultdict(list)
+    for row, prediction in zip(rows, predictions, strict=True):
+        if row["label"] != 1:
+            continue
+        group = row.get(key)
+        name = "none" if group is None else str(group)
+        buckets[name].append((1, prediction))
+    report = {}
+    for name in sorted(buckets):
+        labels = [item[0] for item in buckets[name]]
+        preds = [item[1] for item in buckets[name]]
+        summary = summarize(labels, preds)
+        report[name] = {
+            "support": summary["positives"],
+            "recall": summary["recall"],
+            "tp": summary["tp"],
+            "fn": summary["fn"],
+        }
+    return report

@@ -31,6 +31,18 @@ from ..redaction.redact import redact, expand_spans_to_sentences, BLOCKED_SENTIN
 from .metrics import compute_token_metrics, compute_span_f1, compute_redaction_quality
 
 
+def extract_spans_from_record(rec: Dict[str, Any]) -> List[Tuple[int, int]]:
+    """Extract (start, end) tuples from record supporting both Schema 1.1 dicts and lists."""
+    raw_spans = rec.get("injection_span") or []
+    spans = []
+    for s in raw_spans:
+        if isinstance(s, dict):
+            spans.append((int(s["start"]), int(s["end"])))
+        elif isinstance(s, (list, tuple)):
+            spans.append((int(s[0]), int(s[1])))
+    return spans
+
+
 def predict_document_windows(
     model: SudarshanaTokenClassifier,
     tokenizer: Any,
@@ -175,7 +187,7 @@ def evaluate_checkpoint(
 
     for rec in test_records:
         doc = rec["document"]
-        golds = [tuple(s) for s in rec.get("injection_span", [])]
+        golds = extract_spans_from_record(rec)
         domain = rec.get("domain", "text")
         pos = rec.get("position", "none")
         atk_type = rec.get("attack_type", "benign")
@@ -271,7 +283,7 @@ def evaluate_baselines(test_records: List[Dict[str, Any]]) -> Dict[str, Any]:
 
     for rec in test_records:
         doc = rec["document"]
-        golds = [tuple(s) for s in rec.get("injection_span", [])]
+        golds = extract_spans_from_record(rec)
         atk_type = rec.get("attack_type", "benign")
 
         preds = heuristic_baseline_predict(doc)

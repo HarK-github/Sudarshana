@@ -32,7 +32,13 @@ class PromptInjectionDataset(Dataset):
 
         for rec_idx, rec in enumerate(records):
             doc = rec["document"]
-            spans = [tuple(s) for s in rec.get("injection_span", [])]
+            raw_spans = rec.get("injection_span") or []
+            spans = []
+            for s in raw_spans:
+                if isinstance(s, dict):
+                    spans.append((int(s["start"]), int(s["end"])))
+                elif isinstance(s, (list, tuple)):
+                    spans.append((int(s[0]), int(s[1])))
             user_task = rec.get("user_task", "") if include_user_task else None
 
             doc_windows = tokenize_and_align_document(
@@ -63,25 +69,34 @@ class PromptInjectionDataset(Dataset):
 
 def load_dataset_split(
     split_name: str,
-    p1_dir: str = "data/p1_splits",
+    p1_dirs: Optional[List[str]] = None,
     fallback_dir: str = "data/splits"
 ) -> Tuple[List[Dict[str, Any]], str]:
     """
     Load split file with P1 fallback resolution.
     Returns (records, source_path).
     """
-    filename = f"{split_name}.jsonl"
-    p1_path = os.path.join(p1_dir, filename)
-    fallback_path = os.path.join(fallback_dir, filename)
+    if p1_dirs is None:
+        p1_dirs = ["data/processed", "data/p1_splits"]
 
-    if os.path.exists(p1_path):
-        active_path = p1_path
-        source = "P1 authoritative split"
-    elif os.path.exists(fallback_path):
-        active_path = fallback_path
-        source = "Prototype fallback split (schema-matching)"
-    else:
-        raise FileNotFoundError(f"Neither P1 split ({p1_path}) nor fallback ({fallback_path}) found.")
+    filename = f"{split_name}.jsonl"
+    active_path = None
+    source = None
+
+    for p1_dir in p1_dirs:
+        p1_path = os.path.join(p1_dir, filename)
+        if os.path.exists(p1_path):
+            active_path = p1_path
+            source = f"P1 authoritative split ({p1_dir})"
+            break
+
+    if active_path is None:
+        fallback_path = os.path.join(fallback_dir, filename)
+        if os.path.exists(fallback_path):
+            active_path = fallback_path
+            source = "Prototype fallback split (schema-matching)"
+        else:
+            raise FileNotFoundError(f"Neither P1 split nor fallback ({fallback_path}) found.")
 
     records = []
     with open(active_path, "r", encoding="utf-8") as f:

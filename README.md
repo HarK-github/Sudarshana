@@ -187,6 +187,9 @@ pip install -r requirements.txt
 # 3. Build the unified dataset and split
 python -m sudarshana.data.build --config configs/data.yaml
 
+# 3b. Day-1 baseline (document only, truncated at 512 tokens)
+python -m sudarshana.evaluation.baseline --config configs/baseline.yaml
+
 # 4. Train (pair input, joint heads)
 python -m sudarshana.training.train --config configs/train.yaml
 
