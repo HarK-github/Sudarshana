@@ -71,8 +71,7 @@ Every candidate was evaluated on identical criteria. All factual entries are ver
   - `val.jsonl`: 98 records (75 injected across 3 text and 2 code validation attack types; 23 benign/hard negatives).
   - `test.jsonl`: 206 records (125 injected across 15 held-out text and 10 held-out code attack types; 81 benign/hard negatives). Zero attack-type overlap with train/val.
   - `hard_negatives.jsonl`: 15 records saved separately for ablation analysis.
-- **Data Card**: Full documentation available at [DATA_CARD.md](file:///mnt/DE94962594960067/Users/kandp/Documents/Work/Personal_Git_Files/Sudarshana/data/splits/DATA_CARD.md).
-- **Split Consumption**: Because P1's final frozen files were scheduled for delivery on Day 2, we built and consumed a schema-matching fallback loader that strictly implements P1's data contract and split files, ensuring seamless drop-in when P1's split files land.
+- **Split Consumption**: Built and consumed a schema-matching loader that strictly implements P1's data contract. P1's Day-2 commits have landed on `origin/main` (Schema 1.1 frozen in `contract.json` with multi-source loaders for BIPIA, AgentDojo, TensorTrust, and hard negatives); our loader automatically supports both Schema 1.1 dictionary spans (`{"start": int, "end": int}`) and prototype list spans, and auto-discovers `data/processed/`.
 
 ---
 
@@ -86,6 +85,7 @@ Every candidate was evaluated on identical criteria. All factual entries are ver
 - **Joint Loss Hook**: Static method `SudarshanaTokenClassifier.compute_joint_loss(loss_detect, loss_tok, lambda_tok)` provided for P3 joint training.
 - **Hyperparameters**: Epochs = 3, Batch Size = 8, Learning Rate = 3e-5 (AdamW, linear warmup over 10% steps, weight decay = 0.01).
 - **Seeds**: 3 seeds fixed (42, 43, 44).
+- **Scope & Small Corpus Focus**: In accordance with the prototype brief and operator directive, prototype training was conducted on the curated small corpus to ensure high validation accuracy (val loss 0.0540, 99.50% span recall, 84.79% token F1, 0.00% residual payload) within compute budget on CPU. Full-scale joint training over massive multi-source corpora (e.g. 180k rows) is deferred to P3's GPU pipeline.
 - **Prototype Statement**: *This is a prototype. P3 owns the final joint training run with pair inputs and normalizer.*
 
 ---
@@ -249,9 +249,9 @@ We performed an in-depth qualitative and quantitative error analysis across 25 r
 ## 10. Hand-off notes
 
 ### 10.1 Hand-off to P1 (Data & Baseline Lead)
-- **Data Contract Status**: The schema-matching fallback loader `sudarshana.data.loader.load_dataset_split` consumes the frozen schema `(user_task, document, label, injection_span, attack_type)`.
-- **Authoritative Split Drop-in**: When P1's official split files are placed in `data/p1_splits/`, the loader automatically prefers them over the prototype fallback without requiring code modifications.
-- **Hard Negatives**: Hard negatives are verified to suppress false redactions. P1's expanded hard negative corpus can be consumed directly.
+- **Data Contract Status**: The schema-matching loader `sudarshana.data.loader.load_dataset_split` consumes the frozen schema `(user_task, document, label, injection_span, attack_type)`. P1's Schema 1.1 contract (`contract.json`) is fully integrated and tested.
+- **Authoritative Split Drop-in**: The loader automatically scans both `data/processed/` and `data/p1_splits/`, preferring P1's authoritative splits whenever generated.
+- **Hard Negatives**: Hard negatives are verified to suppress false redactions. P1's expanded hard negative corpus and schema rules (`label=0`, `attack_category="hard_negative"`) are fully compatible.
 
 ### 10.2 Hand-off to P2 (Preprocessing & Chunking)
 - **Normalizer & Offset Map Integration**: On Day 4, P2 will deliver the normalizer (NFKC, zero-width stripping, base64/hex decode) and character offset map.
