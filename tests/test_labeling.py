@@ -1,17 +1,18 @@
 """Unit tests for token labeling, special token masking, subword continuation rules, and windowing."""
 
 import json
-import os
-import random
+
 import pytest
 from transformers import AutoTokenizer
 
 from sudarshana.data.labeling import (
-    align_spans_to_token_labels,
-    tokenize_and_align_document,
     LABEL2ID,
-    PAD_LABEL_ID
+    PAD_LABEL_ID,
+    align_spans_to_token_labels,
+    coerce_spans,
+    tokenize_and_align_document,
 )
+from tests.support import build_fixture_corpus
 
 
 @pytest.fixture(scope="module")
@@ -67,31 +68,35 @@ def test_injection_token_labels(tokenizer):
             assert s >= span[0] and s < span[1], f"Injected label assigned outside injection span: offset ({s}, {e}) vs span {span}"
 
 
-def test_token_label_alignment_on_50_samples(tokenizer):
-    """Verify token alignment lines up on >=50 sampled examples from train/test datasets."""
-    with open("data/splits/test.jsonl", "r", encoding="utf-8") as f:
-        records = [json.loads(line) for line in f if json.loads(line)["label"] == 1]
+def test_token_label_alignment_on_fixture_split(tokenizer, tmp_path):
+    """Positive fixture rows yield a supervised injection token inside the gold span."""
+    processed = build_fixture_corpus(tmp_path)
+    records = []
+    for line in (processed / "test.jsonl").read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        row = json.loads(line)
+        if row["label"] == 1:
+            records.append(row)
+    assert records, "fixture test split has no positive rows"
 
-    assert len(records) >= 50, "Need at least 50 samples"
-    samples = random.sample(records, 50)
-
-    for rec in samples:
+    for rec in records:
         doc = rec["document"]
-        spans = [tuple(s) for s in rec["injection_span"]]
+        spans = coerce_spans(rec["injection_span"])
         windows = tokenize_and_align_document(doc, spans, tokenizer, max_length=256, stride=64)
-        assert len(windows) >= 1, "Must produce at least one window"
+        assert windows, "Must produce at least one window"
 
         found_injection_token = False
-        for w in windows:
-            assert len(w["input_ids"]) == 256
-            assert len(w["labels"]) == 256
-            for idx, lbl in enumerate(w["labels"]):
-                if lbl in (LABEL2ID["B-INJ"], LABEL2ID["I-INJ"]):
-                    found_injection_token = True
-                    s, e = w["offset_mapping"][idx]
-                    # Token must overlap with one of the spans
-                    overlap = any(s >= sp_s and s < sp_e for sp_s, sp_e in spans)
-                    assert overlap, f"Labeled injection token at ({s}, {e}) does not overlap with any span {spans}"
-
-        assert found_injection_token, f"Sample with spans {spans} had zero injection tokens detected across windows"
+        for window in windows:
+            assert len(window["input_ids"]) == 256
+            assert len(window["labels"]) == 256
+            for idx, label in enumerate(window["labels"]):
+                if label not in (LABEL2ID["B-INJ"], LABEL2ID["I-INJ"]):
+                    continue
+                found_injection_token = True
+                start, _end = window["offset_mapping"][idx]
+                assert any(span_start <= start < span_end for span_start, span_end in spans), (
+                    f"Labeled injection token at {start} is outside {spans}"
+                )
+        assert found_injection_token, f"{rec['id']} produced no injection token"
 
