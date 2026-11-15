@@ -9,8 +9,13 @@ Enforces rules:
 """
 
 from typing import Any, Dict, List, Optional, Tuple
-import torch
-from transformers import PreTrainedTokenizerFast
+
+try:
+    import torch
+    from transformers import PreTrainedTokenizerFast
+except ImportError:
+    torch = None  # type: ignore[assignment]
+    PreTrainedTokenizerFast = None  # type: ignore[assignment,misc]
 
 LABEL2ID = {"O": 0, "B-INJ": 1, "I-INJ": 2}
 ID2LABEL = {0: "O", 1: "B-INJ", 2: "I-INJ"}

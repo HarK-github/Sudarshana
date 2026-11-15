@@ -9,9 +9,19 @@ Features:
 """
 
 from typing import Optional, Tuple, Dict, Any
-import torch
-import torch.nn as nn
-from transformers import AutoModel, AutoConfig, PreTrainedModel
+
+try:
+    import torch
+    import torch.nn as nn
+    from transformers import AutoModel, AutoConfig, PreTrainedModel
+    _TORCH_AVAILABLE = True
+except ImportError:  # pragma: no cover
+    torch = None          # type: ignore[assignment]
+    nn = None             # type: ignore[assignment]
+    AutoModel = None      # type: ignore[assignment]
+    AutoConfig = None     # type: ignore[assignment]
+    PreTrainedModel = object  # type: ignore[assignment,misc]
+    _TORCH_AVAILABLE = False
 
 
 class TokenClassificationHead(nn.Module):
