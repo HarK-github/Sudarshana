@@ -1,0 +1,27 @@
+"""P3 config — joint pair-input training."""
+
+backbone: microsoft/deberta-v3-xsmall
+mode: pair          # pair | chunk_only
+augment: true
+epochs: 3
+learning_rate: 2.0e-5
+batch_size: 8
+lambda_tok: 1.0
+seed: 42
+max_length: 256
+stride: 64
+output_dir: checkpoints/joint-pair-deberta-v3-xsmall
+
+ablation:
+  seeds: [42, 43, 44]
+  conditions:
+    - name: chunk_only
+      mode: chunk_only
+      augment: false
+    - name: pair
+      mode: pair
+      augment: false
+    - name: pair_aug
+      mode: pair
+      augment: true
+  output_dir: ablation_results
