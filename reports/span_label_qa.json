@@ -1,0 +1,117 @@
+{
+  "processed_dir": "data/processed",
+  "tuning_split": "data/processed/val.jsonl",
+  "prototype_val_split": "data/splits/val.jsonl",
+  "hard_failures": 0,
+  "warnings": 1,
+  "failures": [],
+  "failures_truncated": false,
+  "warning_details": [
+    {
+      "severity": "warning",
+      "check": "bipia_context_overlap",
+      "id": "",
+      "source": "",
+      "detail": "1000 BIPIA document groups are in both train and val (bipia:code:train:0, bipia:code:train:1, bipia:code:train:10, bipia:code:train:11, bipia:code:train:12, bipia:code:train:13, bipia:code:train:14, bipia:code:train:15, bipia:code:train:16, bipia:code:train:17, bipia:code:train:18, bipia:code:train:19, bipia:code:train:2, bipia:code:train:20, bipia:code:train:21, bipia:code:train:22, bipia:code:train:23, bipia:code:train:24, bipia:code:train:25, bipia:code:train:26)"
+    }
+  ],
+  "warnings_truncated": false,
+  "aligned_rows": {
+    "val": 60639,
+    "train_sample": 500
+  },
+  "full_inventory": true,
+  "attack_type_id_disjoint": true,
+  "val_bipia_attack_names": [
+    "Cryptocurrency Mining",
+    "Device and Driver Enumeration",
+    "Malware Distribution",
+    "Programming Help",
+    "Space Removal & Grouping"
+  ],
+  "bipia_document_group_overlap_train_val": 1000,
+  "counts": {
+    "train": {
+      "rows": 244107,
+      "positives": 178262,
+      "negatives": 65845,
+      "by_source": {
+        "bipia": 240800,
+        "agentdojo": 1278,
+        "tensortrust": 1979,
+        "hard_negative": 50
+      }
+    },
+    "val": {
+      "rows": 60639,
+      "positives": 44406,
+      "negatives": 16233,
+      "by_source": {
+        "bipia": 60200,
+        "agentdojo": 83,
+        "tensortrust": 348,
+        "hard_negative": 8
+      }
+    },
+    "test": {
+      "rows": 62859,
+      "positives": 41960,
+      "negatives": 20899,
+      "by_source": {
+        "bipia": 60200,
+        "agentdojo": 300,
+        "tensortrust": 1559,
+        "hard_negative": 800
+      }
+    }
+  },
+  "val_attack_types_by_source": {
+    "agentdojo": {
+      "injection_task_0": 40
+    },
+    "bipia": {
+      "Programming Help": 14250,
+      "Space Removal & Grouping": 14250,
+      "Malware Distribution": 14250,
+      "Device and Driver Enumeration": 750,
+      "Cryptocurrency Mining": 750
+    },
+    "tensortrust": {
+      "prompt_hijack": 116
+    }
+  },
+  "span_stats_val": {
+    "positive_rows": 44406,
+    "spans": 44412,
+    "multi_span_rows": 6,
+    "multi_span_rate": 0.0001,
+    "length_mean": 74.4,
+    "length_median": 63.0,
+    "length_min": 18,
+    "length_max": 2477,
+    "by_position": {
+      "end": 14750,
+      "start": 14750,
+      "middle": 14750,
+      "tool_output": 40,
+      "user_message": 116
+    },
+    "by_modality": {
+      "text": 42906,
+      "code": 1500
+    }
+  },
+  "token_coverage_val": {
+    "macro": 0.8334,
+    "text": 0.8466,
+    "code": 0.4567,
+    "positive_rows": 44406,
+    "text_rows": 42906,
+    "code_rows": 1500
+  },
+  "counterfactuals_excluded_from_token_loss": {
+    "train": 64262,
+    "val": 15906,
+    "test": 19460
+  }
+}

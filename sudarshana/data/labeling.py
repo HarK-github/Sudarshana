@@ -17,6 +17,23 @@ ID2LABEL = {0: "O", 1: "B-INJ", 2: "I-INJ"}
 PAD_LABEL_ID = -100
 
 
+def coerce_spans(raw: Any) -> list[tuple[int, int]]:
+    """Normalize schema 1.1 dict spans and prototype ``[start, end]`` pairs."""
+    if raw is None:
+        return []
+    if isinstance(raw, dict):
+        raw = [raw]
+    spans: list[tuple[int, int]] = []
+    for item in raw:
+        if isinstance(item, dict):
+            spans.append((int(item["start"]), int(item["end"])))
+        elif isinstance(item, (list, tuple)) and len(item) == 2:
+            spans.append((int(item[0]), int(item[1])))
+        else:
+            raise TypeError("span must be {start, end} or [start, end]")
+    return spans
+
+
 def build_model_input(
     document: str,
     user_task: Optional[str] = None
@@ -33,25 +50,35 @@ def build_model_input(
     return document
 
 
+def _span_index_at(spans: List[Tuple[int, int]], char_start: int) -> Optional[int]:
+    for index, (span_start, span_end) in enumerate(spans):
+        if span_start <= char_start < span_end:
+            return index
+    return None
+
+
 def align_spans_to_token_labels(
     offset_mapping: List[Tuple[int, int]],
     word_ids: List[Optional[int]],
-    spans: List[Tuple[int, int]]
+    spans: List[Tuple[int, int]],
+    text: Optional[str] = None,
 ) -> List[int]:
     """
     Convert character offsets to token-level BIO labels.
-    
-    Args:
-        offset_mapping: List of (char_start, char_end) for each token.
-        word_ids: List of word index for each token (None for special tokens).
-        spans: List of (start_char, end_char) in the original text.
-        
-    Returns:
-        List of integer labels of same length as offset_mapping.
+
+    A word-initial token is positive when its start offset lies inside a span.
+    The first such word of a span is B-INJ and later words are I-INJ.
+    Specials and subword continuations are -100.
+
+    When ``text`` is provided, a word-initial token that starts on whitespace
+    immediately before a span and then enters that span is B-INJ if the span
+    would otherwise have no word-initial token. SentencePiece does this for a
+    payload glued to the preceding newline with no spaces inside it.
     """
-    labels = []
+    labels: List[int] = []
     prev_word_id = None
     in_injection = False
+    word_initial: List[int] = []
 
     for idx, (char_start, char_end) in enumerate(offset_mapping):
         word_id = word_ids[idx]
@@ -67,17 +94,15 @@ def align_spans_to_token_labels(
             continue
 
         prev_word_id = word_id
+        word_initial.append(idx)
 
-        # Check if the token falls within any injection span
-        # Token is considered inside if its start offset is >= span start and < span end
+        # Token is inside a span when its start offset falls in [span_start, span_end).
         is_token_injected = False
         is_span_start = False
 
         for span_start, span_end in spans:
-            # Token overlaps with span
             if char_start >= span_start and char_start < span_end:
                 is_token_injected = True
-                # Check if this token is near the beginning of the span
                 if not in_injection or char_start == span_start:
                     is_span_start = True
                 break
@@ -91,6 +116,26 @@ def align_spans_to_token_labels(
         else:
             labels.append(LABEL2ID["O"])
             in_injection = False
+
+    if text is None:
+        return labels
+
+    covered = {
+        span_index
+        for idx in word_initial
+        if (span_index := _span_index_at(spans, offset_mapping[idx][0])) is not None
+        and labels[idx] in (LABEL2ID["B-INJ"], LABEL2ID["I-INJ"])
+    }
+    for span_index, (span_start, span_end) in enumerate(spans):
+        if span_index in covered:
+            continue
+        for idx in word_initial:
+            char_start, char_end = offset_mapping[idx]
+            if not (char_start < span_start < char_end) or labels[idx] != LABEL2ID["O"]:
+                continue
+            if text[char_start:span_start].strip() == "":
+                labels[idx] = LABEL2ID["B-INJ"]
+                break
 
     return labels
 
@@ -131,7 +176,9 @@ def tokenize_and_align_document(
     all_word_ids = full_enc.word_ids()
 
     # Align labels for the full document
-    all_labels = align_spans_to_token_labels(all_offsets, all_word_ids, spans)
+    all_labels = align_spans_to_token_labels(
+        all_offsets, all_word_ids, spans, text=text_to_tokenize
+    )
 
     step = max_length - stride  # 192 tokens step
     windows = []

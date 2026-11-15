@@ -1,3 +1,5 @@
+> Prototype corpus used by the token-head prototype. Tuning reads `data/processed/val.jsonl`.
+
 # Sudarshana Unified Dataset Card
 
 ## 1. Overview and Ownership
