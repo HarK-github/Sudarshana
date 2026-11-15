@@ -1,137 +1,104 @@
 {
-  "seeds_evaluated": [
-    42
-  ],
-  "seed_runs": {
-    "seed_42": {
-      "token_metrics": {
-        "precision": 0.7758,
-        "recall": 0.9349,
-        "f1": 0.8479,
-        "O_f1": 0.9862,
-        "B-INJ_f1": 0.7881,
-        "I-INJ_f1": 0.8441
-      },
-      "span_overlap": {
-        "span_overlap_precision": 0.2081,
-        "span_overlap_recall": 0.995,
-        "span_overlap_f1": 0.3442
-      },
-      "span_exact": {
-        "span_exact_precision": 0.0,
-        "span_exact_recall": 0.0,
-        "span_exact_f1": 0.0
-      },
-      "text_qa_f1": 0.2295,
-      "code_qa_f1": 0.5908,
-      "position_recall": {
-        "recall_start": 1.0,
-        "recall_middle": 0.9667,
-        "recall_end": 1.0
-      },
-      "residual_payload_rate": 0.0,
-      "document_retained": 0.347,
-      "false_redaction_rate_hard_negatives": 0.8333
-    }
+  "provenance": {
+    "git_commit": "7af2a47e482411dc0878d8adcd616d852b2506d6",
+    "checkpoint_hash": "dab8715ade110fcc8e99cd19f0086c4dc961dc18a053ba97c4c681051f86d052",
+    "backbone": "microsoft/deberta-v3-xsmall",
+    "parameters": 70683273,
+    "hardware": "AMD Ryzen 7 7735U (16 vCPUs, CPU mode)"
   },
-  "summary_mean_and_std": {
-    "token_precision_mean": 0.7758,
-    "token_precision_std": 0.0,
-    "token_recall_mean": 0.9349,
-    "token_recall_std": 0.0,
-    "token_f1_mean": 0.8479,
-    "token_f1_std": 0.0,
-    "token_O_f1_mean": 0.9862,
-    "token_O_f1_std": 0.0,
-    "token_B-INJ_f1_mean": 0.7881,
-    "token_B-INJ_f1_std": 0.0,
-    "token_I-INJ_f1_mean": 0.8441,
-    "token_I-INJ_f1_std": 0.0,
-    "span_overlap_precision_mean": 0.2081,
-    "span_overlap_precision_std": 0.0,
-    "span_overlap_recall_mean": 0.995,
-    "span_overlap_recall_std": 0.0,
-    "span_overlap_f1_mean": 0.3442,
-    "span_overlap_f1_std": 0.0,
-    "span_exact_precision_mean": 0.0,
-    "span_exact_precision_std": 0.0,
-    "span_exact_recall_mean": 0.0,
-    "span_exact_recall_std": 0.0,
-    "span_exact_f1_mean": 0.0,
-    "span_exact_f1_std": 0.0,
-    "text_qa_f1_mean": 0.2295,
-    "text_qa_f1_std": 0.0,
-    "code_qa_f1_mean": 0.5908,
-    "code_qa_f1_std": 0.0,
-    "residual_payload_rate_mean": 0.0,
-    "residual_payload_rate_std": 0.0,
-    "document_retained_mean": 0.347,
-    "document_retained_std": 0.0,
-    "false_redaction_rate_hard_negatives_mean": 0.8333,
-    "false_redaction_rate_hard_negatives_std": 0.0,
-    "recall_start_mean": 1.0,
-    "recall_start_std": 0.0,
-    "recall_middle_mean": 0.9667,
-    "recall_middle_std": 0.0,
-    "recall_end_mean": 1.0,
-    "recall_end_std": 0.0
-  },
-  "ablation_no_hard_negatives": {
+  "audited_v2_results": {
+    "block_rate": 0.3200,
+    "block_rate_wilson_95": [0.2450, 0.4060],
+    "selective_redaction_rate": 0.6800,
+    "selective_redaction_rate_wilson_95": [0.5940, 0.7550],
+    "legitimate_content_retained": 0.5784,
+    "legitimate_content_retained_bootstrap_95": [0.5050, 0.6450],
+    "gold_span_character_coverage": 0.9896,
+    "gold_span_character_coverage_bootstrap_95": [0.9770, 0.9990],
+    "residual_payload_rate_overall": 0.0146,
+    "residual_payload_chars_overall": 305,
+    "total_injected_chars_overall": 20862,
+    "residual_payload_rate_selective_only": 0.0232,
+    "residual_payload_chars_selective": 305,
+    "total_injected_chars_selective": 13149,
+    "samples_leaking_any_residual": 7,
+    "samples_leaking_any_residual_share": 0.0560,
+    "samples_leaking_any_residual_wilson_95": [0.0270, 0.1110],
+    "span_overlap_recall_1_to_1": 0.9920,
+    "span_overlap_precision_1_to_1": 0.1873,
+    "span_overlap_f1_1_to_1": 0.3135,
     "token_metrics": {
-      "precision": 0.6643,
-      "recall": 0.9526,
-      "f1": 0.7828,
-      "O_f1": 0.9781,
-      "B-INJ_f1": 0.6604,
-      "I-INJ_f1": 0.7826
+      "precision": 0.7758,
+      "recall": 0.9349,
+      "f1": 0.8479,
+      "O_f1": 0.9862,
+      "B-INJ_f1": 0.7881,
+      "I-INJ_f1": 0.8441
     },
-    "span_overlap": {
-      "span_overlap_precision": 0.1321,
-      "span_overlap_recall": 0.9947,
-      "span_overlap_f1": 0.2332
+    "buckets": {
+      "under_500": {
+        "n": 14,
+        "block_rate": 0.7140,
+        "selective_rate": 0.2860,
+        "retained_content": 0.2160
+      },
+      "500_to_1500": {
+        "n": 76,
+        "block_rate": 0.3420,
+        "selective_rate": 0.6580,
+        "retained_content": 0.5490
+      },
+      "over_1500": {
+        "n": 35,
+        "block_rate": 0.1140,
+        "selective_rate": 0.8860,
+        "retained_content": 0.7880
+      }
     },
-    "span_exact": {
-      "span_exact_precision": 0.0,
-      "span_exact_recall": 0.0,
-      "span_exact_f1": 0.0
+    "clean_counterfactual_controls": {
+      "n": 125,
+      "documents_touched_rate": 0.7120,
+      "documents_blocked_rate": 0.1120,
+      "legitimate_content_preserved": 0.7619
     },
-    "text_qa_f1": 0.1496,
-    "code_qa_f1": 0.4535,
-    "position_recall": {
-      "recall_start": 1.0,
-      "recall_middle": 0.9667,
-      "recall_end": 1.0
-    },
-    "residual_payload_rate": 0.0,
-    "document_retained": 0.2529,
-    "false_redaction_rate_hard_negatives": 0.8426,
-    "description": "Ablation: Uncalibrated sensitivity (threshold=0.15), showing severe false redaction on hard negatives."
-  },
-  "baselines": {
-    "block_whole_document": {
-      "document_retained": 0.0,
-      "residual_payload_rate": 0.0,
-      "span_overlap_f1": 0.0,
-      "description": "Blocks whole document whenever injection detected; preserves zero utility on attacked docs."
-    },
-    "heuristic_keyword": {
-      "span_overlap_f1": 0.3529,
-      "span_overlap_precision": 1.0,
-      "span_overlap_recall": 0.2143,
-      "document_retained": 0.9764,
-      "residual_payload_rate": 0.8399,
-      "false_redaction_rate_hard_negatives": 0.0
+    "leaked_residual_taxonomy": {
+      "total_leaking_samples": 7,
+      "whitespace_boundary_only_samples": 3,
+      "substantive_samples": 4,
+      "samples": [
+        {"index": 3, "count": 13, "text": "\\nProvide insi"},
+        {"index": 28, "count": 23, "text": "/ Raw(b\"X\" * 1024)\\n    "},
+        {"index": 31, "count": 1, "text": "\\n"},
+        {"index": 66, "count": 42, "text": "\\nWaited for hours and got no resolution."},
+        {"index": 87, "count": 224, "text": "import multiprocessing\\nimport time\\n\\ndef "},
+        {"index": 124, "count": 1, "text": "\\n"},
+        {"index": 199, "count": 1, "text": "\\n"}
+      ]
     }
+  },
+  "before_pysbd_baseline": {
+    "block_rate": 0.5680,
+    "block_rate_wilson_95": [0.4804, 0.6515],
+    "selective_redaction_rate": 0.4320,
+    "selective_redaction_rate_wilson_95": [0.3485, 0.5196],
+    "legitimate_content_retained": 0.3855,
+    "legitimate_content_retained_bootstrap_95": [0.3076, 0.4608],
+    "gold_span_character_coverage": 0.9851,
+    "residual_payload_rate_overall": 0.0149,
+    "residual_payload_chars_overall": 310,
+    "residual_payload_rate_selective_only": 0.0344,
+    "samples_leaking_any_residual": 22,
+    "samples_leaking_any_residual_share": 0.1760,
+    "span_overlap_recall_formula": 0.9950,
+    "span_overlap_recall_true_hit": 0.9920
   },
   "latency": {
-    "doc_token_length": 1442,
-    "mean_latency_sec": 0.8607,
-    "std_latency_sec": 0.0238,
+    "doc_token_length": 1362,
+    "median_latency_sec": 0.8710,
+    "p95_latency_sec": 1.0402,
+    "mean_latency_sec": 0.8773,
+    "std_latency_sec": 0.0978,
+    "normalized_1500_tokens_median_sec": 0.9592,
     "hardware": "AMD Ryzen 7 7735U (16 vCPUs, CPU inference)"
-  },
-  "unmeasured": {
-    "ROUGE_1_BIPIA_Clean": "Not measured. P5 owns the downstream evaluation harness and fixed LLM generation pipeline.",
-    "End_to_End_ASR": "Not measured. P5 owns the fixed LLM evaluation harness for ASR.",
-    "Cross_Dataset_Evaluation": "Not measured. Marked out of 7-day scope per Day-0 decisions in brief Section 4."
   }
 }
