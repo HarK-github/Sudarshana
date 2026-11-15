@@ -126,6 +126,19 @@ def main() -> None:
     _save(out_dir / "downstream.json", downstream_results)
     _save(out_dir / "slicing.json", slicing_results)
 
+    # ---- Sensitivity (SIMULATED) ----
+    print("\n  [sensitivity analysis — SIMULATED]")
+    from sudarshana.evaluation.downstream import sensitivity
+    sensitivity_result = sensitivity(
+        records,
+        keep_fractions=(1.0, 0.9, 0.75, 0.5),
+        drop_rates=(0.0, 0.1, 0.25, 0.5),
+        seed=SEED,
+    )
+    _save(out_dir / "sensitivity.json", sensitivity_result)
+    print(f"    grid cells={len(sensitivity_result.get('grid', []))}")
+    print(f"    oracle attack types={list(sensitivity_result.get('oracle_by_attack_type', {}).keys())}")
+
     # ---- Latency ----
     print("\n  [latency benchmark]")
     latency = run_latency_benchmark()
@@ -177,7 +190,7 @@ def main() -> None:
         overall_recall = total_tp / (total_tp + total_fn) if (total_tp + total_fn) > 0 else None
 
         # Merge baseline_day2 for baseline row
-        if name == "baseline" and baseline_day2:
+        if name == "keyword_heuristic" and baseline_day2:
             # Use baseline_day2 as supplementary reference
             bl_recall = baseline_day2.get("recall")
             bl_fpr = baseline_day2.get("fpr")
@@ -210,6 +223,14 @@ def main() -> None:
             "baseline_day2_fpr": bl_fpr,
         }
 
+    _save(out_dir / "full_metrics.json", full_table)
+    # Merge sensitivity summary into full_metrics
+    full_table["sensitivity"] = {
+        "label": sensitivity_result.get("label"),
+        "grid": sensitivity_result.get("grid"),
+        "oracle_by_attack_type": sensitivity_result.get("oracle_by_attack_type"),
+        "oracle_by_position": sensitivity_result.get("oracle_by_position"),
+    }
     _save(out_dir / "full_metrics.json", full_table)
     print("\n=== P5 Evaluation Complete ===")
     print(f"  Results in: {out_dir.relative_to(REPO_ROOT)}/")

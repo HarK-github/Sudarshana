@@ -141,3 +141,79 @@ def test_na_handling() -> None:
         assert isinstance(reason, str) and len(reason) > 0
         with pytest.raises(KeyError, match="skipped"):
             get_predictor(name)
+
+
+# ---------------------------------------------------------------------------
+# Tier 4 Test 7: wilson_ci bounds (incl n=0)
+# ---------------------------------------------------------------------------
+
+def test_wilson_ci_bounds() -> None:
+    from sudarshana.evaluation.p5_common import wilson_ci
+
+    lo, hi = wilson_ci(0, 0)
+    assert lo == 0.0 and hi == 1.0, "n=0 should return (0.0, 1.0)"
+
+    lo, hi = wilson_ci(10, 10)
+    assert lo > 0.69 and hi == pytest.approx(1.0, abs=1e-6), f"k=n=10: lo={lo}"
+
+    lo, hi = wilson_ci(0, 100)
+    assert lo == pytest.approx(0.0, abs=0.01) and hi < 0.05, f"k=0,n=100: lo={lo} hi={hi}"
+
+    lo, hi = wilson_ci(5, 10)
+    assert 0.0 <= lo < 0.5 <= hi <= 1.0, f"k=5,n=10: unexpected [{lo},{hi}]"
+
+
+# ---------------------------------------------------------------------------
+# Tier 4 Test 8: bootstrap_ci determinism
+# ---------------------------------------------------------------------------
+
+def test_bootstrap_ci_determinism() -> None:
+    from sudarshana.evaluation.p5_common import bootstrap_ci
+
+    vals = [0.1, 0.5, 0.9, 0.3, 0.7]
+    lo1, hi1 = bootstrap_ci(vals, B=200, seed=42)
+    lo2, hi2 = bootstrap_ci(vals, B=200, seed=42)
+    assert lo1 == lo2 and hi1 == hi2, "bootstrap_ci must be deterministic given seed"
+    assert 0.0 <= lo1 <= hi1 <= 1.0
+
+
+# ---------------------------------------------------------------------------
+# Tier 4 Test 9: sensitivity f=1.0, m=0 => PSR=0 (perfect oracle redaction)
+# ---------------------------------------------------------------------------
+
+def test_sensitivity_oracle_psr_zero() -> None:
+    """With keep_fraction=1.0 and drop_rate=0, oracle redaction removes full spans → PSR=0."""
+    from sudarshana.evaluation.downstream import sensitivity
+
+    result = sensitivity(
+        [RECORD_INJECT_START, RECORD_INJECT_MID, RECORD_CLEAN],
+        keep_fractions=(1.0,),
+        drop_rates=(0.0,),
+        seed=42,
+    )
+    grid = result["grid"]
+    assert len(grid) == 1
+    cell = grid[0]
+    assert cell["keep_fraction"] == 1.0 and cell["drop_rate"] == 0.0
+    assert cell["psr"] == pytest.approx(0.0, abs=1e-6), f"Oracle PSR should be 0, got {cell['psr']}"
+
+
+# ---------------------------------------------------------------------------
+# Tier 4 Test 10: sensitivity m=1.0 => PSR=1 (all spans dropped, no redaction)
+# ---------------------------------------------------------------------------
+
+def test_sensitivity_drop_all_psr_one() -> None:
+    """With drop_rate=1.0, every span is dropped → no redaction → PSR=1 (payload survives)."""
+    from sudarshana.evaluation.downstream import sensitivity
+
+    result = sensitivity(
+        [RECORD_INJECT_START, RECORD_INJECT_MID, RECORD_CLEAN],
+        keep_fractions=(1.0,),
+        drop_rates=(1.0,),
+        seed=42,
+    )
+    grid = result["grid"]
+    assert len(grid) == 1
+    cell = grid[0]
+    assert cell["drop_rate"] == 1.0
+    assert cell["psr"] == pytest.approx(1.0, abs=1e-6), f"Drop-all PSR should be 1, got {cell['psr']}"

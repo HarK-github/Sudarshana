@@ -382,7 +382,7 @@
         "n": 0
       }
     },
-    "baseline": {
+    "keyword_heuristic": {
       "recall_by_position": {
         "end": {
           "support": 53,

@@ -12,7 +12,7 @@
 |------|-------------|
 | none | No defence — always predicts 0 (no injection). Reports baseline FPR=0, recall=0. |
 | oracle | Gold labels (upper-bound ceiling). |
-| baseline | Lexical keyword model (threshold=0.5). Numbers merged from `results/baseline_day2.json`. |
+| keyword_heuristic | P5 lexical keyword scorer (threshold=0.5, document-only). NOT the team baseline. |
 | token_head | N/A (no weights — checkpoints contain only config+tokenizer files) |
 
 ### ⚠️ Proxy Metric Warnings
@@ -27,14 +27,33 @@ comparing task completion. ROUGE-1 is a surface-text overlap proxy only.
 
 ---
 
-## 2. Baseline Results (lexical model, `baseline_day2.json`)
+## 2. Team Baseline (lexical model, `baseline_day2.json` — teammate result, not recomputed)
 
-0.9964 recall / 0.4456 FPR  (source: `baseline_day2.json`)
+> **Ran on full dataset** (train=179 820 / val=44 729 / test=42 999). Committed sample splits
+> (test=206, hard_neg=15) are **not comparable**.
 
-P5 lexical re-evaluation on `test` split:
-- Recall: 0.0400
-- FPR (test): 0.0123
-- FPR (hard-neg): 0.0000
+| Split | N | Recall | FPR | Precision | F1 |
+|-------|---|--------|-----|-----------|-----|
+| val | 44729 | 0.9982 | 0.6780 | 0.9951 | 0.9967 |
+| test | 42999 | 0.9964 | 0.4456 | 0.9890 | 0.9927 |
+
+**Recall by attack type (val split)**
+
+| Attack Type | Support | Recall |
+|-------------|---------|--------|
+| Cryptocurrency Mining | 750 | 0.9800 |
+| Device and Driver Enumeration | 750 | 1.0000 |
+| Malware Distribution | 14250 | 1.0000 |
+| Programming Help | 14250 | 1.0000 |
+| Space Removal & Grouping | 14250 | 1.0000 |
+| injection_task_0 | 40 | 0.0250 |
+| prompt_hijack | 116 | 0.7931 |
+
+### P5 keyword_heuristic re-evaluation on `test` split (N=125)
+
+- Recall: 0.0400 [0.000, 1.000] (n=0)
+- FPR (test): 0.0123 [0.000, 1.000] (n=0)
+- FPR (hard-neg N=15, indicative only): 0.0000
 
 ---
 
@@ -51,9 +70,9 @@ P5 lexical re-evaluation on `test` split:
 | oracle | end | 53 | 1.0000 |
 | oracle | middle | 30 | 1.0000 |
 | oracle | start | 42 | 1.0000 |
-| baseline | end | 53 | 0.0377 |
-| baseline | middle | 30 | 0.0333 |
-| baseline | start | 42 | 0.0476 |
+| keyword_heuristic | end | 53 | 0.0377 |
+| keyword_heuristic | middle | 30 | 0.0333 |
+| keyword_heuristic | start | 42 | 0.0476 |
 
 
 ---
@@ -115,31 +134,31 @@ P5 lexical re-evaluation on `test` split:
 | oracle | Substitution Ciphers | 5 | 1.0000 |
 | oracle | Task Automation | 5 | 1.0000 |
 | oracle | Traffic Analysis | 5 | 1.0000 |
-| baseline | Base Encoding | 5 | 0.0000 |
-| baseline | Blocking Internet Connection | 5 | 0.0000 |
-| baseline | Bringing Down Hosts and Servers (Denial of Service) | 5 | 0.0000 |
-| baseline | Business Intelligence | 5 | 0.0000 |
-| baseline | Compromising Computers | 5 | 0.0000 |
-| baseline | Conversational Agent | 5 | 0.0000 |
-| baseline | Corrupting an Operating System | 5 | 0.4000 |
-| baseline | Data Eavesdropping | 5 | 0.0000 |
-| baseline | Emoji Substitution | 5 | 0.0000 |
-| baseline | Encrypting Documents and Demanding Ransom (Ransomware) | 5 | 0.2000 |
-| baseline | Entertainment | 5 | 0.0000 |
-| baseline | Information Dissemination | 5 | 0.0000 |
-| baseline | Introduce System Fingerprinting | 5 | 0.2000 |
-| baseline | Keylogging | 5 | 0.0000 |
-| baseline | Language Translation (Test) | 5 | 0.0000 |
-| baseline | Marketing & Advertising | 5 | 0.0000 |
-| baseline | Misinformation & Propaganda | 5 | 0.0000 |
-| baseline | Research Assistance | 5 | 0.0000 |
-| baseline | Reverse Text | 5 | 0.0000 |
-| baseline | Scams & Fraud | 5 | 0.0000 |
-| baseline | Screen Scraping | 5 | 0.2000 |
-| baseline | Sentiment Analysis | 5 | 0.0000 |
-| baseline | Substitution Ciphers | 5 | 0.0000 |
-| baseline | Task Automation | 5 | 0.0000 |
-| baseline | Traffic Analysis | 5 | 0.0000 |
+| keyword_heuristic | Base Encoding | 5 | 0.0000 |
+| keyword_heuristic | Blocking Internet Connection | 5 | 0.0000 |
+| keyword_heuristic | Bringing Down Hosts and Servers (Denial of Service) | 5 | 0.0000 |
+| keyword_heuristic | Business Intelligence | 5 | 0.0000 |
+| keyword_heuristic | Compromising Computers | 5 | 0.0000 |
+| keyword_heuristic | Conversational Agent | 5 | 0.0000 |
+| keyword_heuristic | Corrupting an Operating System | 5 | 0.4000 |
+| keyword_heuristic | Data Eavesdropping | 5 | 0.0000 |
+| keyword_heuristic | Emoji Substitution | 5 | 0.0000 |
+| keyword_heuristic | Encrypting Documents and Demanding Ransom (Ransomware) | 5 | 0.2000 |
+| keyword_heuristic | Entertainment | 5 | 0.0000 |
+| keyword_heuristic | Information Dissemination | 5 | 0.0000 |
+| keyword_heuristic | Introduce System Fingerprinting | 5 | 0.2000 |
+| keyword_heuristic | Keylogging | 5 | 0.0000 |
+| keyword_heuristic | Language Translation (Test) | 5 | 0.0000 |
+| keyword_heuristic | Marketing & Advertising | 5 | 0.0000 |
+| keyword_heuristic | Misinformation & Propaganda | 5 | 0.0000 |
+| keyword_heuristic | Research Assistance | 5 | 0.0000 |
+| keyword_heuristic | Reverse Text | 5 | 0.0000 |
+| keyword_heuristic | Scams & Fraud | 5 | 0.0000 |
+| keyword_heuristic | Screen Scraping | 5 | 0.2000 |
+| keyword_heuristic | Sentiment Analysis | 5 | 0.0000 |
+| keyword_heuristic | Substitution Ciphers | 5 | 0.0000 |
+| keyword_heuristic | Task Automation | 5 | 0.0000 |
+| keyword_heuristic | Traffic Analysis | 5 | 0.0000 |
 
 
 ---
@@ -150,7 +169,7 @@ P5 lexical re-evaluation on `test` split:
 |-----------|----------------------|----------------------|
 | none | 0.0000 | 0.0000 |
 | oracle | 0.0000 | 0.0000 |
-| baseline | 0.0123 | 0.0000 |
+| keyword_heuristic | 0.0123 | 0.0000 |
 
 
 ---
@@ -164,7 +183,7 @@ P5 lexical re-evaluation on `test` split:
 |-----------|---------------------------|----------------------|
 | none | 1.0000 | 0.8962 |
 | oracle | 0.0000 | 0.7298 |
-| baseline | 1.0000 | 0.8967 |
+| keyword_heuristic | 1.0000 | 0.8967 |
 
 
 **PSR interpretation**: Lower PSR = defence removed more attack payload.
@@ -181,9 +200,9 @@ Benchmark: ~1783 estimated tokens (12674 chars). 20 runs, 3 warmups.
 
 | Stage | p50 (ms) | p95 (ms) | Mean (ms) |
 |-------|----------|----------|-----------|
-| normalize_pysbd | 31.90 | 50.41 | 33.54 |
-| redact | 16.53 | 25.80 | 18.12 |
-| tokenizer_encode | 2.18 | 3.51 | 2.40 |
+| sentence_segmentation | 14.74 | 17.77 | 15.35 |
+| redact | 14.57 | 14.68 | 14.57 |
+| tokenizer_encode | 2.03 | 2.15 | 2.05 |
 | model_forward | N/A | N/A | N/A (no weights — checkpoints/ contain only config+tokenizer files) |
 
 
@@ -195,14 +214,91 @@ Benchmark: ~1783 estimated tokens (12674 chars). 20 runs, 3 warmups.
 
 ---
 
-## 9. Limitations
+## 9. ⚠️ SIMULATED Redaction Sensitivity Analysis
 
-1. **No trained token-head weights** — the DeBERTa-v3 token-head is defined in `models/token_head.py` but checkpoint dirs contain only config and tokenizer. All span-level and weighted-model metrics are N/A until P4 delivers trained weights.
-2. **Binary predictors only** — none/baseline produce binary labels, not span offsets. PSR/ROUGE-1 for baseline uses a crude 50-char proxy redaction (not meaningful as a utility metric).
-3. **PSR and ROUGE-1 are proxies** — not real ASR or task utility (see §1 warnings).
-4. **No pair-input evaluation** — P3's (user_task, document) pair collator is not yet integrated; all predictors use document-only input.
-5. **No LLM** — LLMBackend protocol stubbed; `compute_llm_asr` returns N/A.
-6. **Small test set** — 206 test records (155 injected, 51 benign); estimates are high-variance.
+> All results in this section are **SIMULATED**. Gold spans are perturbed to model imperfect
+> redaction (partial span coverage, span drop). Real results require trained span predictions.
+
+**Label**: SIMULATED redaction sensitivity — gold spans perturbed; not real model predictions
+
+### 9a. PSR and ROUGE-1 Grid (keep_fraction f × drop_rate m)
+
+| keep_fraction | drop_rate | PSR [95% CI] (n=injected) | ROUGE-1 F1 |
+|---------------|-----------|---------------------------|------------|
+| 1.0 | 0.0 | 0.0000 [0.000, 0.030] (n=125) | 0.7298 |
+| 1.0 | 0.1 | 0.0000 [0.000, 0.030] (n=125) | 0.7298 |
+| 1.0 | 0.25 | 0.0000 [0.000, 0.030] (n=125) | 0.7298 |
+| 1.0 | 0.5 | 0.0000 [0.000, 0.030] (n=125) | 0.7298 |
+| 0.9 | 0.0 | 0.0000 [0.000, 0.030] (n=125) | 0.7452 |
+| 0.9 | 0.1 | 0.0000 [0.000, 0.030] (n=125) | 0.7452 |
+| 0.9 | 0.25 | 0.0000 [0.000, 0.030] (n=125) | 0.7452 |
+| 0.9 | 0.5 | 0.0000 [0.000, 0.030] (n=125) | 0.7452 |
+| 0.75 | 0.0 | 0.0400 [0.017, 0.090] (n=125) | 0.7649 |
+| 0.75 | 0.1 | 0.0400 [0.017, 0.090] (n=125) | 0.7649 |
+| 0.75 | 0.25 | 0.0400 [0.017, 0.090] (n=125) | 0.7649 |
+| 0.75 | 0.5 | 0.0400 [0.017, 0.090] (n=125) | 0.7649 |
+| 0.5 | 0.0 | 0.2880 [0.216, 0.373] (n=125) | 0.8824 |
+| 0.5 | 0.1 | 0.2880 [0.216, 0.373] (n=125) | 0.8824 |
+| 0.5 | 0.25 | 0.2880 [0.216, 0.373] (n=125) | 0.8824 |
+| 0.5 | 0.5 | 0.2880 [0.216, 0.373] (n=125) | 0.8824 |
+
+### 9b. Oracle PSR and ROUGE-1 by Attack Type (f=1.0, m=0.0)
+
+![Oracle PSR by Attack Type](/home/kinshuk-gupta/KINSHUK GUPTA/IIT BHILAI/IIT BHILAI 7TH SEMESTER/DSL504 - NATURAL LANGUAGE PROCESSING/Group Project/Sudarshana/reports/figures/psr_by_attack_type.png)
+*Oracle PSR by Attack Type*
+
+| Attack Type | N | PSR [95% CI] | ROUGE-1 F1 |
+|-------------|---|--------------|------------|
+| Base Encoding | 5 | 0.0000 [0.000, 0.434] | 0.9787 |
+| Blocking Internet Connection | 5 | 0.0000 [0.000, 0.434] | 0.7917 |
+| Bringing Down Hosts and Servers (Denial of Service) | 5 | 0.0000 [0.000, 0.434] | 0.5959 |
+| Business Intelligence | 5 | 0.0000 [0.000, 0.434] | 0.7849 |
+| Compromising Computers | 5 | 0.0000 [0.000, 0.434] | 0.7720 |
+| Conversational Agent | 5 | 0.0000 [0.000, 0.434] | 0.9763 |
+| Corrupting an Operating System | 5 | 0.0000 [0.000, 0.434] | 0.5870 |
+| Data Eavesdropping | 5 | 0.0000 [0.000, 0.434] | 0.2000 |
+| Emoji Substitution | 5 | 0.0000 [0.000, 0.434] | 0.9794 |
+| Encrypting Documents and Demanding Ransom (Ransomware) | 5 | 0.0000 [0.000, 0.434] | 0.1979 |
+| Entertainment | 5 | 0.0000 [0.000, 0.434] | 0.9970 |
+| Information Dissemination | 5 | 0.0000 [0.000, 0.434] | 0.5888 |
+| Introduce System Fingerprinting | 5 | 0.0000 [0.000, 0.434] | 0.3886 |
+| Keylogging | 5 | 0.0000 [0.000, 0.434] | 0.4000 |
+| Language Translation (Test) | 5 | 0.0000 [0.000, 0.434] | 0.9794 |
+| Marketing & Advertising | 5 | 0.0000 [0.000, 0.434] | 0.9534 |
+| Misinformation & Propaganda | 5 | 0.0000 [0.000, 0.434] | 0.9938 |
+| Research Assistance | 5 | 0.0000 [0.000, 0.434] | 0.9913 |
+| Reverse Text | 5 | 0.0000 [0.000, 0.434] | 0.9666 |
+| Scams & Fraud | 5 | 0.0000 [0.000, 0.434] | 0.9773 |
+| Screen Scraping | 5 | 0.0000 [0.000, 0.434] | 0.0000 |
+| Sentiment Analysis | 5 | 0.0000 [0.000, 0.434] | 0.9645 |
+| Substitution Ciphers | 5 | 0.0000 [0.000, 0.434] | 0.9888 |
+| Task Automation | 5 | 0.0000 [0.000, 0.434] | 0.7922 |
+| Traffic Analysis | 5 | 0.0000 [0.000, 0.434] | 0.3991 |
+
+### 9c. Oracle PSR and ROUGE-1 by Position (f=1.0, m=0.0)
+
+| Position | N | PSR [95% CI] | ROUGE-1 F1 |
+|----------|---|--------------|------------|
+| end | 53 | 0.0000 [0.000, 0.068] | 0.6774 |
+| middle | 30 | 0.0000 [0.000, 0.114] | 0.7115 |
+| start | 42 | 0.0000 [0.000, 0.084] | 0.8090 |
+
+![Redaction Sensitivity Grid](/home/kinshuk-gupta/KINSHUK GUPTA/IIT BHILAI/IIT BHILAI 7TH SEMESTER/DSL504 - NATURAL LANGUAGE PROCESSING/Group Project/Sudarshana/reports/figures/redaction_sensitivity.png)
+*Redaction Sensitivity Grid*
+
+---
+
+## 10. Limitations
+
+1. **Real split sizes differ from team baseline** — P5 evaluates on committed sample splits (test=206, hard_neg=15); team baseline ran on full dataset (test=42 999). Numbers are **not comparable**.
+2. **Hard-neg N=15** — only 15 hard-negative records; FPR estimates are indicative only (wide Wilson CIs).
+3. **ASR proxy** — PSR measures payload-text survival; real ASR requires LLM execution and behavioural verification.
+4. **ROUGE-1 utility proxy** — surface-text overlap; actual task utility requires downstream agent evaluation.
+5. **token_head: N/A** — no trained weights; all token-head metrics are N/A.
+6. **No obfuscated set** — obfuscated held-out evaluation skipped (P1/P2 deliverable).
+7. **No pair-input evaluation** — P3's (user_task, document) pair collator not integrated; all predictors use document-only input.
+8. **No LLM ASR** — `LLMBackend` protocol stubbed; `compute_llm_asr` returns N/A.
+9. **Sensitivity is SIMULATED** — gold span perturbations, not real predicted spans from a trained model.
 
 ---
 

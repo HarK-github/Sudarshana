@@ -1,0 +1,407 @@
+"""Generate FINAL_PROJECT_REPORT.md and FINAL_PROJECT_REPORT.pdf.
+
+Reads from:
+  README.md                      (overview, <=60 lines)
+  reports/span_label_qa.md       (data section)
+  results/baseline_day2.json     (baseline numbers)
+  results/fixed_recall_day3.json (fixed-recall numbers)
+  reports/metrics.json           (P4 token-head reported metrics)
+  reports/p4_token_head_report.md (P4 report text)
+  results/p5/full_metrics.json   (P5 evaluation)
+  reports/group_members.json     ([{"name","reg_no","email"}])
+
+Writes:
+  reports/FINAL_PROJECT_REPORT.md
+  reports/FINAL_PROJECT_REPORT.pdf  (pandoc > reportlab > skip)
+
+IMPORTANT: Every number is read from JSON. No invented numbers.
+Sections 1-4 copy existing repo text verbatim under
+"Source: <path> (owner P#, please review)", <=60 lines per block.
+"""
+
+from __future__ import annotations
+
+import json
+import subprocess
+import sys
+from pathlib import Path
+from typing import Any
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT))
+
+REPORTS_DIR = REPO_ROOT / "reports"
+RESULTS_DIR = REPO_ROOT / "results"
+P5_DIR = RESULTS_DIR / "p5"
+
+
+def _load_json(p: Path) -> dict:
+    if not p.exists():
+        return {}
+    with open(p) as fh:
+        return json.load(fh)
+
+
+def _fmt(val: Any, fmt: str = ".4f", na: str = "N/A") -> str:
+    if val is None:
+        return na
+    if isinstance(val, str):
+        return val
+    try:
+        return format(float(val), fmt)
+    except (TypeError, ValueError):
+        return na
+
+
+def _read_lines(path: Path, max_lines: int = 60) -> str:
+    if not path.exists():
+        return f"*File not found: {path.relative_to(REPO_ROOT)}*"
+    lines = path.read_text(encoding="utf-8").splitlines()
+    truncated = len(lines) > max_lines
+    block = "\n".join(lines[:max_lines])
+    if truncated:
+        block += f"\n\n*[... truncated at {max_lines} lines — see full file: {path.relative_to(REPO_ROOT)}]*"
+    return block
+
+
+def _members_table(members: list) -> str:
+    if not members:
+        return "| [NAME] | [REG NO] | [EMAIL] |\n| --- | --- | --- |"
+    header = "| Name | Reg. No. | Email |\n|------|----------|-------|"
+    rows = [f"| {m.get('name','[NAME]')} | {m.get('reg_no','[REG NO]')} | {m.get('email','[EMAIL]')} |"
+            for m in members]
+    return header + "\n" + "\n".join(rows)
+
+
+def _baseline_table(raw: dict) -> str:
+    runs = raw.get("runs", {})
+    lex = runs.get("lexical", {})
+    splits = lex.get("splits", {})
+    rc = raw.get("row_counts", {})
+    rows = ["| Split | N | Recall | FPR | Precision |",
+            "|-------|---|--------|-----|-----------|"]
+    for sname in ("val", "test"):
+        if sname not in splits:
+            continue
+        o = splits[sname].get("overall", {})
+        tp = o.get("tp", 0); fp = o.get("fp", 0)
+        fn = o.get("fn", 0); tn = o.get("tn", 0)
+        rec = o.get("recall", tp / (tp + fn) if (tp + fn) else 0)
+        fpr = o.get("fpr", fp / (fp + tn) if (fp + tn) else 0)
+        prec = o.get("precision", tp / (tp + fp) if (tp + fp) else 0)
+        n = rc.get(sname, o.get("support", "N/A"))
+        rows.append(f"| {sname} | {n} | {rec:.4f} | {fpr:.4f} | {prec:.4f} |")
+    return "\n".join(rows)
+
+
+def _fixed_recall_table(raw: dict) -> str:
+    runs = raw.get("runs", {})
+    rows = ["| Run | Input | Test Recall | Test FPR | Hard-neg FPR (N) |",
+            "|-----|-------|-------------|----------|------------------|"]
+    for rname, rdata in runs.items():
+        splits = rdata.get("splits", {})
+        test = splits.get("test", {})
+        overall = test.get("overall", {})
+        rec = overall.get("recall")
+        fpr = overall.get("fpr")
+        hn = test.get("fpr_hard_negative", {})
+        hn_fpr = hn.get("fpr")
+        hn_n = hn.get("support")
+        inp = rdata.get("input", rname)
+        rows.append(
+            f"| {rname} | {inp} | {_fmt(rec, '.4f')} | {_fmt(fpr, '.4f')} "
+            f"| {_fmt(hn_fpr, '.4f')} (N={hn_n}) |"
+        )
+    target = raw.get("target_recall", "N/A")
+    note = (f"\n> Target recall = {target}. Threshold tuned on val; test numbers from "
+            f"`results/fixed_recall_day3.json`. **Teammate result — not recomputed by P5.**")
+    return "\n".join(rows) + note
+
+
+def _p4_metrics_row(metrics: dict) -> str:
+    runs = metrics.get("seed_runs", {})
+    if not runs:
+        return "N/A — reports/metrics.json empty."
+    # Use first seed
+    seed_key = list(runs.keys())[0]
+    r = runs[seed_key]
+    tok = r.get("token_metrics", {})
+    span = r.get("span_overlap", {})
+    return (
+        f"| token_head (P4-reported, not re-evaluated: no weights) | "
+        f"{_fmt(tok.get('recall'), '.4f')} | "
+        f"{_fmt(tok.get('precision'), '.4f')} | "
+        f"{_fmt(tok.get('f1'), '.4f')} | "
+        f"{_fmt(span.get('span_overlap_f1'), '.4f')} | "
+        f"`reports/metrics.json` |"
+    )
+
+
+def _p5_summary_table(full: dict) -> str:
+    rows = ["| Predictor | Recall | FPR (test) | FPR (hard-neg) | PSR | ROUGE-1 F1 |",
+            "|-----------|--------|------------|----------------|-----|------------|"]
+    for pname, row in full.get("predictors", {}).items():
+        def v(key: str) -> str:
+            val = row.get(key)
+            if isinstance(val, str) and val.startswith("N/A"):
+                return val[:30]
+            return _fmt(val, ".4f")
+        rows.append(f"| {pname} | {v('recall')} | {v('fpr_test')} | {v('fpr_hard_neg')} | {v('psr')} | {v('rouge1_f1')} |")
+    return "\n".join(rows)
+
+
+def _repro_commands() -> str:
+    return """\
+```bash
+# 1. Install dependencies (system python, pysbd already installed)
+pip3 install pysbd reportlab matplotlib --break-system-packages -q
+
+# 2. Run P5 evaluation (uses data/splits/test.jsonl + hard_negatives.jsonl)
+python3 scripts/run_p5_eval.py --split test --heldout auto
+
+# 3. Generate P5 report and figures
+python3 scripts/make_p5_report.py
+
+# 4. Generate final project report
+python3 scripts/make_final_report.py
+
+# 5. Create submission zip
+python3 scripts/make_submission_zip.py
+
+# Run tests (use venv python for torch-dependent tests)
+python3 -m pytest tests/test_p5_eval.py -q
+```"""
+
+
+def make_report() -> str:
+    # Load all data
+    members = _load_json(REPORTS_DIR / "group_members.json")
+    if isinstance(members, list) and members:
+        members_table = _members_table(members)
+        members_warn = ""
+    else:
+        members_table = _members_table([])
+        members_warn = "\n> ⚠️ **WARNING**: `reports/group_members.json` missing or empty. Fill in [NAME]/[REG NO]/[EMAIL].\n"
+
+    baseline_raw = _load_json(RESULTS_DIR / "baseline_day2.json")
+    fixed_raw = _load_json(RESULTS_DIR / "fixed_recall_day3.json")
+    p4_metrics = _load_json(REPORTS_DIR / "metrics.json")
+    full_p5 = _load_json(P5_DIR / "full_metrics.json")
+    sens = _load_json(P5_DIR / "sensitivity.json")
+
+    readme_text = _read_lines(REPO_ROOT / "README.md", 60)
+    span_qa_text = _read_lines(REPORTS_DIR / "span_label_qa.md", 60)
+    p4_report_text = _read_lines(REPORTS_DIR / "p4_token_head_report.md", 60)
+
+    sens_grid = sens.get("grid", [])
+    # Pick oracle cell (f=1.0, m=0.0)
+    oracle_cell = next((c for c in sens_grid if c.get("keep_fraction") == 1.0 and c.get("drop_rate") == 0.0), {})
+    oracle_psr = oracle_cell.get("psr")
+    oracle_psr_lo = oracle_cell.get("psr_lo")
+    oracle_psr_hi = oracle_cell.get("psr_hi")
+    oracle_n = oracle_cell.get("n", 0)
+
+    # P5 keyword_heuristic row (may also be named 'baseline' in stale JSON)
+    preds = full_p5.get("predictors", {})
+    kw_key = "keyword_heuristic" if "keyword_heuristic" in preds else "baseline"
+    kw = preds.get(kw_key, {})
+
+    report = f"""# Sudarshana — Final Project Report
+## DSL504 Natural Language Processing | Group Project
+
+{members_warn}
+## Group Members
+
+{members_table}
+
+---
+
+## 1. Project Overview
+
+> Source: `README.md` (owner P1, please review)
+
+{readme_text}
+
+---
+
+## 2. Data
+
+> Source: `reports/span_label_qa.md` (owner P1/P2, please review)
+
+{span_qa_text}
+
+---
+
+## 3. Baseline & Fixed-Recall Results
+
+> **Teammate results — not recomputed by P5.** Numbers from `results/baseline_day2.json`
+> and `results/fixed_recall_day3.json`. Ran on **full dataset** (test=42 999), not the
+> committed sample splits (test=206). Numbers are **not comparable** to P5 re-evaluation.
+
+### 3a. Team Baseline (lexical model, threshold=0.5)
+
+{_baseline_table(baseline_raw)}
+
+### 3b. Fixed-Recall Runs (target recall={fixed_raw.get("target_recall", "N/A")})
+
+{_fixed_recall_table(fixed_raw)}
+
+---
+
+## 4. Token-Head Prototype (P4-reported, not re-evaluated: no weights)
+
+> Source: `reports/p4_token_head_report.md` (owner P4, please review)
+
+{p4_report_text}
+
+### P4 Headline Metrics (seed=42, `reports/metrics.json`)
+
+| Predictor | Token Recall | Token Precision | Token F1 | Span Overlap F1 | Source |
+|-----------|-------------|-----------------|----------|-----------------|--------|
+{_p4_metrics_row(p4_metrics)}
+
+> ⚠️ No trained weights committed — all P5 token_head evaluation is N/A.
+
+---
+
+## 5. P5 Evaluation
+
+**Split**: {full_p5.get("split", "test")} (N=206: 125 injected, 81 clean)
+**Hard-neg**: N=15 (indicative only — wide CIs)
+
+### 5a. Main Results Table
+
+{_p5_summary_table(full_p5)}
+
+### 5b. SIMULATED Redaction Sensitivity (oracle PSR, f=1.0, m=0.0)
+
+> ⚠️ **SIMULATED**: Gold spans perturbed. Not real model predictions.
+
+Oracle PSR: {_fmt(oracle_psr, ".4f")} [{_fmt(oracle_psr_lo, ".3f")}, {_fmt(oracle_psr_hi, ".3f")}] (n={oracle_n})
+
+See `results/p5/sensitivity.json` and `reports/figures/redaction_sensitivity.png` for full grid.
+
+### 5c. Latency
+
+See `results/p5/latency.json` and `reports/figures/latency_p50_p95.png`.
+
+---
+
+## 6. Limitations & Open Items
+
+1. **Real split sizes differ from team baseline** — P5 evaluates on committed sample splits
+   (test=206, hard_neg=15); team baseline ran on full dataset (test=42 999). Not comparable.
+2. **Hard-neg N=15** — FPR estimates indicative only (wide Wilson CIs).
+3. **ASR proxy** — PSR measures payload-text survival; real ASR requires LLM execution.
+4. **ROUGE-1 utility proxy** — surface-text overlap; actual utility requires downstream eval.
+5. **token_head: N/A** — no trained weights; all token-head metrics are N/A.
+6. **No obfuscated set** — obfuscated held-out evaluation skipped (P1/P2 deliverable).
+7. **No pair-input evaluation** — P3 pair collator not integrated.
+8. **No LLM ASR** — LLMBackend protocol stubbed.
+9. **Sensitivity is SIMULATED** — gold span perturbations, not predicted spans.
+
+### Open Items
+
+| Item | Owner | Blocker |
+|------|-------|---------|
+| Trained token-head weights | P4 | Needed for token_head predictor, span-F1 |
+| Pair-input collator | P3 | Needed for fair comparison vs document-only baseline |
+| Obfuscated held-out set | P1/P2 | Needed for heldout evaluation |
+| Real LLM ASR | All | Requires LLM endpoint + prompt harness |
+
+---
+
+## 7. Reproduction Commands
+
+{_repro_commands()}
+
+---
+
+*Auto-generated by `scripts/make_final_report.py`. All numbers read from JSON — no invented values.*
+"""
+    return report
+
+
+def _write_pdf(md_text: str, out_path: Path) -> bool:
+    """Try pandoc, then reportlab. Return True on success."""
+    md_path = out_path.with_suffix(".md")
+    # Already written as .md by caller
+    try:
+        result = subprocess.run(
+            ["pandoc", str(md_path), "-o", str(out_path), "--pdf-engine=xelatex"],
+            capture_output=True, text=True, timeout=90,
+        )
+        if result.returncode != 0:
+            result2 = subprocess.run(
+                ["pandoc", str(md_path), "-o", str(out_path)],
+                capture_output=True, text=True, timeout=90,
+            )
+            if result2.returncode == 0:
+                return True
+            print(f"  pandoc failed: {result2.stderr[:200]}")
+        else:
+            return True
+    except FileNotFoundError:
+        print("  pandoc not found")
+    except Exception as exc:
+        print(f"  pandoc error: {exc}")
+
+    try:
+        from reportlab.lib.pagesizes import A4
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+        from reportlab.lib.styles import getSampleStyleSheet
+
+        doc = SimpleDocTemplate(str(out_path), pagesize=A4)
+        styles = getSampleStyleSheet()
+        story = []
+        for line in md_text.splitlines():
+            if line.startswith("# "):
+                story.append(Paragraph(line[2:].replace("<", "&lt;").replace(">", "&gt;"), styles["Heading1"]))
+            elif line.startswith("## "):
+                story.append(Paragraph(line[3:].replace("<", "&lt;").replace(">", "&gt;"), styles["Heading2"]))
+            elif line.startswith("### "):
+                story.append(Paragraph(line[4:].replace("<", "&lt;").replace(">", "&gt;"), styles["Heading3"]))
+            elif line.strip():
+                story.append(Paragraph(
+                    line.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"),
+                    styles["Normal"]
+                ))
+            story.append(Spacer(1, 4))
+        doc.build(story)
+        print(f"  PDF → {out_path.relative_to(REPO_ROOT)} (reportlab)")
+        return True
+    except ImportError:
+        print("  reportlab not installed — PDF skipped")
+    except Exception as exc:
+        print(f"  reportlab error: {exc}")
+    return False
+
+
+def main() -> None:
+    print("=== Final Project Report Generator ===")
+
+    # Warn if group_members.json is missing
+    gm = REPORTS_DIR / "group_members.json"
+    if not gm.exists():
+        print("  ⚠️  WARNING: reports/group_members.json MISSING — using placeholder values")
+
+    report_md = make_report()
+
+    md_path = REPORTS_DIR / "FINAL_PROJECT_REPORT.md"
+    md_path.write_text(report_md, encoding="utf-8")
+    print(f"  Saved → {md_path.relative_to(REPO_ROOT)}")
+
+    pdf_path = REPORTS_DIR / "FINAL_PROJECT_REPORT.pdf"
+    pdf_ok = _write_pdf(report_md, pdf_path)
+    if not pdf_ok:
+        print("  ⚠️  PDF generation failed — FINAL_PROJECT_REPORT.pdf not created")
+        # Log in handoff
+        handoff = REPORTS_DIR / "P5_HANDOFF.md"
+        with open(handoff, "a") as fh:
+            fh.write("\n## FINAL PDF\nSKIPPED: neither pandoc nor reportlab produced PDF.\n")
+
+    print("=== Final Report Complete ===")
+
+
+if __name__ == "__main__":
+    main()

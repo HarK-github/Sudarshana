@@ -32,7 +32,7 @@
         "n": 125
       }
     },
-    "baseline": {
+    "keyword_heuristic": {
       "psr": {
         "metric": "ASR proxy (payload survival)",
         "psr": 1.0,

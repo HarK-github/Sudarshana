@@ -100,13 +100,13 @@ def run_latency_benchmark() -> dict[str, Any]:
         "stages": {},
     }
 
-    # Stage 1: normalize (pysbd sentence segmentation only)
+    # Stage 1: sentence_segmentation (pysbd sentence boundary detection)
     try:
         import pysbd
         seg = pysbd.Segmenter(language="en", clean=False)
-        results["stages"]["normalize_pysbd"] = _time_fn(seg.segment, doc)
+        results["stages"]["sentence_segmentation"] = _time_fn(seg.segment, doc)
     except ImportError:
-        results["stages"]["normalize_pysbd"] = {"na_reason": "pysbd not available"}
+        results["stages"]["sentence_segmentation"] = {"na_reason": "pysbd not available"}
 
     # Stage 2: redact (with gold oracle spans — empty spans = no-op; use a fixed small span)
     try:

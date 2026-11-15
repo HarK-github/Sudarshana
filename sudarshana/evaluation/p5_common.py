@@ -3,13 +3,17 @@
 ASSUMPTIONS logged in reports/P5_HANDOFF.md:
 - injection_span is list of [start, end] int pairs
 - position field: 'start'|'middle'|'end'|'none' (taken as-is from records)
-- baseline = lexical keyword model (baseline_day2.json); no baseline.py exists
+- keyword_heuristic = P5's own lexical keyword scorer (NOT the team baseline)
+  The team baseline (baseline.py / baseline_day2.json) is a separate system;
+  its numbers are read from results/baseline_day2.json only.
 - token_head: SKIPPED(no weights) — checkpoints have no pytorch_model.bin
 """
 
 from __future__ import annotations
 
 import json
+import math
+import random
 import re
 import sys
 from pathlib import Path
@@ -93,7 +97,73 @@ def position_bin(record: dict) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Lexical baseline scorer (implements keyword approach matching baseline_day2)
+# Confidence interval helpers
+# ---------------------------------------------------------------------------
+
+def wilson_ci(k: int, n: int, z: float = 1.96) -> tuple[float, float]:
+    """Wilson score interval for a proportion k/n at ~95% CI.
+
+    Args:
+        k: Number of successes.
+        n: Total observations.
+        z: z-score for desired CI (default 1.96 for 95%).
+
+    Returns:
+        (lo, hi) tuple, both in [0, 1]. Returns (0.0, 0.0) when n == 0.
+    """
+    if n == 0:
+        return (0.0, 1.0)
+    p_hat = k / n
+    z2 = z * z
+    denom = 1 + z2 / n
+    centre = (p_hat + z2 / (2 * n)) / denom
+    spread = z * math.sqrt(p_hat * (1 - p_hat) / n + z2 / (4 * n * n)) / denom
+    return (max(0.0, round(centre - spread, 4)), min(1.0, round(centre + spread, 4)))
+
+
+def bootstrap_ci(
+    values: list[float],
+    B: int = 1000,
+    seed: int = 42,
+    alpha: float = 0.05,
+) -> tuple[float, float]:
+    """Bootstrap percentile CI for the mean of values.
+
+    Args:
+        values: Observed sample values (floats in [0,1]).
+        B:      Number of bootstrap resamples.
+        seed:   Random seed for reproducibility.
+        alpha:  Significance level (default 0.05 → 95% CI).
+
+    Returns:
+        (lo, hi) tuple. Returns (nan, nan) for empty input.
+    """
+    if not values:
+        return (float("nan"), float("nan"))
+    rng = random.Random(seed)
+    n = len(values)
+    means: list[float] = []
+    for _ in range(B):
+        sample = [rng.choice(values) for _ in range(n)]
+        means.append(sum(sample) / n)
+    means.sort()
+    lo_idx = int(math.floor(alpha / 2 * B))
+    hi_idx = int(math.ceil((1 - alpha / 2) * B)) - 1
+    hi_idx = min(hi_idx, B - 1)
+    return (round(means[lo_idx], 4), round(means[hi_idx], 4))
+
+
+def fmt_with_ci(value: float, lo: float, hi: float, n: int, fmt: str = ".4f") -> str:
+    """Format 'value [lo, hi] (n=N)' for report tables."""
+    if value is None or (isinstance(value, float) and math.isnan(value)):
+        return "N/A"
+    return f"{value:{fmt}} [{lo:{fmt}}, {hi:{fmt}}] (n={n})"
+
+
+# ---------------------------------------------------------------------------
+# Lexical keyword heuristic scorer (P5's own; NOT the team baseline)
+# NOTE: The team baseline is in baseline_day2.json (results/ dir).
+#       This predictor is called 'keyword_heuristic' to avoid confusion.
 # ---------------------------------------------------------------------------
 
 _INJECTION_KEYWORDS: list[str] = [
@@ -148,12 +218,19 @@ def _predict_oracle(records: list[dict]) -> list[int]:
 _register("oracle", _predict_oracle)
 
 
-# --- baseline (lexical keyword model) ---
+# --- keyword_heuristic (P5's lexical keyword scorer) ---
+# IMPORTANT: this is NOT the team baseline from baseline_day2.json.
+# The team baseline (baseline.py) uses the full training set; this scorer
+# is a lightweight P5-only reference predictor for sanity-checking.
 _LEXICAL_THRESHOLD = 0.5
 
 
-def _predict_baseline(records: list[dict]) -> list[int]:
-    """Lexical keyword baseline — no training required."""
+def _predict_keyword_heuristic(records: list[dict]) -> list[int]:
+    """P5 lexical keyword heuristic — no training required.
+
+    Scores each document by keyword density; threshold=0.5.
+    Label: 'keyword_heuristic' to distinguish from team baseline.
+    """
     preds: list[int] = []
     for r in records:
         score = _lexical_score(r["document"])
@@ -161,7 +238,7 @@ def _predict_baseline(records: list[dict]) -> list[int]:
     return preds
 
 
-_register("baseline", _predict_baseline)
+_register("keyword_heuristic", _predict_keyword_heuristic)
 
 
 # --- token_head ---

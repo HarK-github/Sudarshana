@@ -22,11 +22,14 @@ LLMBackend protocol
 
 from __future__ import annotations
 
+import random
 import re
 from typing import Protocol, runtime_checkable
 
-from .p5_common import gold_text, spans_from_record
-from sudarshana.redaction.redact import redact as _redact
+from .p5_common import gold_text, spans_from_record, position_bin, bootstrap_ci, wilson_ci
+def _redact(text: str, spans: list) -> str:  # lazy import to avoid top-level torch dependency
+    from sudarshana.redaction.redact import redact as _real_redact  # noqa: PLC0415
+    return _real_redact(text, spans)
 
 
 # ---------------------------------------------------------------------------
@@ -243,3 +246,156 @@ def compute_llm_asr(
         return {"llm_asr": None, "na_reason": "no LLM configured"}
     # Real implementation would go here
     return {"llm_asr": None, "na_reason": "not implemented"}
+
+
+# ---------------------------------------------------------------------------
+# Redaction sensitivity analysis (SIMULATED — labelled as such everywhere)
+# ---------------------------------------------------------------------------
+
+def _perturb_spans(
+    spans: list[tuple[int, int]],
+    keep_fraction: float,
+    drop_rate: float,
+    seed: int = 42,
+) -> list[tuple[int, int]]:
+    """Perturb gold spans: keep leading fraction and optionally drop whole spans.
+
+    Args:
+        spans:         Gold injection spans.
+        keep_fraction: Fraction of each span's length to keep (leading part).
+                       1.0 = keep all, 0.5 = keep first half.
+        drop_rate:     Probability of dropping each entire span.
+        seed:          RNG seed for determinism.
+
+    Returns:
+        Perturbed span list (may be shorter or truncated).
+    """
+    rng = random.Random(seed)
+    out: list[tuple[int, int]] = []
+    for s, e in spans:
+        if rng.random() < drop_rate:
+            continue  # drop entire span
+        length = e - s
+        kept = max(1, int(length * keep_fraction))
+        out.append((s, s + kept))
+    return out
+
+
+def sensitivity(
+    records: list[dict],
+    keep_fractions: tuple[float, ...] = (1.0, 0.9, 0.75, 0.5),
+    drop_rates: tuple[float, ...] = (0.0, 0.1, 0.25, 0.5),
+    seed: int = 42,
+) -> dict:
+    """SIMULATED redaction sensitivity analysis.
+
+    LABEL: All results in this function are SIMULATED. Gold spans are perturbed
+    to model imperfect redaction; real span predictions from a trained model
+    would replace this simulation.
+
+    For each (keep_fraction f, drop_rate m) setting:
+      - keep_fraction: fraction of each span's character length to redact (leading)
+      - drop_rate: probability of skipping an entire span
+
+    Reports PSR and ROUGE-1 per (f, m) cell, plus oracle breakdowns by
+    attack_type and position.
+
+    Args:
+        records:        Test records (injected + clean).
+        keep_fractions: Iterable of keep-fraction values.
+        drop_rates:     Iterable of span-drop rates.
+        seed:           RNG seed for drop sampling.
+
+    Returns:
+        Dict with 'label', 'grid', 'oracle_by_attack_type', 'oracle_by_position'.
+    """
+    inject_records = [r for r in records if int(r["label"]) == 1]
+    n_inject = len(inject_records)
+
+    grid: list[dict] = []
+    for f in keep_fractions:
+        for m in drop_rates:
+            perturbed_docs: list[str] = []
+            for rec in inject_records:
+                spans = spans_from_record(rec)
+                p_spans = _perturb_spans(spans, keep_fraction=f, drop_rate=m, seed=seed)
+                if p_spans:
+                    perturbed_docs.append(_redact(rec["document"], p_spans))
+                else:
+                    perturbed_docs.append(rec["document"])
+
+            psr_res = payload_survival_rate(inject_records, perturbed_docs)
+            r1_res = rouge1_retention(inject_records, perturbed_docs)
+            psr_val = psr_res.get("psr") or 0.0
+            r1_val = r1_res.get("rouge1_f1") or 0.0
+
+            # Wilson CI for PSR (Bernoulli over inject_records)
+            survived = psr_res.get("survived", 0)
+            total = psr_res.get("total_attack", 0)
+            psr_lo, psr_hi = wilson_ci(survived, total)
+
+            # Bootstrap CI for ROUGE-1 per-record
+            r1_per: list[float] = []
+            for rec, red in zip(inject_records, perturbed_docs):
+                clean = _clean_doc(rec)
+                r1_per.append(rouge1(red, clean)["f1"])
+            r1_lo, r1_hi = bootstrap_ci(r1_per, B=1000, seed=seed)
+
+            grid.append({
+                "keep_fraction": f,
+                "drop_rate": m,
+                "n": n_inject,
+                "psr": round(psr_val, 4),
+                "psr_lo": psr_lo,
+                "psr_hi": psr_hi,
+                "rouge1_f1": round(r1_val, 4),
+                "rouge1_lo": round(r1_lo, 4) if not __import__("math").isnan(r1_lo) else None,
+                "rouge1_hi": round(r1_hi, 4) if not __import__("math").isnan(r1_hi) else None,
+            })
+
+    # Oracle (f=1.0, m=0.0): breakdown by attack_type
+    oracle_by_attack_type: dict[str, dict] = {}
+    oracle_by_position: dict[str, dict] = {}
+
+    for rec in inject_records:
+        spans = spans_from_record(rec)
+        # oracle = keep all, drop none
+        if spans:
+            red = _redact(rec["document"], spans)
+        else:
+            red = rec["document"]
+        clean = _clean_doc(rec)
+        r1_v = rouge1(red, clean)["f1"]
+        payload = gold_text(rec)
+        survived = int(_token_overlap_ratio(payload, red) >= 0.5)
+
+        atype = str(rec.get("attack_type") or "unknown")
+        pos = position_bin(rec)
+
+        for bucket, key in [(oracle_by_attack_type, atype), (oracle_by_position, pos)]:
+            if key not in bucket:
+                bucket[key] = {"n": 0, "survived": 0, "r1_sum": 0.0}
+            bucket[key]["n"] += 1
+            bucket[key]["survived"] += survived
+            bucket[key]["r1_sum"] += r1_v
+
+    def _summarize_bucket(b: dict) -> dict:
+        n = b["n"]
+        surv = b["survived"]
+        psr_v = surv / n if n else 0.0
+        psr_lo, psr_hi = wilson_ci(surv, n)
+        r1_mean = b["r1_sum"] / n if n else 0.0
+        return {
+            "n": n,
+            "psr": round(psr_v, 4),
+            "psr_lo": psr_lo,
+            "psr_hi": psr_hi,
+            "rouge1_f1": round(r1_mean, 4),
+        }
+
+    return {
+        "label": "SIMULATED redaction sensitivity — gold spans perturbed; not real model predictions",
+        "grid": grid,
+        "oracle_by_attack_type": {k: _summarize_bucket(v) for k, v in oracle_by_attack_type.items()},
+        "oracle_by_position": {k: _summarize_bucket(v) for k, v in oracle_by_position.items()},
+    }

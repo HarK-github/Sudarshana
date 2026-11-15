@@ -194,6 +194,55 @@ def make_figures(downstream: dict, slicing: dict, latency: dict) -> list[Path]:
     else:
         print("  [figures] no latency data with p50/p95; skipping latency figure")
 
+    # --- 5. Sensitivity grid heatmap ---
+    try:
+        import json as _json_fig
+        sens_path = REPO_ROOT / "results" / "p5" / "sensitivity.json"
+        if sens_path.exists():
+            with open(sens_path) as _sf:
+                _sens = _json_fig.load(_sf)
+            grid = _sens.get("grid", [])
+            if grid:
+                import numpy as np
+                fs = sorted(set(c["keep_fraction"] for c in grid), reverse=True)
+                ms = sorted(set(c["drop_rate"] for c in grid))
+                psr_mat = [[next((c["psr"] for c in grid if c["keep_fraction"] == f and c["drop_rate"] == m), 0.0) for m in ms] for f in fs]
+                fig, ax = plt.subplots(figsize=(7, 4))
+                im = ax.imshow(psr_mat, aspect="auto", cmap="RdYlGn_r", vmin=0, vmax=1)
+                ax.set_xticks(range(len(ms))); ax.set_xticklabels([f"m={m}" for m in ms])
+                ax.set_yticks(range(len(fs))); ax.set_yticklabels([f"f={f}" for f in fs])
+                ax.set_xlabel("Drop rate (m)"); ax.set_ylabel("Keep fraction (f)")
+                ax.set_title("[SIMULATED] PSR by keep_fraction × drop_rate")
+                plt.colorbar(im, ax=ax, label="PSR")
+                for i, row in enumerate(psr_mat):
+                    for j, val in enumerate(row):
+                        ax.text(j, i, f"{val:.2f}", ha="center", va="center", fontsize=8,
+                                color="white" if val > 0.6 else "black")
+                fig.tight_layout()
+                p = FIGURES_DIR / "redaction_sensitivity.png"
+                fig.savefig(p, dpi=100); plt.close(fig); created.append(p)
+                print(f"  [figure] {p.name}")
+
+            # PSR by attack type
+            at = _sens.get("oracle_by_attack_type", {})
+            if at:
+                atypes = sorted(at.keys())
+                psrs = [at[a]["psr"] for a in atypes]
+                errs_lo = [at[a]["psr"] - at[a].get("psr_lo", at[a]["psr"]) for a in atypes]
+                errs_hi = [at[a].get("psr_hi", at[a]["psr"]) - at[a]["psr"] for a in atypes]
+                fig, ax = plt.subplots(figsize=(max(6, len(atypes) * 1.2), 4))
+                ax.bar(range(len(atypes)), psrs, color="#dd8452",
+                       yerr=[errs_lo, errs_hi], capsize=4)
+                ax.set_xticks(range(len(atypes))); ax.set_xticklabels(atypes, rotation=35, ha="right", fontsize=8)
+                ax.set_ylabel("PSR (oracle)"); ax.set_ylim(0, 1.1)
+                ax.set_title("[SIMULATED] Oracle PSR by Attack Type (f=1.0, m=0.0)")
+                fig.tight_layout()
+                p = FIGURES_DIR / "psr_by_attack_type.png"
+                fig.savefig(p, dpi=100); plt.close(fig); created.append(p)
+                print(f"  [figure] {p.name}")
+    except Exception as _exc:
+        print(f"  [figures] sensitivity figure error: {_exc}")
+
     return created
 
 
@@ -262,6 +311,123 @@ def make_eval_report(
         s = slicing.get("predictors", {}).get(pname, {})
         return _fmt(s.get("fpr_on_hard_negatives", {}).get("fpr"), ".4f", "N/A")
 
+    # CI helpers (Wilson)
+    def _ci_wilson_str(k: Any, n: Any) -> str:
+        try:
+            from sudarshana.evaluation.p5_common import wilson_ci
+            lo, hi = wilson_ci(int(k) if k is not None else 0, int(n) if n else 0)
+            return f"[{lo:.3f}, {hi:.3f}] (n={int(n) if n else 0})"
+        except Exception:
+            return ""
+
+    # Keyword heuristic predictor key (may be 'keyword_heuristic' or 'baseline' in stale JSON)
+    def _kw_pname() -> str:
+        preds = full_metrics.get("predictors", {})
+        return "keyword_heuristic" if "keyword_heuristic" in preds else "baseline"
+
+    def _kw(key: str) -> Any:
+        return full_metrics.get("predictors", {}).get(_kw_pname(), {}).get(key)
+
+    def _kw_int(key: str) -> int:
+        v = _kw(key)
+        try:
+            return int(v) if v is not None else 0
+        except (TypeError, ValueError):
+            return 0
+
+    def _preds_n() -> str:
+        sl = slicing.get("predictors", {}).get(_kw_pname(), {})
+        total = sum(
+            v.get("support", 0)
+            for v in sl.get("recall_by_position", {}).values()
+        )
+        return str(total) if total else "N/A"
+
+    # Baseline day2 table builder
+    def _make_baseline_day2_table() -> str:
+        import json as _json
+        p = REPO_ROOT / "results" / "baseline_day2.json"
+        if not p.exists():
+            return "> `results/baseline_day2.json` not found."
+        with open(p) as fh:
+            raw = _json.load(fh)
+        rc = raw.get("row_counts", {})
+        splits = raw.get("runs", {}).get("lexical", {}).get("splits", {})
+        rows = []
+        rows.append("| Split | N | Recall | FPR | Precision | F1 |")
+        rows.append("|-------|---|--------|-----|-----------|-----|")
+        for sname in ("val", "test"):
+            if sname not in splits:
+                continue
+            o = splits[sname].get("overall", {})
+            tp, fp, fn, tn = o.get("tp", 0), o.get("fp", 0), o.get("fn", 0), o.get("tn", 0)
+            rec = o.get("recall", tp / (tp + fn) if (tp + fn) else 0)
+            fpr = o.get("fpr", fp / (fp + tn) if (fp + tn) else 0)
+            prec = o.get("precision", tp / (tp + fp) if (tp + fp) else 0)
+            f1 = 2 * prec * rec / (prec + rec) if (prec + rec) else 0
+            n = rc.get(sname, o.get("support", "N/A"))
+            rows.append(f"| {sname} | {n} | {rec:.4f} | {fpr:.4f} | {prec:.4f} | {f1:.4f} |")
+        # By attack type (val only since it has this key)
+        rat = splits.get("val", {}).get("recall_by_attack_type", {})
+        if rat:
+            rows.append("")
+            rows.append("**Recall by attack type (val split)**")
+            rows.append("")
+            rows.append("| Attack Type | Support | Recall |")
+            rows.append("|-------------|---------|--------|")
+            for atype, v in sorted(rat.items()):
+                rows.append(f"| {atype} | {v.get('support', 0)} | {v.get('recall', 0):.4f} |")
+        return chr(10).join(rows)
+
+    # Sensitivity grid rows
+    sens_data = full_metrics.get("sensitivity", {})
+    sens_grid = sens_data.get("grid", [])
+    sens_oracle_at = sens_data.get("oracle_by_attack_type", {})
+    sens_oracle_pos = sens_data.get("oracle_by_position", {})
+
+    def _sens_rows() -> str:
+        if not sens_grid:
+            return "| — | — | — | — | — |"
+        lines = []
+        for cell in sens_grid:
+            f = cell.get("keep_fraction")
+            m = cell.get("drop_rate")
+            psr = cell.get("psr")
+            psr_lo = cell.get("psr_lo")
+            psr_hi = cell.get("psr_hi")
+            r1 = cell.get("rouge1_f1")
+            n = cell.get("n", 0)
+            psr_str = f"{psr:.4f} [{psr_lo:.3f}, {psr_hi:.3f}] (n={n})" if psr is not None else "N/A"
+            r1_str = _fmt(r1, ".4f")
+            lines.append(f"| {f} | {m} | {psr_str} | {r1_str} |")
+        return chr(10).join(lines)
+
+    def _sens_at_rows() -> str:
+        if not sens_oracle_at:
+            return "| — | — | — | — |"
+        lines = []
+        for atype, v in sorted(sens_oracle_at.items()):
+            psr = v.get("psr", 0)
+            psr_lo = v.get("psr_lo", 0)
+            psr_hi = v.get("psr_hi", 0)
+            n = v.get("n", 0)
+            r1 = v.get("rouge1_f1", 0)
+            lines.append(f"| {atype} | {n} | {psr:.4f} [{psr_lo:.3f}, {psr_hi:.3f}] | {r1:.4f} |")
+        return chr(10).join(lines)
+
+    def _sens_pos_rows() -> str:
+        if not sens_oracle_pos:
+            return "| — | — | — | — |"
+        lines = []
+        for pos, v in sorted(sens_oracle_pos.items()):
+            psr = v.get("psr", 0)
+            psr_lo = v.get("psr_lo", 0)
+            psr_hi = v.get("psr_hi", 0)
+            n = v.get("n", 0)
+            r1 = v.get("rouge1_f1", 0)
+            lines.append(f"| {pos} | {n} | {psr:.4f} [{psr_lo:.3f}, {psr_hi:.3f}] | {r1:.4f} |")
+        return chr(10).join(lines)
+
     # Recall by position table rows
     pos_rows: list[str] = []
     for pname, pdata in slicing.get("predictors", {}).items():
@@ -317,7 +483,7 @@ def make_eval_report(
 |------|-------------|
 | none | No defence — always predicts 0 (no injection). Reports baseline FPR=0, recall=0. |
 | oracle | Gold labels (upper-bound ceiling). |
-| baseline | Lexical keyword model (threshold=0.5). Numbers merged from `results/baseline_day2.json`. |
+| keyword_heuristic | P5 lexical keyword scorer (threshold=0.5, document-only). NOT the team baseline. |
 | token_head | N/A (no weights — checkpoints contain only config+tokenizer files) |
 
 ### ⚠️ Proxy Metric Warnings
@@ -332,14 +498,18 @@ comparing task completion. ROUGE-1 is a surface-text overlap proxy only.
 
 ---
 
-## 2. Baseline Results (lexical model, `baseline_day2.json`)
+## 2. Team Baseline (lexical model, `baseline_day2.json` — teammate result, not recomputed)
 
-{_fmt(full_metrics.get('predictors', {}).get('baseline', {}).get('baseline_day2_recall'), '.4f', 'N/A')} recall / {_fmt(full_metrics.get('predictors', {}).get('baseline', {}).get('baseline_day2_fpr'), '.4f', 'N/A')} FPR  (source: `baseline_day2.json`)
+> **Ran on full dataset** (train=179 820 / val=44 729 / test=42 999). Committed sample splits
+> (test=206, hard_neg=15) are **not comparable**.
 
-P5 lexical re-evaluation on `{full_metrics.get('split', 'test')}` split:
-- Recall: {_fmt(full_metrics.get('predictors', {}).get('baseline', {}).get('recall'), '.4f', 'N/A')}
-- FPR (test): {_fpr_test_val('baseline')}
-- FPR (hard-neg): {_fpr_hn_val('baseline')}
+{_make_baseline_day2_table()}
+
+### P5 keyword_heuristic re-evaluation on `{full_metrics.get('split', 'test')}` split (N={_preds_n()})
+
+- Recall: {_fmt(_kw('recall'), '.4f', 'N/A')} {_ci_wilson_str(_kw_int('tp'), _kw_int('tp') + _kw_int('fn'))}
+- FPR (test): {_fpr_test_val('keyword_heuristic')} {_ci_wilson_str(_kw_int('fp_test'), _kw_int('fp_test') + _kw_int('tn_test'))}
+- FPR (hard-neg N=15, indicative only): {_fpr_hn_val('keyword_heuristic')}
 
 ---
 
@@ -402,14 +572,48 @@ Benchmark: ~{latency.get('benchmark_doc_word_estimate', 'N/A')} estimated tokens
 
 ---
 
-## 9. Limitations
+## 9. ⚠️ SIMULATED Redaction Sensitivity Analysis
 
-1. **No trained token-head weights** — the DeBERTa-v3 token-head is defined in `models/token_head.py` but checkpoint dirs contain only config and tokenizer. All span-level and weighted-model metrics are N/A until P4 delivers trained weights.
-2. **Binary predictors only** — none/baseline produce binary labels, not span offsets. PSR/ROUGE-1 for baseline uses a crude 50-char proxy redaction (not meaningful as a utility metric).
-3. **PSR and ROUGE-1 are proxies** — not real ASR or task utility (see §1 warnings).
-4. **No pair-input evaluation** — P3's (user_task, document) pair collator is not yet integrated; all predictors use document-only input.
-5. **No LLM** — LLMBackend protocol stubbed; `compute_llm_asr` returns N/A.
-6. **Small test set** — 206 test records (155 injected, 51 benign); estimates are high-variance.
+> All results in this section are **SIMULATED**. Gold spans are perturbed to model imperfect
+> redaction (partial span coverage, span drop). Real results require trained span predictions.
+
+**Label**: {sens_data.get('label', 'SIMULATED')}
+
+### 9a. PSR and ROUGE-1 Grid (keep_fraction f × drop_rate m)
+
+| keep_fraction | drop_rate | PSR [95% CI] (n=injected) | ROUGE-1 F1 |
+|---------------|-----------|---------------------------|------------|
+{_sens_rows()}
+
+### 9b. Oracle PSR and ROUGE-1 by Attack Type (f=1.0, m=0.0)
+
+{_fig_md('psr_by_attack_type', 'Oracle PSR by Attack Type')}
+
+| Attack Type | N | PSR [95% CI] | ROUGE-1 F1 |
+|-------------|---|--------------|------------|
+{_sens_at_rows()}
+
+### 9c. Oracle PSR and ROUGE-1 by Position (f=1.0, m=0.0)
+
+| Position | N | PSR [95% CI] | ROUGE-1 F1 |
+|----------|---|--------------|------------|
+{_sens_pos_rows()}
+
+{_fig_md('redaction_sensitivity', 'Redaction Sensitivity Grid')}
+
+---
+
+## 10. Limitations
+
+1. **Real split sizes differ from team baseline** — P5 evaluates on committed sample splits (test=206, hard_neg=15); team baseline ran on full dataset (test=42 999). Numbers are **not comparable**.
+2. **Hard-neg N=15** — only 15 hard-negative records; FPR estimates are indicative only (wide Wilson CIs).
+3. **ASR proxy** — PSR measures payload-text survival; real ASR requires LLM execution and behavioural verification.
+4. **ROUGE-1 utility proxy** — surface-text overlap; actual task utility requires downstream agent evaluation.
+5. **token_head: N/A** — no trained weights; all token-head metrics are N/A.
+6. **No obfuscated set** — obfuscated held-out evaluation skipped (P1/P2 deliverable).
+7. **No pair-input evaluation** — P3's (user_task, document) pair collator not integrated; all predictors use document-only input.
+8. **No LLM ASR** — `LLMBackend` protocol stubbed; `compute_llm_asr` returns N/A.
+9. **Sensitivity is SIMULATED** — gold span perturbations, not real predicted spans from a trained model.
 
 ---
 
