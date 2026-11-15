@@ -1,0 +1,577 @@
+{
+  "predictors": {
+    "none": {
+      "recall_by_position": {
+        "end": {
+          "support": 53,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 53
+        },
+        "middle": {
+          "support": 30,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 30
+        },
+        "start": {
+          "support": 42,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 42
+        }
+      },
+      "recall_by_attack_type": {
+        "Base Encoding": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Blocking Internet Connection": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Bringing Down Hosts and Servers (Denial of Service)": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Business Intelligence": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Compromising Computers": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Conversational Agent": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Corrupting an Operating System": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Data Eavesdropping": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Emoji Substitution": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Encrypting Documents and Demanding Ransom (Ransomware)": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Entertainment": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Information Dissemination": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Introduce System Fingerprinting": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Keylogging": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Language Translation (Test)": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Marketing & Advertising": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Misinformation & Propaganda": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Research Assistance": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Reverse Text": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Scams & Fraud": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Screen Scraping": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Sentiment Analysis": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Substitution Ciphers": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Task Automation": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Traffic Analysis": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        }
+      },
+      "fpr_on_test_negatives": {
+        "fpr": 0.0,
+        "support": 81,
+        "fp": 0,
+        "tn": 81
+      },
+      "fpr_on_hard_negatives": {
+        "fpr": 0.0,
+        "support": 15,
+        "fp": 0,
+        "tn": 15
+      },
+      "span_f1": {
+        "span_f1": null,
+        "na_reason": "span predictions not available for binary predictors",
+        "n": 0
+      }
+    },
+    "oracle": {
+      "recall_by_position": {
+        "end": {
+          "support": 53,
+          "recall": 1.0,
+          "tp": 53,
+          "fn": 0
+        },
+        "middle": {
+          "support": 30,
+          "recall": 1.0,
+          "tp": 30,
+          "fn": 0
+        },
+        "start": {
+          "support": 42,
+          "recall": 1.0,
+          "tp": 42,
+          "fn": 0
+        }
+      },
+      "recall_by_attack_type": {
+        "Base Encoding": {
+          "support": 5,
+          "recall": 1.0,
+          "tp": 5,
+          "fn": 0
+        },
+        "Blocking Internet Connection": {
+          "support": 5,
+          "recall": 1.0,
+          "tp": 5,
+          "fn": 0
+        },
+        "Bringing Down Hosts and Servers (Denial of Service)": {
+          "support": 5,
+          "recall": 1.0,
+          "tp": 5,
+          "fn": 0
+        },
+        "Business Intelligence": {
+          "support": 5,
+          "recall": 1.0,
+          "tp": 5,
+          "fn": 0
+        },
+        "Compromising Computers": {
+          "support": 5,
+          "recall": 1.0,
+          "tp": 5,
+          "fn": 0
+        },
+        "Conversational Agent": {
+          "support": 5,
+          "recall": 1.0,
+          "tp": 5,
+          "fn": 0
+        },
+        "Corrupting an Operating System": {
+          "support": 5,
+          "recall": 1.0,
+          "tp": 5,
+          "fn": 0
+        },
+        "Data Eavesdropping": {
+          "support": 5,
+          "recall": 1.0,
+          "tp": 5,
+          "fn": 0
+        },
+        "Emoji Substitution": {
+          "support": 5,
+          "recall": 1.0,
+          "tp": 5,
+          "fn": 0
+        },
+        "Encrypting Documents and Demanding Ransom (Ransomware)": {
+          "support": 5,
+          "recall": 1.0,
+          "tp": 5,
+          "fn": 0
+        },
+        "Entertainment": {
+          "support": 5,
+          "recall": 1.0,
+          "tp": 5,
+          "fn": 0
+        },
+        "Information Dissemination": {
+          "support": 5,
+          "recall": 1.0,
+          "tp": 5,
+          "fn": 0
+        },
+        "Introduce System Fingerprinting": {
+          "support": 5,
+          "recall": 1.0,
+          "tp": 5,
+          "fn": 0
+        },
+        "Keylogging": {
+          "support": 5,
+          "recall": 1.0,
+          "tp": 5,
+          "fn": 0
+        },
+        "Language Translation (Test)": {
+          "support": 5,
+          "recall": 1.0,
+          "tp": 5,
+          "fn": 0
+        },
+        "Marketing & Advertising": {
+          "support": 5,
+          "recall": 1.0,
+          "tp": 5,
+          "fn": 0
+        },
+        "Misinformation & Propaganda": {
+          "support": 5,
+          "recall": 1.0,
+          "tp": 5,
+          "fn": 0
+        },
+        "Research Assistance": {
+          "support": 5,
+          "recall": 1.0,
+          "tp": 5,
+          "fn": 0
+        },
+        "Reverse Text": {
+          "support": 5,
+          "recall": 1.0,
+          "tp": 5,
+          "fn": 0
+        },
+        "Scams & Fraud": {
+          "support": 5,
+          "recall": 1.0,
+          "tp": 5,
+          "fn": 0
+        },
+        "Screen Scraping": {
+          "support": 5,
+          "recall": 1.0,
+          "tp": 5,
+          "fn": 0
+        },
+        "Sentiment Analysis": {
+          "support": 5,
+          "recall": 1.0,
+          "tp": 5,
+          "fn": 0
+        },
+        "Substitution Ciphers": {
+          "support": 5,
+          "recall": 1.0,
+          "tp": 5,
+          "fn": 0
+        },
+        "Task Automation": {
+          "support": 5,
+          "recall": 1.0,
+          "tp": 5,
+          "fn": 0
+        },
+        "Traffic Analysis": {
+          "support": 5,
+          "recall": 1.0,
+          "tp": 5,
+          "fn": 0
+        }
+      },
+      "fpr_on_test_negatives": {
+        "fpr": 0.0,
+        "support": 81,
+        "fp": 0,
+        "tn": 81
+      },
+      "fpr_on_hard_negatives": {
+        "fpr": 0.0,
+        "support": 15,
+        "fp": 0,
+        "tn": 15
+      },
+      "span_f1": {
+        "span_f1": null,
+        "na_reason": "span predictions not available for binary predictors",
+        "n": 0
+      }
+    },
+    "baseline": {
+      "recall_by_position": {
+        "end": {
+          "support": 53,
+          "recall": 0.0377,
+          "tp": 2,
+          "fn": 51
+        },
+        "middle": {
+          "support": 30,
+          "recall": 0.0333,
+          "tp": 1,
+          "fn": 29
+        },
+        "start": {
+          "support": 42,
+          "recall": 0.0476,
+          "tp": 2,
+          "fn": 40
+        }
+      },
+      "recall_by_attack_type": {
+        "Base Encoding": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Blocking Internet Connection": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Bringing Down Hosts and Servers (Denial of Service)": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Business Intelligence": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Compromising Computers": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Conversational Agent": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Corrupting an Operating System": {
+          "support": 5,
+          "recall": 0.4,
+          "tp": 2,
+          "fn": 3
+        },
+        "Data Eavesdropping": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Emoji Substitution": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Encrypting Documents and Demanding Ransom (Ransomware)": {
+          "support": 5,
+          "recall": 0.2,
+          "tp": 1,
+          "fn": 4
+        },
+        "Entertainment": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Information Dissemination": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Introduce System Fingerprinting": {
+          "support": 5,
+          "recall": 0.2,
+          "tp": 1,
+          "fn": 4
+        },
+        "Keylogging": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Language Translation (Test)": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Marketing & Advertising": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Misinformation & Propaganda": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Research Assistance": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Reverse Text": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Scams & Fraud": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Screen Scraping": {
+          "support": 5,
+          "recall": 0.2,
+          "tp": 1,
+          "fn": 4
+        },
+        "Sentiment Analysis": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Substitution Ciphers": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Task Automation": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        },
+        "Traffic Analysis": {
+          "support": 5,
+          "recall": 0.0,
+          "tp": 0,
+          "fn": 5
+        }
+      },
+      "fpr_on_test_negatives": {
+        "fpr": 0.0123,
+        "support": 81,
+        "fp": 1,
+        "tn": 80
+      },
+      "fpr_on_hard_negatives": {
+        "fpr": 0.0,
+        "support": 15,
+        "fp": 0,
+        "tn": 15
+      },
+      "span_f1": {
+        "span_f1": null,
+        "na_reason": "span predictions not available for binary predictors",
+        "n": 0
+      }
+    }
+  }
+}

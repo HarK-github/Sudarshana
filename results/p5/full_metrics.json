@@ -1,0 +1,58 @@
+{
+  "split": "test",
+  "seed": 42,
+  "predictors": {
+    "none": {
+      "recall": 0.0,
+      "fpr_test": 0.0,
+      "fpr_hard_neg": 0.0,
+      "fpr_at_recall": "N/A (binary predictor; no continuous scores)",
+      "span_f1": null,
+      "span_f1_na_reason": "span predictions not available for binary predictors",
+      "psr": 1.0,
+      "rouge1_f1": 0.8962,
+      "latency_p50_ms": 16.53,
+      "latency_p95_ms": 25.8,
+      "baseline_day2_recall": null,
+      "baseline_day2_fpr": null
+    },
+    "oracle": {
+      "recall": 1.0,
+      "fpr_test": 0.0,
+      "fpr_hard_neg": 0.0,
+      "fpr_at_recall": "N/A (binary predictor; no continuous scores)",
+      "span_f1": null,
+      "span_f1_na_reason": "span predictions not available for binary predictors",
+      "psr": 0.0,
+      "rouge1_f1": 0.7298,
+      "latency_p50_ms": 16.53,
+      "latency_p95_ms": 25.8,
+      "baseline_day2_recall": null,
+      "baseline_day2_fpr": null
+    },
+    "baseline": {
+      "recall": 0.04,
+      "fpr_test": 0.0123,
+      "fpr_hard_neg": 0.0,
+      "fpr_at_recall": "N/A (binary predictor; no continuous scores)",
+      "span_f1": null,
+      "span_f1_na_reason": "span predictions not available for binary predictors",
+      "psr": 1.0,
+      "rouge1_f1": 0.8967,
+      "latency_p50_ms": 16.53,
+      "latency_p95_ms": 25.8,
+      "baseline_day2_recall": 0.9964489990467111,
+      "baseline_day2_fpr": 0.4456207892204042
+    },
+    "token_head": {
+      "recall": "N/A (no weights \u2014 checkpoints/ contain only config+tokenizer files)",
+      "fpr": "N/A (no weights \u2014 checkpoints/ contain only config+tokenizer files)",
+      "fpr_at_recall": "N/A (no weights \u2014 checkpoints/ contain only config+tokenizer files)",
+      "span_f1": "N/A (no weights \u2014 checkpoints/ contain only config+tokenizer files)",
+      "psr": "N/A (no weights \u2014 checkpoints/ contain only config+tokenizer files)",
+      "rouge1_f1": "N/A (no weights \u2014 checkpoints/ contain only config+tokenizer files)",
+      "latency_p50_ms": "N/A (no weights \u2014 checkpoints/ contain only config+tokenizer files)",
+      "latency_p95_ms": "N/A (no weights \u2014 checkpoints/ contain only config+tokenizer files)"
+    }
+  }
+}
