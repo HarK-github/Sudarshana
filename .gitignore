@@ -17,6 +17,7 @@ checkpoints/step*/
 checkpoints/**/*.parquet
 **/token_predictions_*.json
 checkpoints/**/predictions_*.json
+.weights_staging/
 
 # Python
 __pycache__/
