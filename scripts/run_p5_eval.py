@@ -232,6 +232,73 @@ def main() -> None:
         "oracle_by_position": sensitivity_result.get("oracle_by_position"),
     }
     _save(out_dir / "full_metrics.json", full_table)
+
+    # ---- Team models ingest (new P5 stage) ----
+    print("\n  [team models ingest]")
+    from sudarshana.evaluation.team_results import (
+        load_team_artifacts, recompute_from_predictions, reconcile, psr_rouge_from_predictions,
+    )
+    team_artifacts = load_team_artifacts(REPO_ROOT)
+    pred_path = REPO_ROOT / "reports" / "audit" / "raw_test_predictions.jsonl"
+    split_path = REPO_ROOT / "data" / "splits" / "test.jsonl"
+    recomp = recompute_from_predictions(pred_path, split_path)
+    psr_rouge = psr_rouge_from_predictions(pred_path)
+    recon_flags = reconcile(recomp, team_artifacts)
+
+    team_models_out: dict = {
+        "team_artifacts_loaded": {k: (v.get("_source") or v.get("status", "ok"))
+                                  for k, v in team_artifacts.items()},
+        "recomputed_from_predictions": recomp,
+        "psr_rouge_from_predictions": psr_rouge,
+        "reconciliation_flags": recon_flags,
+        "table_3_5_obfuscation": team_artifacts.get("table_3_5", {}),
+        "table_3_8_latency": team_artifacts.get("table_3_8", {}),
+    }
+    _save(out_dir / "team_models.json", team_models_out)
+    print(f"    recomputed n={recomp.get('n')} | flags={len(recon_flags)}")
+    print(f"    PSR overall={psr_rouge.get('psr_overall')}")
+
+    # Merge provenance-labelled "team" section into full_metrics
+    full_table["team"] = {
+        "ablation_steps": {
+            sid: {
+                "recall": sdata.get("overall", {}).get("recall"),
+                "fpr": sdata.get("overall", {}).get("fpr"),
+                "precision": sdata.get("overall", {}).get("precision"),
+                "f1": sdata.get("overall", {}).get("f1"),
+                "n": sdata.get("overall", {}).get("total"),
+                "_source": sdata.get("_source"),
+                "_provenance": sdata.get("_provenance", "team-reported"),
+                "_owner": sdata.get("_owner", "P3"),
+            }
+            for sid, sdata in team_artifacts.get("steps", {}).items()
+            if isinstance(sdata, dict) and sdata.get("status") != "N/A"
+        },
+        "obfuscation_table": {
+            "_source": team_artifacts.get("table_3_5", {}).get("_source"),
+            "_provenance": "team-reported",
+            "_owner": "P3",
+        },
+        "latency_model_forward": {
+            "mean_ms": team_artifacts.get("table_3_8", {}).get("data", {}).get("full_pipeline", {}).get("mean_latency_ms"),
+            "median_ms": team_artifacts.get("table_3_8", {}).get("data", {}).get("full_pipeline", {}).get("median_latency_ms"),
+            "baseline_mean_ms": team_artifacts.get("table_3_8", {}).get("data", {}).get("baseline", {}).get("mean_latency_ms"),
+            "device": team_artifacts.get("table_3_8", {}).get("data", {}).get("device"),
+            "_source": team_artifacts.get("table_3_8", {}).get("_source"),
+            "_provenance": "team-reported",
+            "_owner": "P3",
+            "_hardware_note": "AMD Ryzen 7 7735U (16 vCPUs, CPU mode), ~2000 token document",
+        },
+        "heldout_obfuscation": {
+            "_source": "results/table_3_5_obfuscation_comparison.json",
+            "_provenance": "team-reported",
+            "_owner": "P3",
+            "_note": "Per-obfuscation-type recall for step1/step2/step6 on full obfuscated test set",
+        },
+        "reconciliation_flags": recon_flags,
+    }
+    _save(out_dir / "full_metrics.json", full_table)
+
     print("\n=== P5 Evaluation Complete ===")
     print(f"  Results in: {out_dir.relative_to(REPO_ROOT)}/")
 

@@ -1,0 +1,22 @@
+# Ablation Step 6: Full Pipeline + Obfuscation Augmentation (Hypothesis H2)
+_base_: "configs/base_training.yaml"
+step_name: "step6_augmented"
+hypothesis: "H2 (Obfuscation): Training with synthetic obfuscations + Normalizer maximizes robustness"
+normalize: true
+chunking: true
+chunk_size: 256
+chunk_stride: 192
+pair_input: true
+max_task_length: 64
+max_chunk_length: 256
+total_max_length: 323
+pooling_method: "token_gated"
+top_k: 2
+counterfactual_pairs: true
+use_token_head: true
+use_type_head: false
+obf_augment: true
+lambda_tok: 0.25
+lambda_type: 0.0
+output_dir: "checkpoints/step6_augmented"
+results_dir: "results/step6_augmented"

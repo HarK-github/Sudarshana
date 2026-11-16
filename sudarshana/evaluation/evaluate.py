@@ -110,11 +110,13 @@ def predict_document_windows(
             if end_idx == total_tokens:
                 break
 
-    # Extract spans
+    # Extract spans with gap bridging
     detected_spans = []
     in_span = False
     cur_start = 0
     cur_end = 0
+    gap_count = 0
+    max_gap_tokens = 2
 
     for idx, p in enumerate(token_max_prob):
         s, e = all_offsets[idx]
@@ -127,10 +129,16 @@ def predict_document_windows(
                 cur_end = e
             else:
                 cur_end = max(cur_end, e)
+            gap_count = 0
         else:
             if in_span:
-                detected_spans.append((cur_start, cur_end))
-                in_span = False
+                gap_count += 1
+                if gap_count <= max_gap_tokens:
+                    continue
+                else:
+                    detected_spans.append((cur_start, cur_end))
+                    in_span = False
+                    gap_count = 0
 
     if in_span:
         detected_spans.append((cur_start, cur_end))
@@ -437,9 +445,9 @@ def run_full_evaluation():
         "baselines": baselines,
         "latency": latency_info,
         "unmeasured": {
-            "ROUGE_1_BIPIA_Clean": "Not measured. P5 owns the downstream evaluation harness and fixed LLM generation pipeline.",
-            "End_to_End_ASR": "Not measured. P5 owns the fixed LLM evaluation harness for ASR.",
-            "Cross_Dataset_Evaluation": "Not measured. Marked out of 7-day scope per Day-0 decisions in brief Section 4."
+            "ROUGE_1_BIPIA_Clean": "Not measured. Downstream evaluation harness and fixed LLM generation pipeline.",
+            "End_to_End_ASR": "Not measured. Fixed LLM evaluation harness for ASR.",
+            "Cross_Dataset_Evaluation": "Not measured. Marked out of scope."
         }
     }
 

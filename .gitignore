@@ -9,6 +9,15 @@ data/processed/
 
 # Checkpoint model weights
 checkpoints/**/*.bin
+*.pt
+
+# Large generated model assets and prediction logs
+models/**/tokenizer.json
+checkpoints/step*/
+checkpoints/**/*.parquet
+**/token_predictions_*.json
+checkpoints/**/predictions_*.json
+.weights_staging/
 
 # Python
 __pycache__/

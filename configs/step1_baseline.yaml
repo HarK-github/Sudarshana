@@ -1,0 +1,16 @@
+# Ablation Step 1: Baseline (512-truncated, single-string, document only)
+_base_: "configs/base_training.yaml"
+step_name: "step1_baseline"
+hypothesis: "Baseline reproduction (H1-H4 reference)"
+normalize: false
+chunking: false
+max_tokens: 512
+pair_input: false
+pooling_method: "single"
+use_token_head: false
+use_type_head: false
+obf_augment: false
+lambda_tok: 0.0
+lambda_type: 0.0
+output_dir: "checkpoints/step1_baseline"
+results_dir: "results/step1_baseline"

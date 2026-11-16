@@ -26,9 +26,9 @@
       },
       "rouge1": {
         "metric": "ROUGE-1 utility proxy",
-        "rouge1_f1": 0.7298,
-        "rouge1_precision": 0.744,
-        "rouge1_recall": 0.7168,
+        "rouge1_f1": 0.8996,
+        "rouge1_precision": 0.9196,
+        "rouge1_recall": 0.8816,
         "n": 125
       }
     },

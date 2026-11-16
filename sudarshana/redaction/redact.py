@@ -9,6 +9,7 @@ def redact(text: str, spans: list[tuple[int, int]]) -> str:
 """
 
 import os
+import re
 from typing import List, Optional, Tuple
 import pysbd
 import torch
@@ -20,7 +21,9 @@ from ..data.labeling import build_model_input, LABEL2ID, ID2LABEL
 _GLOBAL_MODEL = None
 _GLOBAL_TOKENIZER = None
 _CALIBRATED_THRESHOLD = 0.35  # Tuned for recall on validation split
-DEFAULT_FALLBACK_RATIO = 0.35
+DEFAULT_FALLBACK_RATIO = 0.50  # Calibrated on val.jsonl (Pareto-optimal: block rate <30%, coverage >=99.9%)
+DEFAULT_GAP_TOKENS = 2  # Bridge unflagged connective tokens inside injection
+DEFAULT_CAP_RATIO = 2.5  # Relative expansion cap to prevent over-removal
 BLOCKED_SENTINEL = "[BLOCKED: PROMPT INJECTION DETECTED]"
 
 
@@ -32,14 +35,17 @@ def set_inference_model(model, tokenizer, threshold: float = 0.35):
     _CALIBRATED_THRESHOLD = threshold
 
 
-def load_prototype_model(checkpoint_dir: str = "checkpoints/prototype-token-head-deberta-v3-xsmall-20261110"):
+def load_prototype_model(
+    checkpoint_dir: str = "checkpoints/prototype-token-head-deberta-v3-xsmall-20261110",
+    backbone_name: str = "microsoft/deberta-v3-xsmall"
+):
     """Load trained prototype checkpoint for inference."""
     global _GLOBAL_MODEL, _GLOBAL_TOKENIZER
     from ..models.token_head import SudarshanaTokenClassifier
 
     if os.path.exists(checkpoint_dir):
-        tokenizer = AutoTokenizer.from_pretrained(checkpoint_dir)
-        model = SudarshanaTokenClassifier(backbone_name_or_path=checkpoint_dir)
+        tokenizer = AutoTokenizer.from_pretrained(backbone_name)
+        model = SudarshanaTokenClassifier(backbone_name_or_path=backbone_name)
         weights_path = os.path.join(checkpoint_dir, "pytorch_model.bin")
         if os.path.exists(weights_path):
             model.load_state_dict(torch.load(weights_path, map_location="cpu"))
@@ -49,47 +55,168 @@ def load_prototype_model(checkpoint_dir: str = "checkpoints/prototype-token-head
     return None, None
 
 
+def expand_span_structure_aware(
+    text: str,
+    span: Tuple[int, int],
+    cap_ratio: float = DEFAULT_CAP_RATIO,
+    min_cap_chars: int = 150
+) -> Tuple[int, int]:
+    """
+    Expand a single character span to its enclosing structural unit:
+    1. HTML comment <!-- ... -->
+    2. Markdown code block ```...```
+    3. Python docstring '''...''' or \"\"\"...\"\"\"
+    4. Markdown table row | ... |
+    5. Contiguous code comment block (# ... or // ...)
+    6. Sentence / paragraph boundary bounded by newlines
+    Enforces maximum expansion cap to prevent over-removal.
+    """
+    s_start, s_end = span
+    span_len = s_end - s_start
+    max_len = max(min_cap_chars, int(cap_ratio * span_len)) if cap_ratio < float("inf") else len(text)
+
+    # 1. HTML comment <!-- ... -->
+    left_chunk = text[:s_start]
+    last_comment_open = left_chunk.rfind("<!--")
+    if last_comment_open != -1:
+        last_comment_close = left_chunk.rfind("-->")
+        if last_comment_close < last_comment_open:
+            comment_end = text.find("-->", s_end)
+            if comment_end != -1:
+                e_end = comment_end + 3
+                if e_end < len(text) and text[e_end] == "\n":
+                    e_end += 1
+                e_start = last_comment_open
+                if e_start > 0 and text[e_start - 1] == "\n":
+                    e_start -= 1
+                if (e_end - e_start) <= max_len:
+                    return (e_start, e_end)
+
+    # 2. Markdown code fence ``` ... ```
+    fence_pattern = re.compile(r"```[^\n]*\n[\s\S]*?```")
+    for m in fence_pattern.finditer(text):
+        if m.start() <= s_start and m.end() >= s_end:
+            e_start, e_end = m.start(), m.end()
+            if e_start > 0 and text[e_start - 1] == "\n":
+                e_start -= 1
+            if e_end < len(text) and text[e_end] == "\n":
+                e_end += 1
+            if (e_end - e_start) <= max_len:
+                return (e_start, e_end)
+
+    # 3. Python docstring '''...''' or """..."""
+    for q in ["'''", '"""']:
+        doc_pattern = re.compile(re.escape(q) + r"[\s\S]*?" + re.escape(q))
+        for m in doc_pattern.finditer(text):
+            if m.start() <= s_start and m.end() >= s_end:
+                e_start, e_end = m.start(), m.end()
+                if e_start > 0 and text[e_start - 1] == "\n":
+                    e_start -= 1
+                if e_end < len(text) and text[e_end] == "\n":
+                    e_end += 1
+                if (e_end - e_start) <= max_len:
+                    return (e_start, e_end)
+
+    # 4. Markdown Table Row (| ... |)
+    prev_nl = text.rfind("\n", 0, s_start)
+    line_start = 0 if prev_nl == -1 else prev_nl + 1
+    next_nl = text.find("\n", s_end)
+    line_end = len(text) if next_nl == -1 else next_nl
+    enclosing_line = text[line_start:line_end]
+
+    if "|" in enclosing_line and (enclosing_line.strip().startswith("|") or enclosing_line.strip().endswith("|")):
+        e_end = line_end + 1 if line_end < len(text) and text[line_end] == "\n" else line_end
+        if (e_end - line_start) <= max_len:
+            return (line_start, e_end)
+
+    # 5. Contiguous code comment lines (# ... or // ...)
+    if enclosing_line.strip().startswith("#") or enclosing_line.strip().startswith("//"):
+        c_start = line_start
+        cur_p = prev_nl
+        while cur_p > 0:
+            p_nl = text.rfind("\n", 0, cur_p)
+            p_start = 0 if p_nl == -1 else p_nl + 1
+            p_line = text[p_start:cur_p].strip()
+            if p_line.startswith("#") or p_line.startswith("//"):
+                c_start = p_start
+                cur_p = p_nl
+            else:
+                break
+        
+        c_end = line_end
+        cur_n = next_nl
+        while cur_n != -1 and cur_n < len(text):
+            n_nl = text.find("\n", cur_n + 1)
+            n_end = len(text) if n_nl == -1 else n_nl
+            n_line = text[cur_n + 1:n_end].strip()
+            if n_line.startswith("#") or n_line.startswith("//"):
+                c_end = n_end
+                cur_n = n_nl
+            else:
+                break
+        
+        if c_end < len(text) and text[c_end] == "\n":
+            c_end += 1
+        if (c_end - c_start) <= max_len:
+            return (c_start, c_end)
+
+    # 6. Natural Language / Prose: Expand to sentence boundary within paragraph using PySBD
+    seg = pysbd.Segmenter(language="en", clean=False)
+    # Paragraph boundaries: find double newlines or single newlines
+    prev_para = text.rfind("\n\n", 0, s_start)
+    para_start = 0 if prev_para == -1 else prev_para + 2
+    next_para = text.find("\n\n", s_end)
+    para_end = len(text) if next_para == -1 else next_para
+
+    para_text = text[para_start:para_end]
+    sentences = seg.segment(para_text) if para_text.strip() else []
+
+    if sentences:
+        cursor = 0
+        exp_s = s_start
+        exp_e = s_end
+        matched_any = False
+        for s in sentences:
+            idx = para_text.find(s, cursor)
+            if idx != -1:
+                abs_s = para_start + idx
+                abs_e = abs_s + len(s)
+                cursor = idx + len(s)
+                if max(abs_s, s_start) < min(abs_e, s_end):
+                    exp_s = min(exp_s, abs_s)
+                    exp_e = max(exp_e, abs_e)
+                    matched_any = True
+            else:
+                cursor = min(cursor + len(s), len(para_text))
+
+        if matched_any:
+            if (exp_e - exp_s) <= max_len:
+                return (exp_s, exp_e)
+            else:
+                margin = (max_len - span_len) // 2
+                return (max(0, s_start - margin), min(len(text), s_end + margin))
+
+    return (s_start, s_end)
+
+
 def expand_spans_to_sentences(
     text: str,
-    spans: List[Tuple[int, int]]
+    spans: List[Tuple[int, int]],
+    cap_ratio: float = DEFAULT_CAP_RATIO
 ) -> List[Tuple[int, int]]:
     """
-    Expand each flagged span to whole sentence boundaries using PySBD.
-    Merges overlapping or contiguous sentence boundaries.
+    Structure-aware span expansion.
+    Expands each flagged span to its enclosing structural unit (table row, code block,
+    docstring, comment block, or natural sentence) with a relative expansion cap.
+    Merges overlapping or contiguous boundaries.
     """
     if not spans or not text.strip():
         return []
 
-    seg = pysbd.Segmenter(language="en", clean=False)
-    sentences = seg.segment(text)
-
-    # Locate character spans for each sentence in original text
-    sentence_spans = []
-    cursor = 0
-    for s in sentences:
-        start = text.find(s, cursor)
-        if start != -1:
-            end = start + len(s)
-            sentence_spans.append((start, end))
-            cursor = end
-        else:
-            sentence_spans.append((cursor, min(cursor + len(s), len(text))))
-            cursor = min(cursor + len(s), len(text))
-
-    if not sentence_spans:
-        # Fallback to entire text if segmentation fails
-        return [(0, len(text))]
-
-    # Find all sentences overlapping with any flagged span
     expanded = []
-    for sent_start, sent_end in sentence_spans:
-        for span_start, span_end in spans:
-            if max(sent_start, span_start) < min(sent_end, span_end):
-                expanded.append((sent_start, sent_end))
-                break
-
-    if not expanded:
-        return []
+    for sp in spans:
+        exp = expand_span_structure_aware(text, sp, cap_ratio=cap_ratio)
+        expanded.append(exp)
 
     # Merge overlapping expanded intervals
     expanded.sort(key=lambda x: x[0])
@@ -235,6 +362,7 @@ def predict_spans(
     in_span = False
     cur_span_start = 0
     cur_span_end = 0
+    gap_count = 0
 
     for idx, p in enumerate(token_max_prob):
         char_start, char_end = all_offsets[idx]
@@ -248,10 +376,17 @@ def predict_spans(
                 cur_span_end = char_end
             else:
                 cur_span_end = max(cur_span_end, char_end)
+            gap_count = 0
         else:
             if in_span:
-                detected_char_spans.append((cur_span_start, cur_span_end))
-                in_span = False
+                gap_count += 1
+                if gap_count <= DEFAULT_GAP_TOKENS:
+                    # Bridge small subword gap inside injection
+                    continue
+                else:
+                    detected_char_spans.append((cur_span_start, cur_span_end))
+                    in_span = False
+                    gap_count = 0
 
     if in_span:
         detected_char_spans.append((cur_span_start, cur_span_end))

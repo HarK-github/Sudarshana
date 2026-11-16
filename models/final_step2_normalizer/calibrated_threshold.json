@@ -1,0 +1,8 @@
+{
+  "temperature": 0.7153612287024689,
+  "calibrated_tau": 0.6272111735970162,
+  "raw_tau": 0.5919860791354319,
+  "val_recall_at_tau": 0.4,
+  "val_clean_fpr_at_tau": 0.05,
+  "val_hn_fpr_at_tau": 0.0
+}

@@ -1,0 +1,81 @@
+{
+  "overall": {
+    "recall": 0.4,
+    "fpr": 0.32098765432098764,
+    "precision": 0.6578947368421053,
+    "f1": 0.4975124378109454,
+    "accuracy": 0.5097087378640777,
+    "tp": 50,
+    "fp": 26,
+    "fn": 75,
+    "tn": 55,
+    "total": 206,
+    "threshold": 0.5
+  },
+  "recall_by_position": {
+    "start": {
+      "recall": 0.40476190476190477,
+      "support": 42
+    },
+    "middle": {
+      "recall": 0.3333333333333333,
+      "support": 30
+    },
+    "end": {
+      "recall": 0.4339622641509434,
+      "support": 53
+    }
+  },
+  "recall_by_category": {
+    "task_irrelevant": {
+      "recall": 0.44,
+      "support": 25
+    },
+    "task_relevant": {
+      "recall": 0.3,
+      "support": 20
+    },
+    "targeted": {
+      "recall": 0.4125,
+      "support": 80
+    }
+  },
+  "fpr_by_negative_category": {
+    "clean": {
+      "fpr": 0.3333333333333333,
+      "support": 75
+    },
+    "hard_negative": {
+      "fpr": 0.16666666666666666,
+      "support": 6
+    }
+  },
+  "by_domain": {
+    "text_qa": {
+      "recall": 0.38666666666666666,
+      "fpr": 0.4642857142857143,
+      "f1": 0.4461538461538462,
+      "support": 131
+    },
+    "code_qa": {
+      "recall": 0.42,
+      "fpr": 0.0,
+      "f1": 0.5915492957746479,
+      "support": 75
+    }
+  },
+  "hard_neg_at_90_recall": {
+    "recall": 1.0,
+    "fpr": 1.0,
+    "precision": 0.6067961165048543,
+    "f1": 0.755287009063444,
+    "accuracy": 0.6067961165048543,
+    "tp": 125,
+    "fp": 81,
+    "fn": 0,
+    "tn": 0,
+    "total": 206,
+    "threshold": 0.0,
+    "calibrated_at_target_recall": 0.9
+  }
+}

@@ -4,7 +4,7 @@ Features:
 - DeBERTa-v3 encoder backbone.
 - 3-class token classification head (O: 0, B-INJ: 1, I-INJ: 2).
 - Class-weighted CrossEntropyLoss to address severe class imbalance (O vs B-INJ/I-INJ).
-- Joint-loss hook (L_detect + lambda_tok * L_tok) for P3 integration.
+- Joint-loss hook (L_detect + lambda_tok * L_tok) for multi-task training integration.
 - Standalone forward pass tested on arbitrary tensors.
 """
 
@@ -57,8 +57,8 @@ class TokenClassificationHead(nn.Module):
 
 class SudarshanaTokenClassifier(nn.Module):
     """
-    Prototype token classifier built on a shared DeBERTa-v3 encoder.
-    P3 can integrate this head into the joint model.
+    Token classifier built on a shared DeBERTa-v3 encoder.
+    Can be used standalone or integrated into multi-task joint models.
     """
     def __init__(
         self,

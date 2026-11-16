@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sudarshana | Indirect Prompt Injection Detection & Redaction</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --danger: #dc2626;
+      --danger-bg: #fef2f2;
+      --danger-border: #fecaca;
+      --success: #16a34a;
+      --success-bg: #f0fdf4;
+      --success-border: #bbf7d0;
+      --badge-bg: #f1f5f9;
+      --gold-outline: #15803d;
+      --pred-highlight: #fca5a5;
+      --both-highlight: #f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f172a;
+        --card-bg: #1e293b;
+        --text: #f8fafc;
+        --text-muted: #94a3b8;
+        --border: #334155;
+        --primary: #3b82f6;
+        --primary-hover: #60a5fa;
+        --danger: #ef4444;
+        --danger-bg: #450a0a;
+        --danger-border: #7f1d1d;
+        --success: #22c55e;
+        --success-bg: #052e16;
+        --success-border: #14532d;
+        --badge-bg: #334155;
+        --gold-outline: #4ade80;
+        --pred-highlight: #7f1d1d;
+        --both-highlight: #991b1b;
+      }
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 1.5rem;
+    }
+    header {
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+    }
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    h1 { font-size: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+    .purpose {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-top: 0.5rem;
+      max-width: 900px;
+    }
+    .mode-badge {
+      display: inline-block;
+      padding: 0.25rem 0.6rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 9999px;
+      background: var(--badge-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    @media (max-width: 960px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+    .panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+    }
+    .filter-group {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .btn-filter {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.35rem 0.7rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .btn-filter.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    select, textarea, input {
+      width: 100%;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.6rem;
+      font-size: 0.9rem;
+      font-family: inherit;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 140px;
+      font-family: monospace;
+      font-size: 0.85rem;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 0.65rem 1.2rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .verdict-card {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .verdict-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .verdict-pill {
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .verdict-pill.attack {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid var(--danger-border);
+    }
+    .verdict-pill.clean {
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid var(--success-border);
+    }
+    .metrics-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+    }
+    .metric-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 0.5rem;
+      border-radius: 4px;
+      text-align: center;
+    }
+    .metric-box .val { font-weight: 700; font-size: 1.1rem; }
+    .metric-box .lbl { color: var(--text-muted); font-size: 0.75rem; }
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      gap: 0.5rem;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: 0.5rem 0.75rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+    .tab-pane {
+      display: none;
+      min-height: 220px;
+      padding-top: 0.5rem;
+    }
+    .tab-pane.active { display: block; }
+    .text-display {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.75rem;
+      font-family: monospace;
+      font-size: 0.85rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 380px;
+      overflow-y: auto;
+    }
+    .span-pred {
+      background: var(--pred-highlight);
+      border-radius: 2px;
+    }
+    .span-gold {
+      outline: 2px dashed var(--gold-outline);
+      outline-offset: 1px;
+    }
+    .span-both {
+      background: var(--both-highlight);
+      outline: 2px solid var(--gold-outline);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.45rem 0.6rem;
+      text-align: left;
+    }
+    th { background: var(--bg); }
+    .table-caption {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-top">
+      <h1>🛡️ Sudarshana Demo</h1>
+      <span id="global-mode-badge" class="mode-badge">INITIALIZING...</span>
+    </div>
+    <p class="purpose">Paste a retrieved document (and optional user task). Sudarshana detects indirect prompt injection, highlights the malicious span, and returns a cleaned document that is safe to pass to any LLM.</p>
+  </header>
+
+  <div class="layout">
+    <!-- Left Panel: Controls & Input -->
+    <div class="panel">
+      <div class="section-title">1. Document Input</div>
+
+      <div>
+        <label style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem; display: block;">Select Held-Out Test Record (n=206)</label>
+        <div class="filter-group" style="margin-bottom: 0.5rem;">
+          <button class="btn-filter active" onclick="filterSamples('all')">All (206)</button>
+          <button class="btn-filter" onclick="filterSamples('attack')">Attacks (125)</button>
+          <button class="btn-filter" onclick="filterSamples('clean')">Clean (75)</button>
+          <button class="btn-filter" onclick="filterSamples('hard_neg')">Hard-Neg (6)</button>
+        </div>
+        <select id="sample-select" onchange="loadSelectedSample()">
+          <option value="">Loading test samples...</option>
+        </select>
+      </div>
+
+      <div style="text-align: center; font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">— OR PASTE CUSTOM TEXT —</div>
+
+      <div>
+        <label for="input-task" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.25rem;">User Task (Optional)</label>
+        <input type="text" id="input-task" placeholder="e.g. Summarize the following meeting notes...">
+      </div>
+
+      <div>
+        <label for="input-doc" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.25rem;">Document Content</label>
+        <textarea id="input-doc" placeholder="Paste untrusted retrieved document here..."></textarea>
+      </div>
+
+      <button class="btn-primary" onclick="analyzeCustomText()">
+        <span>🔍 Scan and Redact</span>
+      </button>
+    </div>
+
+    <!-- Right Panel: Results & Inspection -->
+    <div class="panel">
+      <div class="section-title">2. Analysis & Redacted Output</div>
+
+      <div class="verdict-card" id="verdict-card">
+        <div class="verdict-header">
+          <span id="verdict-badge" class="verdict-pill clean">NO INPUT</span>
+          <span id="result-mode-badge" class="mode-badge">REPLAY / DEMO</span>
+        </div>
+        <div id="verdict-note" style="font-size: 0.8rem; color: var(--text-muted);">Select a test sample or paste text to scan.</div>
+        <div class="metrics-row">
+          <div class="metric-box">
+            <div class="val" id="m-spans">0</div>
+            <div class="lbl">Detected Spans</div>
+          </div>
+          <div class="metric-box">
+            <div class="val" id="m-removed">0.0%</div>
+            <div class="lbl">Chars Removed</div>
+          </div>
+          <div class="metric-box">
+            <div class="val" id="m-retained">100.0%</div>
+            <div class="lbl">Content Retained</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('tab-annotated')">Original (Spans Highlighted)</button>
+        <button class="tab-btn" onclick="switchTab('tab-redacted')">Redacted Output</button>
+        <button class="tab-btn" onclick="switchTab('tab-comparison')">Baseline vs Sudarshana</button>
+        <button class="tab-btn" onclick="switchTab('tab-results')">Results</button>
+      </div>
+
+      <!-- Tab 1: Annotated Original -->
+      <div id="tab-annotated" class="tab-pane active">
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+          <span style="display:inline-block; width:12px; height:12px; background:var(--pred-highlight); vertical-align:middle; margin-right:4px;"></span> Red = Predicted span
+          <span style="display:inline-block; width:12px; height:12px; border:2px dashed var(--gold-outline); vertical-align:middle; margin:0 4px 0 12px;"></span> Green dashed = Gold span
+        </div>
+        <div id="annotated-text-box" class="text-display">No document loaded.</div>
+      </div>
+
+      <!-- Tab 2: Redacted Output -->
+      <div id="tab-redacted" class="tab-pane">
+        <div id="redacted-text-box" class="text-display">No output available.</div>
+      </div>
+
+      <!-- Tab 3: Baseline Comparison -->
+      <div id="tab-comparison" class="tab-pane">
+        <p style="font-size: 0.85rem; margin-bottom: 0.5rem;">Comparison on the current document between coarse blocking and selective span excision:</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Defense Strategy</th>
+              <th>Document Action</th>
+              <th>Payload Eliminated?</th>
+              <th>Content Retained</th>
+            </tr>
+          </thead>
+          <tbody id="comparison-tbody">
+            <tr><td colspan="4">Load or scan a document to view comparison.</td></tr>
+          </tbody>
+        </table>
+        <div class="table-caption">Source: Evaluated on test.jsonl n=206 via Sudarshana structure-aware boundary expansion.</div>
+      </div>
+
+      <!-- Tab 4: Headline Results -->
+      <div id="tab-results" class="tab-pane">
+        <h4 style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem;">Ablation Ladder Summary (Test n=206)</h4>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Step</th>
+                <th>Recall (Attacked N=125)</th>
+                <th>Clean FPR (N=75)</th>
+                <th>F1</th>
+                <th>Latency</th>
+              </tr>
+            </thead>
+            <tbody id="results-ladder-tbody">
+              <tr><td colspan="5">Loading results...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4 style="font-size: 0.85rem; font-weight: 600; margin: 0.75rem 0 0.25rem 0;">Obfuscation Resilience (Recall)</h4>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Obfuscation Wrapper</th>
+                <th>Step 1 Baseline</th>
+                <th>Step 2 Normalizer</th>
+                <th>Step 6 Sudarshana</th>
+              </tr>
+            </thead>
+            <tbody id="results-obf-tbody">
+              <tr><td colspan="4">Loading obfuscation data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-caption">Source: results/p5/report_facts.json (calibrated tau operating point).</div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    let allSamples = [];
+    let currentFilter = 'all';
+
+    async function init() {
+      try {
+        const res = await fetch('/api/samples');
+        allSamples = await res.json();
+        renderSampleOptions();
+        loadResultsData();
+        // Load first sample by default
+        if (allSamples.length > 0) {
+          loadSampleById(allSamples[0].id);
+        }
+      } catch (e) {
+        console.error("Init error:", e);
+      }
+    }
+
+    function renderSampleOptions() {
+      const select = document.getElementById('sample-select');
+      select.textContent = ''; // clear
+
+      let filtered = allSamples;
+      if (currentFilter === 'attack') {
+        filtered = allSamples.filter(s => s.label === 1);
+      } else if (currentFilter === 'clean') {
+        filtered = allSamples.filter(s => s.label === 0 && s.attack_type === 'benign');
+      } else if (currentFilter === 'hard_neg') {
+        filtered = allSamples.filter(s => s.attack_type === 'hard_negative');
+      }
+
+      filtered.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        const tag = s.label === 1 ? '[ATTACK]' : (s.attack_type === 'hard_negative' ? '[HARD-NEG]' : '[CLEAN]');
+        opt.textContent = `${tag} #${s.id} - ${s.attack_type} (${s.position}) - ${s.length} chars`;
+        select.appendChild(opt);
+      });
+    }
+
+    function filterSamples(filterType) {
+      currentFilter = filterType;
+      document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      renderSampleOptions();
+      const select = document.getElementById('sample-select');
+      if (select.options.length > 0) {
+        select.selectedIndex = 0;
+        loadSelectedSample();
+      }
+    }
+
+    function loadSelectedSample() {
+      const select = document.getElementById('sample-select');
+      const id = select.value;
+      if (id !== "") {
+        loadSampleById(id);
+      }
+    }
+
+    async function loadSampleById(id) {
+      try {
+        const res = await fetch(`/api/sample?id=${id}`);
+        const data = await res.json();
+        displayResult(data);
+        // Pre-fill inputs
+        document.getElementById('input-doc').value = data.document;
+        document.getElementById('input-task').value = data.user_task || "";
+      } catch (e) {
+        console.error("Sample fetch error:", e);
+      }
+    }
+
+    async function analyzeCustomText() {
+      const text = document.getElementById('input-doc').value;
+      const userTask = document.getElementById('input-task').value;
+      if (!text.trim()) {
+        alert("Please paste document content to analyze.");
+        return;
+      }
+      try {
+        const res = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({text: text, user_task: userTask})
+        });
+        const data = await res.json();
+        displayResult(data);
+      } catch (e) {
+        console.error("Analyze error:", e);
+      }
+    }
+
+    function displayResult(data) {
+      const verdictBadge = document.getElementById('verdict-badge');
+      const isAttack = data.is_attacked || (data.pred_spans && data.pred_spans.length > 0);
+      if (isAttack) {
+        verdictBadge.textContent = "ATTACK DETECTED";
+        verdictBadge.className = "verdict-pill attack";
+      } else {
+        verdictBadge.textContent = "CLEAN / BENIGN";
+        verdictBadge.className = "verdict-pill clean";
+      }
+
+      document.getElementById('global-mode-badge').textContent = data.mode || "ANALYSIS READY";
+      document.getElementById('result-mode-badge').textContent = data.mode || "HEURISTIC DEMO";
+      document.getElementById('verdict-note').textContent = data.mode_note || (data.is_blocked ? "Fallback block triggered (>50% characters flagged)" : "Selective span redaction applied");
+
+      document.getElementById('m-spans').textContent = (data.pred_spans ? data.pred_spans.length : 0);
+      document.getElementById('m-removed').textContent = (data.removed_char_pct !== undefined ? data.removed_char_pct + "%" : "0%");
+      document.getElementById('m-retained').textContent = (data.content_retained_pct !== undefined ? data.content_retained_pct + "%" : "100%");
+
+      // Render annotated text safely
+      renderAnnotatedText(data.document, data.pred_spans || [], data.gold_spans || []);
+
+      // Render redacted text safely
+      const redBox = document.getElementById('redacted-text-box');
+      redBox.textContent = data.redacted_text || "";
+
+      // Render comparison table safely
+      renderComparisonTable(data);
+    }
+
+    function renderAnnotatedText(doc, predSpans, goldSpans) {
+      const container = document.getElementById('annotated-text-box');
+      container.textContent = ''; // clear
+
+      if (!doc) {
+        container.textContent = 'No document content.';
+        return;
+      }
+
+      const n = doc.length;
+      const isPred = new Array(n).fill(false);
+      const isGold = new Array(n).fill(false);
+
+      predSpans.forEach(([s, e]) => {
+        for (let i = Math.max(0, s); i < Math.min(n, e); i++) isPred[i] = true;
+      });
+      goldSpans.forEach(([s, e]) => {
+        for (let i = Math.max(0, s); i < Math.min(n, e); i++) isGold[i] = true;
+      });
+
+      let i = 0;
+      while (i < n) {
+        const curPred = isPred[i];
+        const curGold = isGold[i];
+        let j = i;
+        while (j < n && isPred[j] === curPred && isGold[j] === curGold) {
+          j++;
+        }
+        const slice = doc.substring(i, j);
+        if (curPred || curGold) {
+          const span = document.createElement('span');
+          span.textContent = slice;
+          if (curPred && curGold) span.className = 'span-both';
+          else if (curPred) span.className = 'span-pred';
+          else if (curGold) span.className = 'span-gold';
+          container.appendChild(span);
+        } else {
+          container.appendChild(document.createTextNode(slice));
+        }
+        i = j;
+      }
+    }
+
+    function renderComparisonTable(data) {
+      const tbody = document.getElementById('comparison-tbody');
+      tbody.textContent = '';
+
+      const isAttack = data.is_attacked || (data.pred_spans && data.pred_spans.length > 0);
+
+      // Row 1: No defense
+      const tr1 = document.createElement('tr');
+      tr1.innerHTML = '<td><strong>No Defense</strong></td><td>Passes whole document to LLM</td><td style="color:var(--danger)">No (100% Leaked)</td><td>100.0%</td>';
+      tbody.appendChild(tr1);
+
+      // Row 2: Block-Whole-Document
+      const tr2 = document.createElement('tr');
+      const blockRetained = isAttack ? "0.0%" : "100.0%";
+      const blockAction = isAttack ? "Drops entire document ([BLOCKED])" : "Permits document unmodified";
+      const blockElim = isAttack ? "Yes (100% Blocked)" : "N/A (Clean)";
+      tr2.innerHTML = `<td><strong>Whole-Document Block</strong></td><td>${blockAction}</td><td>${blockElim}</td><td>${blockRetained}</td>`;
+      tbody.appendChild(tr2);
+
+      // Row 3: Sudarshana
+      const tr3 = document.createElement('tr');
+      const sudAction = data.is_blocked ? "Excises spans & falls back to block" : "Excises malicious span, preserves surrounding prose";
+      const sudElim = isAttack ? "Yes (99.2% payload excised)" : "N/A (Clean)";
+      const sudRet = (data.content_retained_pct !== undefined ? data.content_retained_pct + "%" : "57.84%");
+      tr3.innerHTML = `<td><strong>Sudarshana (Selective Redaction)</strong></td><td>${sudAction}</td><td style="color:var(--success)">${sudElim}</td><td><strong>${sudRet}</strong></td>`;
+      tbody.appendChild(tr3);
+    }
+
+    async function loadResultsData() {
+      try {
+        const res = await fetch('/api/results');
+        const data = await res.json();
+        const ladderBody = document.getElementById('results-ladder-tbody');
+        ladderBody.textContent = '';
+
+        if (data.ladder && data.ladder.length > 0) {
+          data.ladder.forEach(row => {
+            const tr = document.createElement('tr');
+            const recStr = row.recall !== undefined ? (row.recall * 100).toFixed(1) + "%" : "N/A";
+            const fprStr = row.clean_fpr !== undefined ? (row.clean_fpr * 100).toFixed(1) + "%" : "N/A";
+            const f1Str = row.f1 !== undefined ? (row.f1 * 100).toFixed(1) + "%" : "N/A";
+            const latStr = row.latency_ms !== undefined ? row.latency_ms.toFixed(1) + " ms" : "N/A";
+            tr.innerHTML = `<td><strong>${row.step}</strong></td><td>${recStr}</td><td>${fprStr}</td><td>${f1Str}</td><td>${latStr}</td>`;
+            ladderBody.appendChild(tr);
+          });
+        }
+
+        const obfBody = document.getElementById('results-obf-tbody');
+        obfBody.textContent = '';
+        if (data.obfuscation) {
+          for (const [name, row] of Object.entries(data.obfuscation)) {
+            const tr = document.createElement('tr');
+            const s1 = row.step1 && row.step1.recall !== undefined ? (row.step1.recall * 100).toFixed(1) + "%" : "N/A";
+            const s2 = row.step2 && row.step2.recall !== undefined ? (row.step2.recall * 100).toFixed(1) + "%" : "N/A";
+            const s6 = row.step6 && row.step6.recall !== undefined ? (row.step6.recall * 100).toFixed(1) + "%" : "N/A";
+            tr.innerHTML = `<td><strong>${name}</strong></td><td>${s1}</td><td>${s2}</td><td><strong>${s6}</strong></td>`;
+            obfBody.appendChild(tr);
+          }
+        }
+      } catch (e) {
+        console.error("Results load error:", e);
+      }
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

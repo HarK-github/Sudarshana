@@ -1,0 +1,16 @@
+# Ablation Step 2: Normalizer (512-truncated, single-string, normalized text)
+_base_: "configs/base_training.yaml"
+step_name: "step2_normalizer"
+hypothesis: "H2 (Normalizer): single-string, 512-truncated on normalized text"
+normalize: true
+chunking: false
+max_tokens: 512
+pair_input: false
+pooling_method: "single"
+use_token_head: false
+use_type_head: false
+obf_augment: false
+lambda_tok: 0.0
+lambda_type: 0.0
+output_dir: "checkpoints/step2_normalizer"
+results_dir: "results/step2_normalizer"
