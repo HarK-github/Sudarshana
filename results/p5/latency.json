@@ -1,0 +1,27 @@
+{
+  "benchmark_doc_word_estimate": 1783,
+  "benchmark_doc_chars": 12674,
+  "stages": {
+    "sentence_segmentation": {
+      "p50_ms": 14.74,
+      "p95_ms": 17.77,
+      "mean_ms": 15.35,
+      "n_runs": 20
+    },
+    "redact": {
+      "p50_ms": 14.57,
+      "p95_ms": 14.68,
+      "mean_ms": 14.57,
+      "n_runs": 20
+    },
+    "tokenizer_encode": {
+      "p50_ms": 2.03,
+      "p95_ms": 2.15,
+      "mean_ms": 2.05,
+      "n_runs": 20
+    },
+    "model_forward": {
+      "na_reason": "no weights \u2014 checkpoints/ contain only config+tokenizer files"
+    }
+  }
+}

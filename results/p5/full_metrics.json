@@ -1,0 +1,439 @@
+{
+  "split": "test",
+  "seed": 42,
+  "predictors": {
+    "none": {
+      "recall": 0.0,
+      "fpr_test": 0.0,
+      "fpr_hard_neg": 0.0,
+      "fpr_at_recall": "N/A (binary predictor; no continuous scores)",
+      "span_f1": null,
+      "span_f1_na_reason": "span predictions not available for binary predictors",
+      "psr": 1.0,
+      "rouge1_f1": 0.8962,
+      "latency_p50_ms": 14.57,
+      "latency_p95_ms": 14.68,
+      "baseline_day2_recall": null,
+      "baseline_day2_fpr": null
+    },
+    "oracle": {
+      "recall": 1.0,
+      "fpr_test": 0.0,
+      "fpr_hard_neg": 0.0,
+      "fpr_at_recall": "N/A (binary predictor; no continuous scores)",
+      "span_f1": null,
+      "span_f1_na_reason": "span predictions not available for binary predictors",
+      "psr": 0.0,
+      "rouge1_f1": 0.7298,
+      "latency_p50_ms": 14.57,
+      "latency_p95_ms": 14.68,
+      "baseline_day2_recall": null,
+      "baseline_day2_fpr": null
+    },
+    "keyword_heuristic": {
+      "recall": 0.04,
+      "fpr_test": 0.0123,
+      "fpr_hard_neg": 0.0,
+      "fpr_at_recall": "N/A (binary predictor; no continuous scores)",
+      "span_f1": null,
+      "span_f1_na_reason": "span predictions not available for binary predictors",
+      "psr": 1.0,
+      "rouge1_f1": 0.8967,
+      "latency_p50_ms": 14.57,
+      "latency_p95_ms": 14.68,
+      "baseline_day2_recall": 0.9964489990467111,
+      "baseline_day2_fpr": 0.4456207892204042
+    },
+    "token_head": {
+      "recall": "N/A (no weights \u2014 checkpoints/ contain only config+tokenizer files)",
+      "fpr": "N/A (no weights \u2014 checkpoints/ contain only config+tokenizer files)",
+      "fpr_at_recall": "N/A (no weights \u2014 checkpoints/ contain only config+tokenizer files)",
+      "span_f1": "N/A (no weights \u2014 checkpoints/ contain only config+tokenizer files)",
+      "psr": "N/A (no weights \u2014 checkpoints/ contain only config+tokenizer files)",
+      "rouge1_f1": "N/A (no weights \u2014 checkpoints/ contain only config+tokenizer files)",
+      "latency_p50_ms": "N/A (no weights \u2014 checkpoints/ contain only config+tokenizer files)",
+      "latency_p95_ms": "N/A (no weights \u2014 checkpoints/ contain only config+tokenizer files)"
+    }
+  },
+  "sensitivity": {
+    "label": "SIMULATED redaction sensitivity \u2014 gold spans perturbed; not real model predictions",
+    "grid": [
+      {
+        "keep_fraction": 1.0,
+        "drop_rate": 0.0,
+        "n": 125,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.0298,
+        "rouge1_f1": 0.7298,
+        "rouge1_lo": 0.6503,
+        "rouge1_hi": 0.8038
+      },
+      {
+        "keep_fraction": 1.0,
+        "drop_rate": 0.1,
+        "n": 125,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.0298,
+        "rouge1_f1": 0.7298,
+        "rouge1_lo": 0.6503,
+        "rouge1_hi": 0.8038
+      },
+      {
+        "keep_fraction": 1.0,
+        "drop_rate": 0.25,
+        "n": 125,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.0298,
+        "rouge1_f1": 0.7298,
+        "rouge1_lo": 0.6503,
+        "rouge1_hi": 0.8038
+      },
+      {
+        "keep_fraction": 1.0,
+        "drop_rate": 0.5,
+        "n": 125,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.0298,
+        "rouge1_f1": 0.7298,
+        "rouge1_lo": 0.6503,
+        "rouge1_hi": 0.8038
+      },
+      {
+        "keep_fraction": 0.9,
+        "drop_rate": 0.0,
+        "n": 125,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.0298,
+        "rouge1_f1": 0.7452,
+        "rouge1_lo": 0.6672,
+        "rouge1_hi": 0.8197
+      },
+      {
+        "keep_fraction": 0.9,
+        "drop_rate": 0.1,
+        "n": 125,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.0298,
+        "rouge1_f1": 0.7452,
+        "rouge1_lo": 0.6672,
+        "rouge1_hi": 0.8197
+      },
+      {
+        "keep_fraction": 0.9,
+        "drop_rate": 0.25,
+        "n": 125,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.0298,
+        "rouge1_f1": 0.7452,
+        "rouge1_lo": 0.6672,
+        "rouge1_hi": 0.8197
+      },
+      {
+        "keep_fraction": 0.9,
+        "drop_rate": 0.5,
+        "n": 125,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.0298,
+        "rouge1_f1": 0.7452,
+        "rouge1_lo": 0.6672,
+        "rouge1_hi": 0.8197
+      },
+      {
+        "keep_fraction": 0.75,
+        "drop_rate": 0.0,
+        "n": 125,
+        "psr": 0.04,
+        "psr_lo": 0.0172,
+        "psr_hi": 0.0902,
+        "rouge1_f1": 0.7649,
+        "rouge1_lo": 0.6892,
+        "rouge1_hi": 0.8381
+      },
+      {
+        "keep_fraction": 0.75,
+        "drop_rate": 0.1,
+        "n": 125,
+        "psr": 0.04,
+        "psr_lo": 0.0172,
+        "psr_hi": 0.0902,
+        "rouge1_f1": 0.7649,
+        "rouge1_lo": 0.6892,
+        "rouge1_hi": 0.8381
+      },
+      {
+        "keep_fraction": 0.75,
+        "drop_rate": 0.25,
+        "n": 125,
+        "psr": 0.04,
+        "psr_lo": 0.0172,
+        "psr_hi": 0.0902,
+        "rouge1_f1": 0.7649,
+        "rouge1_lo": 0.6892,
+        "rouge1_hi": 0.8381
+      },
+      {
+        "keep_fraction": 0.75,
+        "drop_rate": 0.5,
+        "n": 125,
+        "psr": 0.04,
+        "psr_lo": 0.0172,
+        "psr_hi": 0.0902,
+        "rouge1_f1": 0.7649,
+        "rouge1_lo": 0.6892,
+        "rouge1_hi": 0.8381
+      },
+      {
+        "keep_fraction": 0.5,
+        "drop_rate": 0.0,
+        "n": 125,
+        "psr": 0.288,
+        "psr_lo": 0.2159,
+        "psr_hi": 0.3728,
+        "rouge1_f1": 0.8824,
+        "rouge1_lo": 0.8319,
+        "rouge1_hi": 0.9229
+      },
+      {
+        "keep_fraction": 0.5,
+        "drop_rate": 0.1,
+        "n": 125,
+        "psr": 0.288,
+        "psr_lo": 0.2159,
+        "psr_hi": 0.3728,
+        "rouge1_f1": 0.8824,
+        "rouge1_lo": 0.8319,
+        "rouge1_hi": 0.9229
+      },
+      {
+        "keep_fraction": 0.5,
+        "drop_rate": 0.25,
+        "n": 125,
+        "psr": 0.288,
+        "psr_lo": 0.2159,
+        "psr_hi": 0.3728,
+        "rouge1_f1": 0.8824,
+        "rouge1_lo": 0.8319,
+        "rouge1_hi": 0.9229
+      },
+      {
+        "keep_fraction": 0.5,
+        "drop_rate": 0.5,
+        "n": 125,
+        "psr": 0.288,
+        "psr_lo": 0.2159,
+        "psr_hi": 0.3728,
+        "rouge1_f1": 0.8824,
+        "rouge1_lo": 0.8319,
+        "rouge1_hi": 0.9229
+      }
+    ],
+    "oracle_by_attack_type": {
+      "Blocking Internet Connection": {
+        "n": 5,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.4345,
+        "rouge1_f1": 0.7917
+      },
+      "Business Intelligence": {
+        "n": 5,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.4345,
+        "rouge1_f1": 0.7849
+      },
+      "Language Translation (Test)": {
+        "n": 5,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.4345,
+        "rouge1_f1": 0.9794
+      },
+      "Traffic Analysis": {
+        "n": 5,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.4345,
+        "rouge1_f1": 0.3991
+      },
+      "Screen Scraping": {
+        "n": 5,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.4345,
+        "rouge1_f1": 0.0
+      },
+      "Encrypting Documents and Demanding Ransom (Ransomware)": {
+        "n": 5,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.4345,
+        "rouge1_f1": 0.1979
+      },
+      "Substitution Ciphers": {
+        "n": 5,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.4345,
+        "rouge1_f1": 0.9888
+      },
+      "Entertainment": {
+        "n": 5,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.4345,
+        "rouge1_f1": 0.997
+      },
+      "Misinformation & Propaganda": {
+        "n": 5,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.4345,
+        "rouge1_f1": 0.9938
+      },
+      "Reverse Text": {
+        "n": 5,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.4345,
+        "rouge1_f1": 0.9666
+      },
+      "Scams & Fraud": {
+        "n": 5,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.4345,
+        "rouge1_f1": 0.9773
+      },
+      "Corrupting an Operating System": {
+        "n": 5,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.4345,
+        "rouge1_f1": 0.587
+      },
+      "Introduce System Fingerprinting": {
+        "n": 5,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.4345,
+        "rouge1_f1": 0.3886
+      },
+      "Marketing & Advertising": {
+        "n": 5,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.4345,
+        "rouge1_f1": 0.9534
+      },
+      "Bringing Down Hosts and Servers (Denial of Service)": {
+        "n": 5,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.4345,
+        "rouge1_f1": 0.5959
+      },
+      "Research Assistance": {
+        "n": 5,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.4345,
+        "rouge1_f1": 0.9913
+      },
+      "Task Automation": {
+        "n": 5,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.4345,
+        "rouge1_f1": 0.7922
+      },
+      "Data Eavesdropping": {
+        "n": 5,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.4345,
+        "rouge1_f1": 0.2
+      },
+      "Emoji Substitution": {
+        "n": 5,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.4345,
+        "rouge1_f1": 0.9794
+      },
+      "Sentiment Analysis": {
+        "n": 5,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.4345,
+        "rouge1_f1": 0.9645
+      },
+      "Keylogging": {
+        "n": 5,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.4345,
+        "rouge1_f1": 0.4
+      },
+      "Compromising Computers": {
+        "n": 5,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.4345,
+        "rouge1_f1": 0.772
+      },
+      "Conversational Agent": {
+        "n": 5,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.4345,
+        "rouge1_f1": 0.9763
+      },
+      "Information Dissemination": {
+        "n": 5,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.4345,
+        "rouge1_f1": 0.5888
+      },
+      "Base Encoding": {
+        "n": 5,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.4345,
+        "rouge1_f1": 0.9787
+      }
+    },
+    "oracle_by_position": {
+      "start": {
+        "n": 42,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.0838,
+        "rouge1_f1": 0.809
+      },
+      "middle": {
+        "n": 30,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.1135,
+        "rouge1_f1": 0.7115
+      },
+      "end": {
+        "n": 53,
+        "psr": 0.0,
+        "psr_lo": 0.0,
+        "psr_hi": 0.0676,
+        "rouge1_f1": 0.6774
+      }
+    }
+  }
+}

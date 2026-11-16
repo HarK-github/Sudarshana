@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+import math
 from collections import defaultdict
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 import numpy as np
 
 
 # ==============================================================================
-# Token & Span Level Metrics (P4 Token Head & Redaction)
+# Token & Span Level Metrics (Token Head & Redaction)
 # ==============================================================================
 
 def compute_token_metrics(
@@ -61,7 +62,7 @@ def compute_span_f1(
     exact_match: bool = False
 ) -> Dict[str, float]:
     """
-    Compute Span-level Precision, Recall, and F1.
+    Compute Span-level Precision, Recall, and F1 using 1-to-1 matching.
     Exact match: predicted (s, e) == gold (s, e).
     Overlap match: intersection / union > iou_threshold (or any character overlap if 0.0).
     """
@@ -71,30 +72,28 @@ def compute_span_f1(
 
     for preds, golds in zip(predicted_spans_list, gold_spans_list):
         matched_golds = set()
+        matched_preds = set()
 
-        for p_start, p_end in preds:
-            match_found = False
+        for p_idx, (p_start, p_end) in enumerate(preds):
             for g_idx, (g_start, g_end) in enumerate(golds):
+                if g_idx in matched_golds:
+                    continue
                 if exact_match:
                     if p_start == g_start and p_end == g_end:
-                        match_found = True
                         matched_golds.add(g_idx)
+                        matched_preds.add(p_idx)
                         break
                 else:
-                    # Overlap rule: intersection over union or positive intersection
                     inter = max(0, min(p_end, g_end) - max(p_start, g_start))
                     union = max(p_end, g_end) - min(p_start, g_start)
                     iou = inter / max(union, 1)
                     if (iou_threshold == 0.0 and inter > 0) or (iou > iou_threshold):
-                        match_found = True
                         matched_golds.add(g_idx)
+                        matched_preds.add(p_idx)
                         break
 
-            if match_found:
-                total_tp += 1
-            else:
-                total_fp += 1
-
+        total_tp += len(matched_preds)
+        total_fp += len(preds) - len(matched_preds)
         total_fn += len(golds) - len(matched_golds)
 
     prec = total_tp / max(total_tp + total_fp, 1)
@@ -106,6 +105,61 @@ def compute_span_f1(
         f"span_{prefix}_precision": round(prec, 4),
         f"span_{prefix}_recall": round(rec, 4),
         f"span_{prefix}_f1": round(f1, 4)
+    }
+
+
+def compute_character_coverage(
+    document: str,
+    gold_spans: List[Tuple[int, int]],
+    removed_spans: List[Tuple[int, int]],
+    is_blocked: bool
+) -> Dict[str, float]:
+    """
+    Exact character-level security and utility metrics:
+    - gold_coverage: fraction of injected characters excised by removed spans.
+    - residual_payload: fraction of injected characters surviving in document.
+    - legitimate_retained: fraction of non-injected characters surviving in document.
+    """
+    doc_len = len(document)
+    if is_blocked:
+        return {
+            "gold_coverage": 1.0,
+            "residual_payload": 0.0,
+            "legitimate_retained": 0.0
+        }
+
+    inj_mask = [False] * doc_len
+    for s, e in gold_spans:
+        for ci in range(s, e):
+            inj_mask[ci] = True
+    legit_mask = [not m for m in inj_mask]
+
+    removed_mask = [False] * doc_len
+    for s, e in removed_spans:
+        for ci in range(max(0, s), min(doc_len, e)):
+            removed_mask[ci] = True
+    surviving_mask = [not m for m in removed_mask]
+
+    total_inj = sum(inj_mask)
+    if total_inj > 0:
+        surviving_inj = sum(1 for ci in range(doc_len) if inj_mask[ci] and surviving_mask[ci])
+        res_payload = surviving_inj / total_inj
+        gold_coverage = 1.0 - res_payload
+    else:
+        res_payload = 0.0
+        gold_coverage = 1.0
+
+    total_legit = sum(legit_mask)
+    if total_legit > 0:
+        surviving_legit = sum(1 for ci in range(doc_len) if legit_mask[ci] and surviving_mask[ci])
+        legit_retained = surviving_legit / total_legit
+    else:
+        legit_retained = 1.0
+
+    return {
+        "gold_coverage": round(gold_coverage, 4),
+        "residual_payload": round(res_payload, 4),
+        "legitimate_retained": round(legit_retained, 4)
     }
 
 
@@ -156,7 +210,7 @@ def compute_redaction_quality(
 
 
 # ==============================================================================
-# Document & Detector Level Metrics (P1 Baseline Evaluation)
+# Document & Detector Level Metrics (Baseline Evaluation)
 # ==============================================================================
 
 def binary_counts(labels: Iterable[int], predictions: Iterable[int]) -> dict[str, int]:
@@ -192,6 +246,35 @@ def summarize(labels: list[int], predictions: list[int]) -> dict[str, float | in
         "fpr": _rate(counts["fp"], counts["fp"] + counts["tn"]),
         "precision": _rate(counts["tp"], counts["tp"] + counts["fp"]),
     }
+
+
+def threshold_at_recall(
+    probabilities: list[float],
+    labels: list[int],
+    target: float,
+) -> float | None:
+    """Highest threshold whose recall on the positives is at least ``target``.
+
+    Scores equal to the threshold count as positive, so a tie can only raise
+    recall. No positives returns None.
+    """
+    if not 0 < target <= 1:
+        raise ValueError("target recall must be in (0, 1]")
+    if len(probabilities) != len(labels):
+        raise ValueError("probabilities and labels must have the same length")
+    positive = sorted(
+        float(probability)
+        for probability, label in zip(probabilities, labels, strict=True)
+        if int(label) == 1
+    )
+    if not positive:
+        return None
+    needed = math.ceil(target * len(positive))
+    return positive[len(positive) - needed]
+
+
+def predictions_at_threshold(probabilities: list[float], threshold: float) -> list[int]:
+    return [1 if probability >= threshold else 0 for probability in probabilities]
 
 
 def negative_fpr(rows: list[dict], predictions: list[int], predicate) -> dict[str, float | int | None]:

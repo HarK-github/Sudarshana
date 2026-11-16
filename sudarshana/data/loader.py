@@ -11,7 +11,8 @@ import torch
 from torch.utils.data import Dataset
 from transformers import PreTrainedTokenizerFast
 
-from .labeling import tokenize_and_align_document, PAD_LABEL_ID
+from .counterfactuals import COUNTERFACTUAL_SUFFIX
+from .labeling import coerce_spans, tokenize_and_align_document
 
 
 class PromptInjectionDataset(Dataset):
@@ -24,21 +25,30 @@ class PromptInjectionDataset(Dataset):
         tokenizer: PreTrainedTokenizerFast,
         max_length: int = 256,
         stride: int = 64,
-        include_user_task: bool = False
+        include_user_task: bool = False,
+        token_supervision: bool = True,
     ):
         self.tokenizer = tokenizer
         self.windows = []
+        self.token_supervision = token_supervision
+        skipped = 0
+        if token_supervision:
+            supervised: List[Dict[str, Any]] = []
+            for rec in records:
+                if str(rec.get("id", "")).endswith(COUNTERFACTUAL_SUFFIX):
+                    skipped += 1
+                    continue
+                supervised.append(rec)
+            records = supervised
+        self.skipped_counterfactuals = skipped
+        self.record_ids = [str(rec.get("id", "")) for rec in records]
         self.original_records = records
+        if skipped:
+            print(f"Token supervision skipped {skipped} counterfactual rows")
 
         for rec_idx, rec in enumerate(records):
             doc = rec["document"]
-            raw_spans = rec.get("injection_span") or []
-            spans = []
-            for s in raw_spans:
-                if isinstance(s, dict):
-                    spans.append((int(s["start"]), int(s["end"])))
-                elif isinstance(s, (list, tuple)):
-                    spans.append((int(s[0]), int(s[1])))
+            spans = coerce_spans(rec.get("injection_span"))
             user_task = rec.get("user_task", "") if include_user_task else None
 
             doc_windows = tokenize_and_align_document(

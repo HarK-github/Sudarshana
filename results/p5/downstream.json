@@ -1,0 +1,52 @@
+{
+  "predictors": {
+    "none": {
+      "psr": {
+        "metric": "ASR proxy (payload survival)",
+        "psr": 1.0,
+        "survived": 125,
+        "total_attack": 125,
+        "threshold": 0.5
+      },
+      "rouge1": {
+        "metric": "ROUGE-1 utility proxy",
+        "rouge1_f1": 0.8962,
+        "rouge1_precision": 0.8242,
+        "rouge1_recall": 1.0,
+        "n": 125
+      }
+    },
+    "oracle": {
+      "psr": {
+        "metric": "ASR proxy (payload survival)",
+        "psr": 0.0,
+        "survived": 0,
+        "total_attack": 125,
+        "threshold": 0.5
+      },
+      "rouge1": {
+        "metric": "ROUGE-1 utility proxy",
+        "rouge1_f1": 0.7298,
+        "rouge1_precision": 0.744,
+        "rouge1_recall": 0.7168,
+        "n": 125
+      }
+    },
+    "keyword_heuristic": {
+      "psr": {
+        "metric": "ASR proxy (payload survival)",
+        "psr": 1.0,
+        "survived": 125,
+        "total_attack": 125,
+        "threshold": 0.5
+      },
+      "rouge1": {
+        "metric": "ROUGE-1 utility proxy",
+        "rouge1_f1": 0.8967,
+        "rouge1_precision": 0.8258,
+        "rouge1_recall": 0.9981,
+        "n": 125
+      }
+    }
+  }
+}
