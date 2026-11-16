@@ -335,6 +335,12 @@ def make_report() -> str:
 
 {p3_report_text}
 
+> ⚠️ **P5 Audit Note — H2 prose mismatch:** The hypothesis text above (P3-authored) claims
+> "100.00% recall across all five perturbation suites." The measured values in
+> `results/table_3_5_obfuscation_comparison.json` are 97.60%–99.20% (Base64=98.40%,
+> Homoglyphs=97.60%, Zero-width=98.40%, Leetspeak=99.20%, Markdown=98.40%). The claim
+> should read "≥97.60% recall across all five suites." P3 owns this correction.
+
 ---
 
 ## 4c. Ablation Ladder (team-reported, P3, n=206, seed=42)
