@@ -1,0 +1,20 @@
+# Shared Training Hyperparameters (Section 5 Standardized Training Hyperparameters)
+backbone: "microsoft/deberta-v3-xsmall"
+target_backbone: "microsoft/deberta-v3-base"
+hidden_size: 384
+epochs: 4
+per_device_batch_size: 16
+gradient_accumulation_steps: 2
+backbone_lr: 3.0e-5
+heads_lr: 1.5e-4
+weight_decay: 0.01
+warmup_ratio: 0.1
+max_grad_norm: 1.0
+fp16: false
+seeds: [42, 1337, 2026]
+default_seed: 42
+pooling_method: "max"
+top_k: 2
+data_dir: "data/splits"
+output_dir: "checkpoints"
+results_dir: "results"
