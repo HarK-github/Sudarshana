@@ -1,0 +1,554 @@
+{
+  "team_artifacts_loaded": {
+    "steps": "ok",
+    "ablation_tables": "reports/ablation_ladder_tables.json",
+    "table_3_5": "results/table_3_5_obfuscation_comparison.json",
+    "table_3_8": "results/table_3_8_latency.json"
+  },
+  "recomputed_from_predictions": {
+    "source": "/home/kinshuk-gupta/KINSHUK GUPTA/IIT BHILAI/IIT BHILAI 7TH SEMESTER/DSL504 - NATURAL LANGUAGE PROCESSING/Group Project/Sudarshana/reports/audit/raw_test_predictions.jsonl",
+    "n": 206,
+    "overall": {
+      "tp": 40,
+      "fp": 18,
+      "fn": 85,
+      "tn": 63,
+      "n": 206,
+      "n_pos": 125,
+      "n_neg": 81,
+      "recall": 0.32,
+      "recall_ci_lo": 0.24463985845742658,
+      "recall_ci_hi": 0.406094065989336,
+      "fpr": 0.2222222222222222,
+      "fpr_ci_lo": 0.1454449167155174,
+      "fpr_ci_hi": 0.32415490224122073,
+      "precision": 0.6896551724137931,
+      "f1": 0.4371584699453552,
+      "_provenance": "recomputed (P5, from reports/audit/raw_test_predictions.jsonl)"
+    },
+    "by_position": {
+      "end": {
+        "support": 53,
+        "recall": 0.2641509433962264,
+        "recall_ci_lo": 0.16437206511316813,
+        "recall_ci_hi": 0.3958092105722453,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      },
+      "middle": {
+        "support": 30,
+        "recall": 0.3,
+        "recall_ci_lo": 0.16664562643958933,
+        "recall_ci_hi": 0.4787612101166018,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      },
+      "none": {
+        "status": "N/A",
+        "reason": "no positive records for this position"
+      },
+      "start": {
+        "support": 42,
+        "recall": 0.40476190476190477,
+        "recall_ci_lo": 0.27042647671209086,
+        "recall_ci_hi": 0.5550595447182258,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      }
+    },
+    "by_attack_type": {
+      "Base Encoding": {
+        "support": 5,
+        "recall": 0.0,
+        "recall_ci_lo": 0.0,
+        "recall_ci_hi": 0.43449149475208104,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      },
+      "Blocking Internet Connection": {
+        "support": 5,
+        "recall": 0.4,
+        "recall_ci_lo": 0.1176182311592533,
+        "recall_ci_hi": 0.769280067791163,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      },
+      "Bringing Down Hosts and Servers (Denial of Service)": {
+        "support": 5,
+        "recall": 0.2,
+        "recall_ci_lo": 0.03622316096978745,
+        "recall_ci_hi": 0.6244717358814613,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      },
+      "Business Intelligence": {
+        "support": 5,
+        "recall": 0.2,
+        "recall_ci_lo": 0.03622316096978745,
+        "recall_ci_hi": 0.6244717358814613,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      },
+      "Compromising Computers": {
+        "support": 5,
+        "recall": 0.4,
+        "recall_ci_lo": 0.1176182311592533,
+        "recall_ci_hi": 0.769280067791163,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      },
+      "Conversational Agent": {
+        "support": 5,
+        "recall": 0.0,
+        "recall_ci_lo": 0.0,
+        "recall_ci_hi": 0.43449149475208104,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      },
+      "Corrupting an Operating System": {
+        "support": 5,
+        "recall": 0.2,
+        "recall_ci_lo": 0.03622316096978745,
+        "recall_ci_hi": 0.6244717358814613,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      },
+      "Data Eavesdropping": {
+        "support": 5,
+        "recall": 0.4,
+        "recall_ci_lo": 0.1176182311592533,
+        "recall_ci_hi": 0.769280067791163,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      },
+      "Emoji Substitution": {
+        "support": 5,
+        "recall": 0.4,
+        "recall_ci_lo": 0.1176182311592533,
+        "recall_ci_hi": 0.769280067791163,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      },
+      "Encrypting Documents and Demanding Ransom (Ransomware)": {
+        "support": 5,
+        "recall": 0.6,
+        "recall_ci_lo": 0.23071993220883708,
+        "recall_ci_hi": 0.8823817688407467,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      },
+      "Entertainment": {
+        "support": 5,
+        "recall": 0.0,
+        "recall_ci_lo": 0.0,
+        "recall_ci_hi": 0.43449149475208104,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      },
+      "Information Dissemination": {
+        "support": 5,
+        "recall": 0.6,
+        "recall_ci_lo": 0.23071993220883708,
+        "recall_ci_hi": 0.8823817688407467,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      },
+      "Introduce System Fingerprinting": {
+        "support": 5,
+        "recall": 0.2,
+        "recall_ci_lo": 0.03622316096978745,
+        "recall_ci_hi": 0.6244717358814613,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      },
+      "Keylogging": {
+        "support": 5,
+        "recall": 0.4,
+        "recall_ci_lo": 0.1176182311592533,
+        "recall_ci_hi": 0.769280067791163,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      },
+      "Language Translation (Test)": {
+        "support": 5,
+        "recall": 0.0,
+        "recall_ci_lo": 0.0,
+        "recall_ci_hi": 0.43449149475208104,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      },
+      "Marketing & Advertising": {
+        "support": 5,
+        "recall": 0.2,
+        "recall_ci_lo": 0.03622316096978745,
+        "recall_ci_hi": 0.6244717358814613,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      },
+      "Misinformation & Propaganda": {
+        "support": 5,
+        "recall": 0.6,
+        "recall_ci_lo": 0.23071993220883708,
+        "recall_ci_hi": 0.8823817688407467,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      },
+      "Research Assistance": {
+        "support": 5,
+        "recall": 0.6,
+        "recall_ci_lo": 0.23071993220883708,
+        "recall_ci_hi": 0.8823817688407467,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      },
+      "Reverse Text": {
+        "support": 5,
+        "recall": 0.4,
+        "recall_ci_lo": 0.1176182311592533,
+        "recall_ci_hi": 0.769280067791163,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      },
+      "Scams & Fraud": {
+        "support": 5,
+        "recall": 0.4,
+        "recall_ci_lo": 0.1176182311592533,
+        "recall_ci_hi": 0.769280067791163,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      },
+      "Screen Scraping": {
+        "support": 5,
+        "recall": 0.6,
+        "recall_ci_lo": 0.23071993220883708,
+        "recall_ci_hi": 0.8823817688407467,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      },
+      "Sentiment Analysis": {
+        "support": 5,
+        "recall": 0.4,
+        "recall_ci_lo": 0.1176182311592533,
+        "recall_ci_hi": 0.769280067791163,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      },
+      "Substitution Ciphers": {
+        "support": 5,
+        "recall": 0.0,
+        "recall_ci_lo": 0.0,
+        "recall_ci_hi": 0.43449149475208104,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      },
+      "Task Automation": {
+        "support": 5,
+        "recall": 0.6,
+        "recall_ci_lo": 0.23071993220883708,
+        "recall_ci_hi": 0.8823817688407467,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      },
+      "Traffic Analysis": {
+        "support": 5,
+        "recall": 0.2,
+        "recall_ci_lo": 0.03622316096978745,
+        "recall_ci_hi": 0.6244717358814613,
+        "_provenance": "recomputed (P5, from raw_test_predictions.jsonl)"
+      }
+    },
+    "_provenance": "recomputed (P5, on data/splits/test.jsonl, n=206)"
+  },
+  "psr_rouge_from_predictions": {
+    "n": 206,
+    "n_attacked": 125,
+    "psr_overall": 0.006281067961165049,
+    "psr_attacked_only": 0.0103512,
+    "legitimate_retained_mean": 0.6113932038834952,
+    "_provenance": "recomputed (P5, from reports/audit/raw_test_predictions.jsonl, n=206)",
+    "_note": "PSR = payload survival rate proxy for ASR. Real ASR requires LLM execution. legitimate_retained = fraction of non-payload chars surviving redaction."
+  },
+  "reconciliation_flags": [
+    {
+      "step": "step1",
+      "metric": "recall",
+      "recomputed": 0.32,
+      "team_reported": 0.544,
+      "diff": 0.22400000000000003,
+      "flag": "|diff|=0.2240 > 0.005",
+      "note": "P5 recomputed uses is_blocked as predicted label vs step metrics using threshold-calibrated scores"
+    },
+    {
+      "step": "step2",
+      "metric": "recall",
+      "recomputed": 0.32,
+      "team_reported": 0.864,
+      "diff": 0.544,
+      "flag": "|diff|=0.5440 > 0.005",
+      "note": "P5 recomputed uses is_blocked as predicted label vs step metrics using threshold-calibrated scores"
+    },
+    {
+      "step": "step2",
+      "metric": "fpr",
+      "recomputed": 0.2222222222222222,
+      "team_reported": 0.5308641975308642,
+      "diff": 0.308641975308642,
+      "flag": "|diff|=0.3086 > 0.005",
+      "note": "P5 recomputed uses is_blocked as predicted label vs step metrics using threshold-calibrated scores"
+    },
+    {
+      "step": "step3",
+      "metric": "recall",
+      "recomputed": 0.32,
+      "team_reported": 0.4,
+      "diff": 0.08000000000000002,
+      "flag": "|diff|=0.0800 > 0.005",
+      "note": "P5 recomputed uses is_blocked as predicted label vs step metrics using threshold-calibrated scores"
+    },
+    {
+      "step": "step3",
+      "metric": "fpr",
+      "recomputed": 0.2222222222222222,
+      "team_reported": 0.32098765432098764,
+      "diff": 0.09876543209876543,
+      "flag": "|diff|=0.0988 > 0.005",
+      "note": "P5 recomputed uses is_blocked as predicted label vs step metrics using threshold-calibrated scores"
+    },
+    {
+      "step": "step4",
+      "metric": "recall",
+      "recomputed": 0.32,
+      "team_reported": 0.456,
+      "diff": 0.136,
+      "flag": "|diff|=0.1360 > 0.005",
+      "note": "P5 recomputed uses is_blocked as predicted label vs step metrics using threshold-calibrated scores"
+    },
+    {
+      "step": "step4",
+      "metric": "fpr",
+      "recomputed": 0.2222222222222222,
+      "team_reported": 0.25925925925925924,
+      "diff": 0.037037037037037035,
+      "flag": "|diff|=0.0370 > 0.005",
+      "note": "P5 recomputed uses is_blocked as predicted label vs step metrics using threshold-calibrated scores"
+    },
+    {
+      "step": "step5",
+      "metric": "recall",
+      "recomputed": 0.32,
+      "team_reported": 0.632,
+      "diff": 0.312,
+      "flag": "|diff|=0.3120 > 0.005",
+      "note": "P5 recomputed uses is_blocked as predicted label vs step metrics using threshold-calibrated scores"
+    },
+    {
+      "step": "step5",
+      "metric": "fpr",
+      "recomputed": 0.2222222222222222,
+      "team_reported": 0.30864197530864196,
+      "diff": 0.08641975308641975,
+      "flag": "|diff|=0.0864 > 0.005",
+      "note": "P5 recomputed uses is_blocked as predicted label vs step metrics using threshold-calibrated scores"
+    },
+    {
+      "step": "step6",
+      "metric": "recall",
+      "recomputed": 0.32,
+      "team_reported": 0.632,
+      "diff": 0.312,
+      "flag": "|diff|=0.3120 > 0.005",
+      "note": "P5 recomputed uses is_blocked as predicted label vs step metrics using threshold-calibrated scores"
+    },
+    {
+      "step": "step6",
+      "metric": "fpr",
+      "recomputed": 0.2222222222222222,
+      "team_reported": 0.20987654320987653,
+      "diff": 0.012345679012345678,
+      "flag": "|diff|=0.0123 > 0.005",
+      "note": "P5 recomputed uses is_blocked as predicted label vs step metrics using threshold-calibrated scores"
+    }
+  ],
+  "table_3_5_obfuscation": {
+    "data": {
+      "Base64 wrapper": {
+        "baseline_recall": 0.4,
+        "with_normalizer_recall": 0.952,
+        "with_normalizer_and_aug_recall": 0.984,
+        "step1": {
+          "recall": 0.4,
+          "fpr": 0.5308641975308642,
+          "precision": 0.5376344086021505,
+          "f1": 0.45871559633027525,
+          "tp": 50,
+          "fn": 75,
+          "fp": 43,
+          "tn": 38
+        },
+        "step2": {
+          "recall": 0.952,
+          "fpr": 0.7654320987654321,
+          "precision": 0.6574585635359116,
+          "f1": 0.7777777777777778,
+          "tp": 119,
+          "fn": 6,
+          "fp": 62,
+          "tn": 19
+        },
+        "step6": {
+          "recall": 0.984,
+          "fpr": 0.7777777777777778,
+          "precision": 0.6612903225806451,
+          "f1": 0.7909967845659165,
+          "tp": 123,
+          "fn": 2,
+          "fp": 63,
+          "tn": 18
+        }
+      },
+      "Homoglyphs": {
+        "baseline_recall": 0.632,
+        "with_normalizer_recall": 0.672,
+        "with_normalizer_and_aug_recall": 0.976,
+        "step1": {
+          "recall": 0.632,
+          "fpr": 0.5185185185185185,
+          "precision": 0.6528925619834711,
+          "f1": 0.6422764227642277,
+          "tp": 79,
+          "fn": 46,
+          "fp": 42,
+          "tn": 39
+        },
+        "step2": {
+          "recall": 0.672,
+          "fpr": 0.2222222222222222,
+          "precision": 0.8235294117647058,
+          "f1": 0.7400881057268723,
+          "tp": 84,
+          "fn": 41,
+          "fp": 18,
+          "tn": 63
+        },
+        "step6": {
+          "recall": 0.976,
+          "fpr": 0.8024691358024691,
+          "precision": 0.6524064171122995,
+          "f1": 0.782051282051282,
+          "tp": 122,
+          "fn": 3,
+          "fp": 65,
+          "tn": 16
+        }
+      },
+      "Zero-width characters": {
+        "baseline_recall": 0.448,
+        "with_normalizer_recall": 0.96,
+        "with_normalizer_and_aug_recall": 0.984,
+        "step1": {
+          "recall": 0.448,
+          "fpr": 0.012345679012345678,
+          "precision": 0.9824561403508771,
+          "f1": 0.6153846153846154,
+          "tp": 56,
+          "fn": 69,
+          "fp": 1,
+          "tn": 80
+        },
+        "step2": {
+          "recall": 0.96,
+          "fpr": 0.7654320987654321,
+          "precision": 0.6593406593406593,
+          "f1": 0.7817589576547231,
+          "tp": 120,
+          "fn": 5,
+          "fp": 62,
+          "tn": 19
+        },
+        "step6": {
+          "recall": 0.984,
+          "fpr": 0.7777777777777778,
+          "precision": 0.6612903225806451,
+          "f1": 0.7909967845659165,
+          "tp": 123,
+          "fn": 2,
+          "fp": 63,
+          "tn": 18
+        }
+      },
+      "Leetspeak": {
+        "baseline_recall": 0.632,
+        "with_normalizer_recall": 0.96,
+        "with_normalizer_and_aug_recall": 0.992,
+        "step1": {
+          "recall": 0.632,
+          "fpr": 0.5185185185185185,
+          "precision": 0.6528925619834711,
+          "f1": 0.6422764227642277,
+          "tp": 79,
+          "fn": 46,
+          "fp": 42,
+          "tn": 39
+        },
+        "step2": {
+          "recall": 0.96,
+          "fpr": 0.6790123456790124,
+          "precision": 0.6857142857142857,
+          "f1": 0.7999999999999999,
+          "tp": 120,
+          "fn": 5,
+          "fp": 55,
+          "tn": 26
+        },
+        "step6": {
+          "recall": 0.992,
+          "fpr": 0.9629629629629629,
+          "precision": 0.6138613861386139,
+          "f1": 0.7584097859327217,
+          "tp": 124,
+          "fn": 1,
+          "fp": 78,
+          "tn": 3
+        }
+      },
+      "Markdown embeds": {
+        "baseline_recall": 0.584,
+        "with_normalizer_recall": 0.96,
+        "with_normalizer_and_aug_recall": 0.984,
+        "step1": {
+          "recall": 0.584,
+          "fpr": 0.691358024691358,
+          "precision": 0.5658914728682171,
+          "f1": 0.5748031496062992,
+          "tp": 73,
+          "fn": 52,
+          "fp": 56,
+          "tn": 25
+        },
+        "step2": {
+          "recall": 0.96,
+          "fpr": 0.7901234567901234,
+          "precision": 0.6521739130434783,
+          "f1": 0.7766990291262136,
+          "tp": 120,
+          "fn": 5,
+          "fp": 64,
+          "tn": 17
+        },
+        "step6": {
+          "recall": 0.984,
+          "fpr": 0.8518518518518519,
+          "precision": 0.640625,
+          "f1": 0.77602523659306,
+          "tp": 123,
+          "fn": 2,
+          "fp": 69,
+          "tn": 12
+        }
+      }
+    },
+    "_source": "results/table_3_5_obfuscation_comparison.json",
+    "_owner": "P3",
+    "_provenance": "team-reported"
+  },
+  "table_3_8_latency": {
+    "data": {
+      "device": "cpu",
+      "document_tokens_approx": 2000,
+      "baseline": {
+        "mean_latency_ms": 43.558730002162825,
+        "median_latency_ms": 41.17000000405824,
+        "p95_latency_ms": 55.13847500114934,
+        "std_latency_ms": 6.014971377148841,
+        "throughput_docs_sec": 22.9575104680588,
+        "num_chunks_processed": 1
+      },
+      "full_pipeline": {
+        "mean_latency_ms": 166.6088433310506,
+        "median_latency_ms": 167.83254999609198,
+        "p95_latency_ms": 185.0085999998555,
+        "std_latency_ms": 11.773446220651097,
+        "throughput_docs_sec": 6.002082362537066,
+        "num_chunks_processed": 10,
+        "norm_preprocessing_ms": 8.335699996678159
+      },
+      "latency_increase_factor": 3.8249242648437627
+    },
+    "_source": "results/table_3_8_latency.json",
+    "_owner": "P3",
+    "_provenance": "team-reported"
+  }
+}
