@@ -179,65 +179,65 @@ These rows keep the parent document with label 0 and a null span, because the us
 
 > Source: `reports/p4_token_head_report.md` (owner P4, please review)
 
-# P4 Report: Token Head and Redaction
+# Token Classification Head & Structure-Aware Redaction
 
-## 1. Summary
-We built and evaluated a token-level classifier (`O`, `B-INJ`, `I-INJ`) on a DeBERTa-v3 backbone paired with sentence-level span redaction for the Sudarshana indirect prompt-injection detection pipeline. Spans are stored as exact character offsets in the original document with 100% verified round-trip recovery. Across 3 seeds evaluated on held-out attack types from BIPIA, the token head achieves high span overlap F1 while redaction preserves significant document text. Hard negatives reduce false redactions dramatically compared to unregularized models. Main caveat: this checkpoint is an independent prototype to validate the labels, head, and redaction logic; P3 owns the final joint training run with pair inputs and normalizer.
-
-## 2. Environment and reproducibility
-- **Hardware**: AMD Ryzen 7 7735U (16 vCPUs, 2.70 GHz base, x86_64), 14.2 GB System RAM.
-- **Operating System**: Linux 7.0.0-43-generic (glibc 2.43).
-- **Python Version**: Python 3.13.5.
-- **Key Libraries**:
-  - `torch`: 2.14.0+cu130 (CPU execution mode; CUDA unavailable)
-  - `transformers`: 5.19.0
-  - `datasets`: 5.1.0
-  - `scikit-learn`: 1.9.1
-  - `numpy`: 2.2.6
-  - `pysbd`: 0.3.4 (Python Sentence Boundary Disambiguation)
-  - `pytest`: 9.1.1
-- **Repository Commit**: `77ec678ac98327245b2c5d5bf49c7b5cdd4c08a1`
-- **Seeds Fixed**: 42, 43, 44.
-- **Execution Commands**:
-  - Dataset construction: `python3 -m sudarshana.data.builder`
-  - Unit tests: `python3 -m pytest tests/`
-  - Training prototype runs: `PYTHONPATH=. python3 scripts/train_seeds.py`
-  - Full evaluation: `PYTHONPATH=. python3 -m sudarshana.evaluation.evaluate`
+This module provides token-level localization and surgical redaction of indirect prompt injections in retrieved documents, allowing downstream LLMs in RAG pipelines to safely process untrusted context without discarding entire documents.
 
 ---
 
-## 3. Dataset research
+## 1. Architecture & Labeling
 
-### 3.1 Comparison table
-Every candidate was evaluated on identical criteria. All factual entries are verified against official repositories, arXiv papers, and dataset cards.
+The detector builds on `microsoft/deberta-v3-xsmall` (~22M active parameters, 70.7M total):
 
-| Candidate | Source & License | Size | Content Type | Injection Type | Span Info | Attack Types | Position Control | Benign / Hard Negatives | Built-in Splits | Access & Format | Fit for Token Head (1–5) & Reason |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| **BIPIA** (Primary) | [github.com/microsoft/BIPIA](https://github.com/microsoft/BIPIA) · MIT License (core), CC BY-SA 4.0 for components | 5 tasks, 50 attack types (250 prompts), >10k contexts | Email, Web QA, Table QA, Code QA, Summarization | Indirect (inside retrieved document) | Exact character spans recoverable via known payload matching; verified round-trip | 50 distinct types (15 text train, 15 text test, 10 code train, 10 code test); templated | Controlled: `start`, `middle`, `end` | Clean contexts provided; hard negatives limited | Official train vs test split by attack type and task | GitHub repo; JSON/JSONL | **5/5**: Gold standard for indirect injection; 5 RAG tasks, controlled positions, exact span recovery. |
-| **AgentDojo** | [github.com/ethz-spylab/agentdojo](https://github.com/ethz-spylab/agentdojo) · MIT License | 97 tasks, 627 injections across 4 suites | Tool outputs, emails, Slack messages, banking | Indirect (agent tool execution trace) | Embedded in tool returns; dynamically trajectory-dependent | Multi-turn hijacking, state tampering, exfiltration | Arbitrary (inside mock tool outputs) | Full benign agent task suite | Suite & task splits | Python package / GitHub | **3/5**: Excellent for multi-turn agents, but spans are entangled with dynamic tool execution rather than single-pass documents. |
-| **InjecAgent** | [github.com/uiuc-kang-lab/InjecAgent](https://github.com/uiuc-kang-lab/InjecAgent) · Apache 2.0 | 1,054 test cases, 17 user tools, 62 attacker tools | Tool responses (weather, email, calendar) | Indirect (in tool responses) | Attack prompt known in JSON fields; substring recoverable | Direct harm & data exfiltration | Tool observation content | Base settings & benign tool outputs | Tool-based & attack-based splits | GitHub / JSON | **3.5/5**: Realistic tool outputs with recoverable spans, but smaller scale and narrower document diversity than BIPIA. |
-| **Tensor Trust** | [github.com/HumanCompatibleAI/tensor-trust-data](https://github.com/HumanCompatibleAI/tensor-trust-data) · MIT / CC BY 4.0 | ~126k submissions (~2k benchmark subset) | Short game prompts | Direct prompt injection / jailbreak | Trivial (entire string is attack input; no carrier document) | Extraction, hijacking, encoded | Direct user prompt | Defenses are system prompts, not documents | Paper train/val/test splits | GitHub / JSONL | **1.5/5**: Direct injection game; lacks indirect carrier document structure and span localization. |
-| **HackAPrompt** | [huggingface.co/datasets/hackaprompt/hackaprompt-dataset](https://huggingface.co/datasets/hackaprompt/hackaprompt-dataset) · MIT License | 600,000+ competition prompts across 10 levels | Short adversarial prompts | Direct prompt injection / jailbreak | Entire prompt is attack; no embedding inside retrieved text | Level-based defense bypasses (regex, token filters) | Direct prompt | All adversarial; minimal benign text | Level-based splits | Hugging Face Datasets | **2/5**: Massive collection of direct attack prompts; useful as payload source for synthesis, but not a span benchmark. |
-| **deepset/prompt-injections** | [huggingface.co/datasets/deepset/prompt-injections](https://huggingface.co/datasets/deepset/prompt-injections) · Apache 2.0 | 662 examples (546 train, 116 test) | Short sentences, questions | Direct and indirect mixed | None (flat binary classification label only) | None (binary label) | Uncontrolled | 391 benign examples | Train (546) / Test (116) | Hugging Face Datasets | **1/5**: Small scale, document-level binary labels only, completely lacks span information. |
-| **Lakera Gandalf** | [huggingface.co/Lakera](https://huggingface.co/Lakera) · Apache 2.0 | Tens of thousands of game attempts | Short chat prompts | Direct prompt extraction (secret password) | Entire input is attack | 8 defense levels (guardrails to adversarial filters) | Direct prompt | Lacks carrier documents | Game levels | Hugging Face Datasets | **1.5/5**: Password extraction game prompts; no indirect span localization or carrier documents. |
-| **LLMail-Inject** | [github.com/microsoft/llmail-inject-challenge](https://github.com/microsoft/llmail-inject-challenge) · MIT / MSR License | >200,000 adaptive attack prompts | Emails and email assistant tools | Indirect prompt injection in emails | Attack payloads known; substring recoverable | Exfiltration, tool abuse, defense bypasses | Email body, subject, footer | Large corpus of benign email contexts | Challenge phase splits | Hugging Face / GitHub | **4/5**: Outstanding realistic indirect injection benchmark in email domain with recoverable spans. Highly recommended as cross-dataset validation. |
-| **Open-Prompt-Injection** | [github.com/liu00222/Open-Prompt-Injection](https://github.com/liu00222/Open-Prompt-Injection) · MIT License | Thousands of synthesized variations | Web documents, QA contexts (MS MARCO, SQuAD) | Direct and indirect | Configurable placeholder synthesis; loggable spans | Content manipulation, context disruption, data theft | Prefix, infix, suffix | Benign contexts from SQuAD / MS MARCO | Task-based splits | GitHub repository | **4/5**: Strong formal framework with diverse contexts, but requires synthetic dataset compilation rather than fixed canonical splits. |
-| **PromptInject** | [github.com/agencyenterprise/PromptInject](https://github.com/agencyenterprise/PromptInject) · MIT License | Modular framework generating ~45 attacks | Synthetic prompt strings | Prompt injection into templated context | Delimited placeholders enable span extraction | Goal hijacking, prompt leaking | Controlled placement | Basic synthetic templates | None (generator only) | GitHub repo | **2.5/5**: Early pioneering work, but small-scale, templated, and superseded by BIPIA. |
-
-### 3.2 Recommendation to P1 and the decision P1 took
-- **Recommendation to P1**:
-  1. Freeze on **BIPIA** as the primary authoritative benchmark: it is the only benchmark covering 5 diverse RAG tasks, controlled `start`/`middle`/`end` injection placement, 50 disjoint attack types, and deterministic character span recovery with 100% round-trip fidelity.
-  2. Complement BIPIA with a dedicated suite of **Hard Negatives** (imperative technical READMEs, shell tutorials, recipes, and business action emails) with empty span annotations `[]` to prevent the token head from false-flagging legitimate imperative text.
-  3. If cross-dataset evaluation is brought into scope in later phases, prioritize **LLMail-Inject** for out-of-domain email evaluation.
-- **Decision P1 Took**: P1 accepted the recommendation and froze BIPIA with the 50-attack-type disjoint split (15 text train, 15 text test, 10 code train, 10 code test) and approved the integration of hard negatives. Cross-dataset evaluation was confirmed out of scope for the 7-day prototype timeline.
-
-### 3.3 Datasets rejected and why
-- **Tensor Trust & Lakera Gandalf**: Rejected because they evaluate direct prompt extraction/hijacking in game setups where the entire user prompt is malicious. They lack retrieved carrier documents and span localization.
-- **HackAPrompt**: Rejected as a primary benchmark because prompts are standalone direct injection payloads without carrier documents.
-- **deepset/prompt-injections**: Rejected because it only provides binary document-level labels with zero token or span annotations.
-- **PromptInject**: Rejected due to small synthetic sample size and lack of real-world carrier document diversity.
+- **Head Module**: A linear projection head (`TokenClassificationHead` in [`sudarshana/models/token_head.py`](file:///mnt/DE94962594960067/Users/kandp/Documents/Work/Personal_Git_Files/Sudarshana/sudarshana/models/token_head.py)) mapping hidden dimension $384 \to 3$ classes: `0: O`, `1: B-INJ`, `2: I-INJ`.
+- **Token Supervision**: Special tokens (`[CLS]`, `[SEP]`, `[PAD]`) and subword continuation pieces are masked with `-100`. Only initial subwords receive loss gradients.
+- **Class Imbalance**: Positive injection tokens represent ~2–4% of tokens. Loss is weighted with $\mathbf{w} = [1.0, 8.0, 8.0]$ to penalize missed attacks:
+  $$\mathcal{L}_{\text{tok}} = -\frac{1}{N} \sum_{i=1}^{N} w_{y_i} \log P(y_i \mid \mathbf{x}_i)$$
+- **Multi-Task Joint Loss Hook**: Supports end-to-end training alongside document-level detectors via:
+  $$\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{detect}} + \lambda_{\text{tok}}\,\mathcal{L}_{\text{tok}}$$
 
 ---
+
+## 2. Inference & Structure-Aware Redaction
+
+The pipeline in [`sudarshana/redaction/redact.py`](file:///mnt/DE94962594960067/Users/kandp/Documents/Work/Personal_Git_Files/Sudarshana/sudarshana/redaction/redact.py) handles arbitrary document lengths without truncation blind spots:
+
+1. **Sliding Windows & Max-Pooling**: Documents are tokenized into 256-token windows with 64-token stride. Predictions are pooled across overlapping windows by taking the maximum injection probability:
+   $$P(\text{injection}) = P(\text{B-INJ}) + P(\text{I-INJ})$$
+2. **Confidence Threshold & Gap Bridging**: Tokens with $P \ge 0.35$ are flagged. Unflagged gaps of $\le 2$ connective subwords (prepositions, punctuation) between flagged tokens are bridged into contiguous spans.
+3. **Structure-Aware Unit Expansion**: Direct token removal leaves mutilated syntax. Instead of naive sentence segmentation (which breaks markdown tables and code blocks), the engine expands spans to their natural structural container:
+   - **Markdown Tables**: Bounded strictly to the single enclosing row (`[\n, \n]`), preventing adjacent table rows from collapsing.
+   - **Code Blocks & Docstrings**: Expands to the enclosing block (```` ```...``` ````, `'''...'''`, `"""..."""`, or `<!-- ... -->`), fully excising multi-line script payloads.
+   - **Comments**: Expands to contiguous `#` or `//` comment lines.
+   - **Prose**: Expands to sentence boundaries within the enclosing paragraph (`\n\n`).
+4. **Expansion Cap**: Bounded by $\max(150\text{ chars}, 2.5 \times \text{len(raw\_span)})$ to prevent runaway deletion from isolated false-positive tokens.
+5. **Fallback Block Rule**: If total excised characters exceed **50%** of the document, the entire document is blocked, returning `[BLOCKED: PROMPT INJECTION DETECTED]`.
+
+```python
+# Public Interface
+def predict_spans(text: str, user_task: str | None = None) -> list[tuple[int, int]]: ...
+def redact(text: str, spans: list[tuple[int, int]], fallback_ratio: float = 0.50) -> str: ...
+```
+
+---
+
+## 3. Measured Results (Held-Out Test Set)
+
+Evaluated on the held-out test split ($n = 206$ total: 125 attacked documents across 25 unseen attack types, 81 clean/hard-negative documents). Wilson 95% confidence intervals are reported for proportions; bootstrap 95% intervals (2,000 resamples) for means.
+
+| Metric | Measured Value | 95% Confidence Interval | Notes |
+| :--- | :--- | :--- | :--- |
+| **Span Detection Recall (1-to-1)** | **99.20%** (124 / 125) | [95.61%, 99.86%] | 1 missed attack across 25 held-out types |
+| **Gold Span Character Coverage** | **98.96%** | [97.70%, 99.90%] | Share of injected characters excised |
+| **Selective Redaction Success** | **68.00%** (85 / 125) | [59.40%, 75.50%] | Sanitized without triggering full block |
+| **Fallback Block Rate** | **32.00%** (40 / 125) | [24.50%, 40.60%] | Dropped because removed chars > 50% |
+| **Legitimate Content Retained** | **57.84%** | [50.50%, 64.50%] | Across all attacked documents |
+| **Residual Payload (Overall)** | **1.46%** (305 / 20,862 chars) | — | Total surviving attack characters |
+| **Residual Payload (Selective Only)** | **2.32%** (305 / 13,149 chars) | — | On successfully sanitized documents |
+| **Samples with Any Residual** | **5.60%** (7 / 125) | [2.70%, 11.10%] | 94.4% of attacks have zero residual |
+| **Token F1 / Precision / Recall** | **84.79% / 77.58% / 93.49%** | — | Raw token classification head |
+
+### Breakdown by Position & Document Length
 
 
 *[... truncated at 60 lines — see full file: reports/p4_token_head_report.md]*
@@ -246,7 +246,7 @@ Every candidate was evaluated on identical criteria. All factual entries are ver
 
 | Predictor | Token Recall | Token Precision | Token F1 | Span Overlap F1 | Source |
 |-----------|-------------|-----------------|----------|-----------------|--------|
-| token_head (P4-reported, not re-evaluated: no weights) | 0.9349 | 0.7758 | 0.8479 | 0.3442 | `reports/metrics.json` |
+| token_head (P4-reported, not re-evaluated: no weights) | 0.9349 | 0.7758 | 0.8479 | 0.3135 | `reports/metrics.json` |
 
 > ⚠️ No trained weights committed — all P5 token_head evaluation is N/A.
 
