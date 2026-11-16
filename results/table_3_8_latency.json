@@ -1,0 +1,22 @@
+{
+  "device": "cpu",
+  "document_tokens_approx": 2000,
+  "baseline": {
+    "mean_latency_ms": 43.558730002162825,
+    "median_latency_ms": 41.17000000405824,
+    "p95_latency_ms": 55.13847500114934,
+    "std_latency_ms": 6.014971377148841,
+    "throughput_docs_sec": 22.9575104680588,
+    "num_chunks_processed": 1
+  },
+  "full_pipeline": {
+    "mean_latency_ms": 166.6088433310506,
+    "median_latency_ms": 167.83254999609198,
+    "p95_latency_ms": 185.0085999998555,
+    "std_latency_ms": 11.773446220651097,
+    "throughput_docs_sec": 6.002082362537066,
+    "num_chunks_processed": 10,
+    "norm_preprocessing_ms": 8.335699996678159
+  },
+  "latency_increase_factor": 3.8249242648437627
+}

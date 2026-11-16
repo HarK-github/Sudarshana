@@ -1,0 +1,21 @@
+{
+  "backbone": "microsoft/deberta-v3-xsmall",
+  "hidden_size": 384,
+  "num_classes": 2,
+  "num_token_labels": 3,
+  "num_attack_types": 25,
+  "dropout_prob": 0.1,
+  "use_token_head": true,
+  "use_type_head": false,
+  "lambda_tok": 0.25,
+  "lambda_type": 0.0,
+  "class_weights_tok": [
+    0.25,
+    2.5,
+    1.5
+  ],
+  "class_weights_detect": [
+    2.244,
+    0.643
+  ]
+}
