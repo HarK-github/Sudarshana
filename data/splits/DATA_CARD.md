@@ -40,4 +40,14 @@
 ## 6. Known Limitations
 - Single-turn document retrieval only; multi-turn agent traces not included.
 - Code attacks evaluated on Python Stack Overflow contexts; compiled languages not covered.
-- Obfuscations limited to basic wrappers and ciphers; advanced polymorphic payloads defer to P2 augmentation.
+- The test split itself only contains BIPIA's own wrappers and ciphers. Surface obfuscation of those payloads is the separate held-out file in section 7.
+
+## 7. Obfuscated held-out set
+Built from this test split by `python -m sudarshana.data.build_obfuscated --config configs/obfuscated_heldout.yaml`.
+
+- File: `data/splits/obfuscated.jsonl`
+- Card: `data/splits/OBFUSCATED_CARD.md`
+- Protocol: `docs/eval_protocol_obfuscated.md`
+- Each injected test row is rewritten once per family (`base64`, `hex`, `leetspeak`, `zero_width`, `homoglyph`). Only the gold span changes. Clean test rows are copied once as the false-positive control.
+- `homoglyph` is reserved for this set. Training augmentation must not use it.
+- Training must not read `obfuscated.jsonl`.

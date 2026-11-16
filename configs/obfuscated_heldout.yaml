@@ -1,0 +1,12 @@
+# Obfuscated held-out set. Paths are relative to the repository root.
+# Training must not read the output. homoglyph is reserved from training augmentation.
+source: data/splits/test.jsonl
+output: data/splits/obfuscated.jsonl
+card: data/splits/OBFUSCATED_CARD.md
+seed: 20261115
+families:
+  - base64
+  - hex
+  - leetspeak
+  - zero_width
+  - homoglyph

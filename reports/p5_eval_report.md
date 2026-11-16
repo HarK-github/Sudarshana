@@ -59,7 +59,7 @@ comparing task completion. ROUGE-1 is a surface-text overlap proxy only.
 
 ## 3. Recall by Injection Position
 
-![Recall by Injection Position](/home/kinshuk-gupta/KINSHUK GUPTA/IIT BHILAI/IIT BHILAI 7TH SEMESTER/DSL504 - NATURAL LANGUAGE PROCESSING/Group Project/Sudarshana/reports/figures/recall_by_position.png)
+![Recall by Injection Position](reports/figures/recall_by_position.png)
 *Recall by Injection Position*
 
 | Predictor | Position | Support | Recall |
@@ -79,7 +79,7 @@ comparing task completion. ROUGE-1 is a surface-text overlap proxy only.
 
 ## 4. Recall by Attack Category
 
-![Recall by Attack Type](/home/kinshuk-gupta/KINSHUK GUPTA/IIT BHILAI/IIT BHILAI 7TH SEMESTER/DSL504 - NATURAL LANGUAGE PROCESSING/Group Project/Sudarshana/reports/figures/recall_by_attack_type.png)
+![Recall by Attack Type](reports/figures/recall_by_attack_type.png)
 *Recall by Attack Type*
 
 | Predictor | Attack Type | Support | Recall |
@@ -176,7 +176,7 @@ comparing task completion. ROUGE-1 is a surface-text overlap proxy only.
 
 ## 6. Downstream: PSR and ROUGE-1 (none vs oracle vs predicted)
 
-![PSR and ROUGE-1 by Predictor](/home/kinshuk-gupta/KINSHUK GUPTA/IIT BHILAI/IIT BHILAI 7TH SEMESTER/DSL504 - NATURAL LANGUAGE PROCESSING/Group Project/Sudarshana/reports/figures/psr_rouge_by_condition.png)
+![PSR and ROUGE-1 by Predictor](reports/figures/psr_rouge_by_condition.png)
 *PSR and ROUGE-1 by Predictor*
 
 | Predictor | PSR (↓ better for defence) | ROUGE-1 F1 (↑ better) |
@@ -193,7 +193,7 @@ comparing task completion. ROUGE-1 is a surface-text overlap proxy only.
 
 ## 7. Latency
 
-![Pipeline Latency p50/p95](/home/kinshuk-gupta/KINSHUK GUPTA/IIT BHILAI/IIT BHILAI 7TH SEMESTER/DSL504 - NATURAL LANGUAGE PROCESSING/Group Project/Sudarshana/reports/figures/latency_p50_p95.png)
+![Pipeline Latency p50/p95](reports/figures/latency_p50_p95.png)
 *Pipeline Latency p50/p95*
 
 Benchmark: ~1783 estimated tokens (12674 chars). 20 runs, 3 warmups.
@@ -210,7 +210,71 @@ Benchmark: ~1783 estimated tokens (12674 chars). 20 runs, 3 warmups.
 
 ## 8. Obfuscated Held-Out Status
 
-> **SKIPPED**: no obfuscated set yet; P1/P2 deliverable
+Evaluated on `data/splits/obfuscated.jsonl` (706 records).
+
+Child recall is the obfuscated payload. Parent recall is the same predictor on the clean test parent. Delta is child recall minus parent recall. Lost is the fraction of pairs the parent caught and the child missed, with a Wilson 95% interval. Position and domain slices are in this JSON under each predictor.
+
+| Predictor | Family | N | Child recall | Parent recall | Delta | Lost [Wilson] |
+|-----------|--------|---|--------------|---------------|-------|---------------|
+| none | base64 | 125 | 0.0 | 0.0 | 0.0 | 0.0 [0.0, 0.0298] |
+| none | hex | 125 | 0.0 | 0.0 | 0.0 | 0.0 [0.0, 0.0298] |
+| none | leetspeak | 125 | 0.0 | 0.0 | 0.0 | 0.0 [0.0, 0.0298] |
+| none | zero_width | 125 | 0.0 | 0.0 | 0.0 | 0.0 [0.0, 0.0298] |
+| none | homoglyph | 125 | 0.0 | 0.0 | 0.0 | 0.0 [0.0, 0.0298] |
+| oracle | base64 | 125 | 1.0 | 1.0 | 0.0 | 0.0 [0.0, 0.0298] |
+| oracle | hex | 125 | 1.0 | 1.0 | 0.0 | 0.0 [0.0, 0.0298] |
+| oracle | leetspeak | 125 | 1.0 | 1.0 | 0.0 | 0.0 [0.0, 0.0298] |
+| oracle | zero_width | 125 | 1.0 | 1.0 | 0.0 | 0.0 [0.0, 0.0298] |
+| oracle | homoglyph | 125 | 1.0 | 1.0 | 0.0 | 0.0 [0.0, 0.0298] |
+| keyword_heuristic | base64 | 125 | 0.008 | 0.04 | -0.032 | 0.032 [0.0125, 0.0794] |
+| keyword_heuristic | hex | 125 | 0.008 | 0.04 | -0.032 | 0.032 [0.0125, 0.0794] |
+| keyword_heuristic | leetspeak | 125 | 0.008 | 0.04 | -0.032 | 0.032 [0.0125, 0.0794] |
+| keyword_heuristic | zero_width | 125 | 0.008 | 0.04 | -0.032 | 0.032 [0.0125, 0.0794] |
+| keyword_heuristic | homoglyph | 125 | 0.008 | 0.04 | -0.032 | 0.032 [0.0125, 0.0794] |
+
+---
+
+## 8a. FPR calibration and ablation ladder
+
+Target false-positive rate 0.05 on `val`. Frozen rung: `1_baseline`.
+Redaction cutoff remains 0.35 and is not this detection threshold.
+
+| Rung | Status | Threshold | Val FPR | Val recall | Test recall | Test FPR |
+|------|--------|-----------|---------|------------|-------------|----------|
+| Baseline — truncated, single string | OK | 71.51743049192336 | 0.0435 | 0.0267 | 0.0 | 0.0 |
+| + Normalizer | NOT_RUN | — | — | — | — | — |
+| + Chunking with max pooling | NOT_RUN | — | — | — | — | — |
+| + Pair input | NOT_RUN | — | — | — | — | — |
+| + Token head and redaction | NOT_RUN | — | — | — | — | — |
+| + Obfuscation augmentation | NOT_RUN | — | — | — | — | — |
+
+Reasons for rungs that did not run:
+
+- `2_normalizer`: no normalizer module
+- `3_chunking`: no chunker module
+- `4_pair`: incremental pair rung waits until the normalizer and chunker run; the lexical pair arm is in available_arms
+- `5_token_head`: no token-head checkpoint weights
+- `6_augmentation`: no training augmenter
+
+Available arms use the same cap on their own. They are not incremental ladder gains.
+
+| Arm | Threshold | Val FPR | Val recall | Test recall | Test FPR | Hard-neg FPR |
+|-----|-----------|---------|------------|-------------|----------|--------------|
+| document | 71.51743049192336 | 0.0435 | 0.0267 | 0.0 | 0.0 | 0.0 |
+| pair | 72.73086911512883 | 0.0435 | 0.0267 | 0.0 | 0.0 | 0.0 |
+
+| Arm | Family | N | Parent recall | Child recall | Delta |
+|-----|--------|---|---------------|--------------|-------|
+| document | base64 | 125 | 0.0 | 0.0 | 0.0 |
+| document | hex | 125 | 0.0 | 0.0 | 0.0 |
+| document | leetspeak | 125 | 0.0 | 0.0 | 0.0 |
+| document | zero_width | 125 | 0.0 | 0.0 | 0.0 |
+| document | homoglyph | 125 | 0.0 | 0.0 | 0.0 |
+| pair | base64 | 125 | 0.0 | 0.0 | 0.0 |
+| pair | hex | 125 | 0.0 | 0.0 | 0.0 |
+| pair | leetspeak | 125 | 0.0 | 0.0 | 0.0 |
+| pair | zero_width | 125 | 0.0 | 0.0 | 0.0 |
+| pair | homoglyph | 125 | 0.0 | 0.0 | 0.0 |
 
 ---
 
@@ -244,7 +308,7 @@ Benchmark: ~1783 estimated tokens (12674 chars). 20 runs, 3 warmups.
 
 ### 9b. Oracle PSR and ROUGE-1 by Attack Type (f=1.0, m=0.0)
 
-![Oracle PSR by Attack Type](/home/kinshuk-gupta/KINSHUK GUPTA/IIT BHILAI/IIT BHILAI 7TH SEMESTER/DSL504 - NATURAL LANGUAGE PROCESSING/Group Project/Sudarshana/reports/figures/psr_by_attack_type.png)
+![Oracle PSR by Attack Type](reports/figures/psr_by_attack_type.png)
 *Oracle PSR by Attack Type*
 
 | Attack Type | N | PSR [95% CI] | ROUGE-1 F1 |
@@ -283,7 +347,7 @@ Benchmark: ~1783 estimated tokens (12674 chars). 20 runs, 3 warmups.
 | middle | 30 | 0.0000 [0.000, 0.114] | 0.7115 |
 | start | 42 | 0.0000 [0.000, 0.084] | 0.8090 |
 
-![Redaction Sensitivity Grid](/home/kinshuk-gupta/KINSHUK GUPTA/IIT BHILAI/IIT BHILAI 7TH SEMESTER/DSL504 - NATURAL LANGUAGE PROCESSING/Group Project/Sudarshana/reports/figures/redaction_sensitivity.png)
+![Redaction Sensitivity Grid](reports/figures/redaction_sensitivity.png)
 *Redaction Sensitivity Grid*
 
 ---
@@ -295,7 +359,7 @@ Benchmark: ~1783 estimated tokens (12674 chars). 20 runs, 3 warmups.
 3. **ASR proxy** — PSR measures payload-text survival; real ASR requires LLM execution and behavioural verification.
 4. **ROUGE-1 utility proxy** — surface-text overlap; actual task utility requires downstream agent evaluation.
 5. **token_head: N/A** — no trained weights; all token-head metrics are N/A.
-6. **No obfuscated set** — obfuscated held-out evaluation skipped (P1/P2 deliverable).
+6. **Obfuscated held-out** — surface-obfuscated test payloads are evaluated in section 8. `homoglyph` is reserved from training augmentation.
 7. **No pair-input evaluation** — P3's (user_task, document) pair collator not integrated; all predictors use document-only input.
 8. **No LLM ASR** — `LLMBackend` protocol stubbed; `compute_llm_asr` returns N/A.
 9. **Sensitivity is SIMULATED** — gold span perturbations, not real predicted spans from a trained model.
@@ -308,7 +372,6 @@ Benchmark: ~1783 estimated tokens (12674 chars). 20 runs, 3 warmups.
 |------|-------|---------|
 | Trained token-head weights | P4 | Needed for token_head predictor, span-F1, real PSR/ROUGE-1 |
 | Pair-input collator (user_task + document) | P3 | Needed for fair comparison vs document-only baseline |
-| Obfuscated held-out set | P1/P2 | Needed for heldout evaluation |
 | Real LLM ASR measurement | All | Requires LLM endpoint + prompt harness |
 
 ---

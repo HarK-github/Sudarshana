@@ -1,10 +1,1977 @@
 {
-  "status": "SKIPPED",
-  "reason": "no obfuscated set yet; P1/P2 deliverable",
-  "searched_locations": [
-    "/home/kinshuk-gupta/KINSHUK GUPTA/IIT BHILAI/IIT BHILAI 7TH SEMESTER/DSL504 - NATURAL LANGUAGE PROCESSING/Group Project/Sudarshana/data/splits/obfuscated.jsonl",
-    "/home/kinshuk-gupta/KINSHUK GUPTA/IIT BHILAI/IIT BHILAI 7TH SEMESTER/DSL504 - NATURAL LANGUAGE PROCESSING/Group Project/Sudarshana/data/splits/obfuscated_test.jsonl",
-    "/home/kinshuk-gupta/KINSHUK GUPTA/IIT BHILAI/IIT BHILAI 7TH SEMESTER/DSL504 - NATURAL LANGUAGE PROCESSING/Group Project/Sudarshana/data/splits/heldout_obfuscated.jsonl",
-    "/home/kinshuk-gupta/KINSHUK GUPTA/IIT BHILAI/IIT BHILAI 7TH SEMESTER/DSL504 - NATURAL LANGUAGE PROCESSING/Group Project/Sudarshana/data/splits/test_obfuscated.jsonl"
-  ]
+  "status": "OK",
+  "path": "data/splits/obfuscated.jsonl",
+  "n_records": 706,
+  "n_injected": 625,
+  "n_clean": 81,
+  "families": [
+    "base64",
+    "hex",
+    "leetspeak",
+    "zero_width",
+    "homoglyph"
+  ],
+  "protocol": "docs/eval_protocol_obfuscated.md",
+  "rouge1_reference": "document with gold injection spans removed (the parent context)",
+  "predictors": {
+    "none": {
+      "slicing": {
+        "recall_by_position": {
+          "end": {
+            "support": 265,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 265
+          },
+          "middle": {
+            "support": 150,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 150
+          },
+          "start": {
+            "support": 210,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 210
+          }
+        },
+        "recall_by_attack_type": {
+          "Base Encoding": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Blocking Internet Connection": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Bringing Down Hosts and Servers (Denial of Service)": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Business Intelligence": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Compromising Computers": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Conversational Agent": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Corrupting an Operating System": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Data Eavesdropping": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Emoji Substitution": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Encrypting Documents and Demanding Ransom (Ransomware)": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Entertainment": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Information Dissemination": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Introduce System Fingerprinting": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Keylogging": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Language Translation (Test)": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Marketing & Advertising": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Misinformation & Propaganda": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Research Assistance": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Reverse Text": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Scams & Fraud": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Screen Scraping": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Sentiment Analysis": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Substitution Ciphers": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Task Automation": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Traffic Analysis": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          }
+        },
+        "fpr_on_test_negatives": {
+          "fpr": 0.0,
+          "support": 81,
+          "fp": 0,
+          "tn": 81
+        },
+        "fpr_on_hard_negatives": {
+          "fpr": 0.0,
+          "support": 15,
+          "fp": 0,
+          "tn": 15
+        },
+        "span_f1": {
+          "span_f1": null,
+          "na_reason": "span predictions not available for binary predictors",
+          "n": 0
+        },
+        "recall_by_obfuscation_family": {
+          "base64": {
+            "support": 125,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 125,
+            "ci": [
+              0.0,
+              0.0298
+            ]
+          },
+          "hex": {
+            "support": 125,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 125,
+            "ci": [
+              0.0,
+              0.0298
+            ]
+          },
+          "homoglyph": {
+            "support": 125,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 125,
+            "ci": [
+              0.0,
+              0.0298
+            ]
+          },
+          "leetspeak": {
+            "support": 125,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 125,
+            "ci": [
+              0.0,
+              0.0298
+            ]
+          },
+          "zero_width": {
+            "support": 125,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 125,
+            "ci": [
+              0.0,
+              0.0298
+            ]
+          }
+        },
+        "recall_by_position_within_family": {
+          "base64": {
+            "end": {
+              "support": 53,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 53,
+              "ci": [
+                0.0,
+                0.0676
+              ]
+            },
+            "middle": {
+              "support": 30,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 30,
+              "ci": [
+                0.0,
+                0.1135
+              ]
+            },
+            "start": {
+              "support": 42,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 42,
+              "ci": [
+                0.0,
+                0.0838
+              ]
+            }
+          },
+          "hex": {
+            "end": {
+              "support": 53,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 53,
+              "ci": [
+                0.0,
+                0.0676
+              ]
+            },
+            "middle": {
+              "support": 30,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 30,
+              "ci": [
+                0.0,
+                0.1135
+              ]
+            },
+            "start": {
+              "support": 42,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 42,
+              "ci": [
+                0.0,
+                0.0838
+              ]
+            }
+          },
+          "homoglyph": {
+            "end": {
+              "support": 53,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 53,
+              "ci": [
+                0.0,
+                0.0676
+              ]
+            },
+            "middle": {
+              "support": 30,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 30,
+              "ci": [
+                0.0,
+                0.1135
+              ]
+            },
+            "start": {
+              "support": 42,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 42,
+              "ci": [
+                0.0,
+                0.0838
+              ]
+            }
+          },
+          "leetspeak": {
+            "end": {
+              "support": 53,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 53,
+              "ci": [
+                0.0,
+                0.0676
+              ]
+            },
+            "middle": {
+              "support": 30,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 30,
+              "ci": [
+                0.0,
+                0.1135
+              ]
+            },
+            "start": {
+              "support": 42,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 42,
+              "ci": [
+                0.0,
+                0.0838
+              ]
+            }
+          },
+          "zero_width": {
+            "end": {
+              "support": 53,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 53,
+              "ci": [
+                0.0,
+                0.0676
+              ]
+            },
+            "middle": {
+              "support": 30,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 30,
+              "ci": [
+                0.0,
+                0.1135
+              ]
+            },
+            "start": {
+              "support": 42,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 42,
+              "ci": [
+                0.0,
+                0.0838
+              ]
+            }
+          }
+        },
+        "recall_by_domain_within_family": {
+          "base64": {
+            "code": {
+              "support": 50,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 50,
+              "ci": [
+                0.0,
+                0.0714
+              ]
+            },
+            "text": {
+              "support": 75,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 75,
+              "ci": [
+                0.0,
+                0.0487
+              ]
+            }
+          },
+          "hex": {
+            "code": {
+              "support": 50,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 50,
+              "ci": [
+                0.0,
+                0.0714
+              ]
+            },
+            "text": {
+              "support": 75,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 75,
+              "ci": [
+                0.0,
+                0.0487
+              ]
+            }
+          },
+          "homoglyph": {
+            "code": {
+              "support": 50,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 50,
+              "ci": [
+                0.0,
+                0.0714
+              ]
+            },
+            "text": {
+              "support": 75,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 75,
+              "ci": [
+                0.0,
+                0.0487
+              ]
+            }
+          },
+          "leetspeak": {
+            "code": {
+              "support": 50,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 50,
+              "ci": [
+                0.0,
+                0.0714
+              ]
+            },
+            "text": {
+              "support": 75,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 75,
+              "ci": [
+                0.0,
+                0.0487
+              ]
+            }
+          },
+          "zero_width": {
+            "code": {
+              "support": 50,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 50,
+              "ci": [
+                0.0,
+                0.0714
+              ]
+            },
+            "text": {
+              "support": 75,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 75,
+              "ci": [
+                0.0,
+                0.0487
+              ]
+            }
+          }
+        }
+      },
+      "paired": {
+        "missing_parents": 0,
+        "by_family": {
+          "base64": {
+            "n": 125,
+            "parent_hits": 0,
+            "child_hits": 0,
+            "parent_recall": 0.0,
+            "parent_ci": [
+              0.0,
+              0.0298
+            ],
+            "child_recall": 0.0,
+            "child_ci": [
+              0.0,
+              0.0298
+            ],
+            "recall_delta": 0.0,
+            "lost": 0,
+            "gained": 0,
+            "lost_rate": 0.0,
+            "lost_ci": [
+              0.0,
+              0.0298
+            ]
+          },
+          "hex": {
+            "n": 125,
+            "parent_hits": 0,
+            "child_hits": 0,
+            "parent_recall": 0.0,
+            "parent_ci": [
+              0.0,
+              0.0298
+            ],
+            "child_recall": 0.0,
+            "child_ci": [
+              0.0,
+              0.0298
+            ],
+            "recall_delta": 0.0,
+            "lost": 0,
+            "gained": 0,
+            "lost_rate": 0.0,
+            "lost_ci": [
+              0.0,
+              0.0298
+            ]
+          },
+          "leetspeak": {
+            "n": 125,
+            "parent_hits": 0,
+            "child_hits": 0,
+            "parent_recall": 0.0,
+            "parent_ci": [
+              0.0,
+              0.0298
+            ],
+            "child_recall": 0.0,
+            "child_ci": [
+              0.0,
+              0.0298
+            ],
+            "recall_delta": 0.0,
+            "lost": 0,
+            "gained": 0,
+            "lost_rate": 0.0,
+            "lost_ci": [
+              0.0,
+              0.0298
+            ]
+          },
+          "zero_width": {
+            "n": 125,
+            "parent_hits": 0,
+            "child_hits": 0,
+            "parent_recall": 0.0,
+            "parent_ci": [
+              0.0,
+              0.0298
+            ],
+            "child_recall": 0.0,
+            "child_ci": [
+              0.0,
+              0.0298
+            ],
+            "recall_delta": 0.0,
+            "lost": 0,
+            "gained": 0,
+            "lost_rate": 0.0,
+            "lost_ci": [
+              0.0,
+              0.0298
+            ]
+          },
+          "homoglyph": {
+            "n": 125,
+            "parent_hits": 0,
+            "child_hits": 0,
+            "parent_recall": 0.0,
+            "parent_ci": [
+              0.0,
+              0.0298
+            ],
+            "child_recall": 0.0,
+            "child_ci": [
+              0.0,
+              0.0298
+            ],
+            "recall_delta": 0.0,
+            "lost": 0,
+            "gained": 0,
+            "lost_rate": 0.0,
+            "lost_ci": [
+              0.0,
+              0.0298
+            ]
+          }
+        }
+      },
+      "psr": {
+        "metric": "ASR proxy (payload survival)",
+        "psr": 0.8992,
+        "survived": 562,
+        "total_attack": 625,
+        "threshold": 0.5
+      },
+      "rouge1": {
+        "metric": "ROUGE-1 utility proxy",
+        "rouge1_f1": 0.8907,
+        "rouge1_precision": 0.8338,
+        "rouge1_recall": 0.9987,
+        "n": 625
+      }
+    },
+    "oracle": {
+      "slicing": {
+        "recall_by_position": {
+          "end": {
+            "support": 265,
+            "recall": 1.0,
+            "tp": 265,
+            "fn": 0
+          },
+          "middle": {
+            "support": 150,
+            "recall": 1.0,
+            "tp": 150,
+            "fn": 0
+          },
+          "start": {
+            "support": 210,
+            "recall": 1.0,
+            "tp": 210,
+            "fn": 0
+          }
+        },
+        "recall_by_attack_type": {
+          "Base Encoding": {
+            "support": 25,
+            "recall": 1.0,
+            "tp": 25,
+            "fn": 0
+          },
+          "Blocking Internet Connection": {
+            "support": 25,
+            "recall": 1.0,
+            "tp": 25,
+            "fn": 0
+          },
+          "Bringing Down Hosts and Servers (Denial of Service)": {
+            "support": 25,
+            "recall": 1.0,
+            "tp": 25,
+            "fn": 0
+          },
+          "Business Intelligence": {
+            "support": 25,
+            "recall": 1.0,
+            "tp": 25,
+            "fn": 0
+          },
+          "Compromising Computers": {
+            "support": 25,
+            "recall": 1.0,
+            "tp": 25,
+            "fn": 0
+          },
+          "Conversational Agent": {
+            "support": 25,
+            "recall": 1.0,
+            "tp": 25,
+            "fn": 0
+          },
+          "Corrupting an Operating System": {
+            "support": 25,
+            "recall": 1.0,
+            "tp": 25,
+            "fn": 0
+          },
+          "Data Eavesdropping": {
+            "support": 25,
+            "recall": 1.0,
+            "tp": 25,
+            "fn": 0
+          },
+          "Emoji Substitution": {
+            "support": 25,
+            "recall": 1.0,
+            "tp": 25,
+            "fn": 0
+          },
+          "Encrypting Documents and Demanding Ransom (Ransomware)": {
+            "support": 25,
+            "recall": 1.0,
+            "tp": 25,
+            "fn": 0
+          },
+          "Entertainment": {
+            "support": 25,
+            "recall": 1.0,
+            "tp": 25,
+            "fn": 0
+          },
+          "Information Dissemination": {
+            "support": 25,
+            "recall": 1.0,
+            "tp": 25,
+            "fn": 0
+          },
+          "Introduce System Fingerprinting": {
+            "support": 25,
+            "recall": 1.0,
+            "tp": 25,
+            "fn": 0
+          },
+          "Keylogging": {
+            "support": 25,
+            "recall": 1.0,
+            "tp": 25,
+            "fn": 0
+          },
+          "Language Translation (Test)": {
+            "support": 25,
+            "recall": 1.0,
+            "tp": 25,
+            "fn": 0
+          },
+          "Marketing & Advertising": {
+            "support": 25,
+            "recall": 1.0,
+            "tp": 25,
+            "fn": 0
+          },
+          "Misinformation & Propaganda": {
+            "support": 25,
+            "recall": 1.0,
+            "tp": 25,
+            "fn": 0
+          },
+          "Research Assistance": {
+            "support": 25,
+            "recall": 1.0,
+            "tp": 25,
+            "fn": 0
+          },
+          "Reverse Text": {
+            "support": 25,
+            "recall": 1.0,
+            "tp": 25,
+            "fn": 0
+          },
+          "Scams & Fraud": {
+            "support": 25,
+            "recall": 1.0,
+            "tp": 25,
+            "fn": 0
+          },
+          "Screen Scraping": {
+            "support": 25,
+            "recall": 1.0,
+            "tp": 25,
+            "fn": 0
+          },
+          "Sentiment Analysis": {
+            "support": 25,
+            "recall": 1.0,
+            "tp": 25,
+            "fn": 0
+          },
+          "Substitution Ciphers": {
+            "support": 25,
+            "recall": 1.0,
+            "tp": 25,
+            "fn": 0
+          },
+          "Task Automation": {
+            "support": 25,
+            "recall": 1.0,
+            "tp": 25,
+            "fn": 0
+          },
+          "Traffic Analysis": {
+            "support": 25,
+            "recall": 1.0,
+            "tp": 25,
+            "fn": 0
+          }
+        },
+        "fpr_on_test_negatives": {
+          "fpr": 0.0,
+          "support": 81,
+          "fp": 0,
+          "tn": 81
+        },
+        "fpr_on_hard_negatives": {
+          "fpr": 0.0,
+          "support": 15,
+          "fp": 0,
+          "tn": 15
+        },
+        "span_f1": {
+          "span_f1": null,
+          "na_reason": "span predictions not available for binary predictors",
+          "n": 0
+        },
+        "recall_by_obfuscation_family": {
+          "base64": {
+            "support": 125,
+            "recall": 1.0,
+            "tp": 125,
+            "fn": 0,
+            "ci": [
+              0.9702,
+              1.0
+            ]
+          },
+          "hex": {
+            "support": 125,
+            "recall": 1.0,
+            "tp": 125,
+            "fn": 0,
+            "ci": [
+              0.9702,
+              1.0
+            ]
+          },
+          "homoglyph": {
+            "support": 125,
+            "recall": 1.0,
+            "tp": 125,
+            "fn": 0,
+            "ci": [
+              0.9702,
+              1.0
+            ]
+          },
+          "leetspeak": {
+            "support": 125,
+            "recall": 1.0,
+            "tp": 125,
+            "fn": 0,
+            "ci": [
+              0.9702,
+              1.0
+            ]
+          },
+          "zero_width": {
+            "support": 125,
+            "recall": 1.0,
+            "tp": 125,
+            "fn": 0,
+            "ci": [
+              0.9702,
+              1.0
+            ]
+          }
+        },
+        "recall_by_position_within_family": {
+          "base64": {
+            "end": {
+              "support": 53,
+              "recall": 1.0,
+              "tp": 53,
+              "fn": 0,
+              "ci": [
+                0.9324,
+                1.0
+              ]
+            },
+            "middle": {
+              "support": 30,
+              "recall": 1.0,
+              "tp": 30,
+              "fn": 0,
+              "ci": [
+                0.8865,
+                1.0
+              ]
+            },
+            "start": {
+              "support": 42,
+              "recall": 1.0,
+              "tp": 42,
+              "fn": 0,
+              "ci": [
+                0.9162,
+                1.0
+              ]
+            }
+          },
+          "hex": {
+            "end": {
+              "support": 53,
+              "recall": 1.0,
+              "tp": 53,
+              "fn": 0,
+              "ci": [
+                0.9324,
+                1.0
+              ]
+            },
+            "middle": {
+              "support": 30,
+              "recall": 1.0,
+              "tp": 30,
+              "fn": 0,
+              "ci": [
+                0.8865,
+                1.0
+              ]
+            },
+            "start": {
+              "support": 42,
+              "recall": 1.0,
+              "tp": 42,
+              "fn": 0,
+              "ci": [
+                0.9162,
+                1.0
+              ]
+            }
+          },
+          "homoglyph": {
+            "end": {
+              "support": 53,
+              "recall": 1.0,
+              "tp": 53,
+              "fn": 0,
+              "ci": [
+                0.9324,
+                1.0
+              ]
+            },
+            "middle": {
+              "support": 30,
+              "recall": 1.0,
+              "tp": 30,
+              "fn": 0,
+              "ci": [
+                0.8865,
+                1.0
+              ]
+            },
+            "start": {
+              "support": 42,
+              "recall": 1.0,
+              "tp": 42,
+              "fn": 0,
+              "ci": [
+                0.9162,
+                1.0
+              ]
+            }
+          },
+          "leetspeak": {
+            "end": {
+              "support": 53,
+              "recall": 1.0,
+              "tp": 53,
+              "fn": 0,
+              "ci": [
+                0.9324,
+                1.0
+              ]
+            },
+            "middle": {
+              "support": 30,
+              "recall": 1.0,
+              "tp": 30,
+              "fn": 0,
+              "ci": [
+                0.8865,
+                1.0
+              ]
+            },
+            "start": {
+              "support": 42,
+              "recall": 1.0,
+              "tp": 42,
+              "fn": 0,
+              "ci": [
+                0.9162,
+                1.0
+              ]
+            }
+          },
+          "zero_width": {
+            "end": {
+              "support": 53,
+              "recall": 1.0,
+              "tp": 53,
+              "fn": 0,
+              "ci": [
+                0.9324,
+                1.0
+              ]
+            },
+            "middle": {
+              "support": 30,
+              "recall": 1.0,
+              "tp": 30,
+              "fn": 0,
+              "ci": [
+                0.8865,
+                1.0
+              ]
+            },
+            "start": {
+              "support": 42,
+              "recall": 1.0,
+              "tp": 42,
+              "fn": 0,
+              "ci": [
+                0.9162,
+                1.0
+              ]
+            }
+          }
+        },
+        "recall_by_domain_within_family": {
+          "base64": {
+            "code": {
+              "support": 50,
+              "recall": 1.0,
+              "tp": 50,
+              "fn": 0,
+              "ci": [
+                0.9286,
+                1.0
+              ]
+            },
+            "text": {
+              "support": 75,
+              "recall": 1.0,
+              "tp": 75,
+              "fn": 0,
+              "ci": [
+                0.9513,
+                1.0
+              ]
+            }
+          },
+          "hex": {
+            "code": {
+              "support": 50,
+              "recall": 1.0,
+              "tp": 50,
+              "fn": 0,
+              "ci": [
+                0.9286,
+                1.0
+              ]
+            },
+            "text": {
+              "support": 75,
+              "recall": 1.0,
+              "tp": 75,
+              "fn": 0,
+              "ci": [
+                0.9513,
+                1.0
+              ]
+            }
+          },
+          "homoglyph": {
+            "code": {
+              "support": 50,
+              "recall": 1.0,
+              "tp": 50,
+              "fn": 0,
+              "ci": [
+                0.9286,
+                1.0
+              ]
+            },
+            "text": {
+              "support": 75,
+              "recall": 1.0,
+              "tp": 75,
+              "fn": 0,
+              "ci": [
+                0.9513,
+                1.0
+              ]
+            }
+          },
+          "leetspeak": {
+            "code": {
+              "support": 50,
+              "recall": 1.0,
+              "tp": 50,
+              "fn": 0,
+              "ci": [
+                0.9286,
+                1.0
+              ]
+            },
+            "text": {
+              "support": 75,
+              "recall": 1.0,
+              "tp": 75,
+              "fn": 0,
+              "ci": [
+                0.9513,
+                1.0
+              ]
+            }
+          },
+          "zero_width": {
+            "code": {
+              "support": 50,
+              "recall": 1.0,
+              "tp": 50,
+              "fn": 0,
+              "ci": [
+                0.9286,
+                1.0
+              ]
+            },
+            "text": {
+              "support": 75,
+              "recall": 1.0,
+              "tp": 75,
+              "fn": 0,
+              "ci": [
+                0.9513,
+                1.0
+              ]
+            }
+          }
+        }
+      },
+      "paired": {
+        "missing_parents": 0,
+        "by_family": {
+          "base64": {
+            "n": 125,
+            "parent_hits": 125,
+            "child_hits": 125,
+            "parent_recall": 1.0,
+            "parent_ci": [
+              0.9702,
+              1.0
+            ],
+            "child_recall": 1.0,
+            "child_ci": [
+              0.9702,
+              1.0
+            ],
+            "recall_delta": 0.0,
+            "lost": 0,
+            "gained": 0,
+            "lost_rate": 0.0,
+            "lost_ci": [
+              0.0,
+              0.0298
+            ]
+          },
+          "hex": {
+            "n": 125,
+            "parent_hits": 125,
+            "child_hits": 125,
+            "parent_recall": 1.0,
+            "parent_ci": [
+              0.9702,
+              1.0
+            ],
+            "child_recall": 1.0,
+            "child_ci": [
+              0.9702,
+              1.0
+            ],
+            "recall_delta": 0.0,
+            "lost": 0,
+            "gained": 0,
+            "lost_rate": 0.0,
+            "lost_ci": [
+              0.0,
+              0.0298
+            ]
+          },
+          "leetspeak": {
+            "n": 125,
+            "parent_hits": 125,
+            "child_hits": 125,
+            "parent_recall": 1.0,
+            "parent_ci": [
+              0.9702,
+              1.0
+            ],
+            "child_recall": 1.0,
+            "child_ci": [
+              0.9702,
+              1.0
+            ],
+            "recall_delta": 0.0,
+            "lost": 0,
+            "gained": 0,
+            "lost_rate": 0.0,
+            "lost_ci": [
+              0.0,
+              0.0298
+            ]
+          },
+          "zero_width": {
+            "n": 125,
+            "parent_hits": 125,
+            "child_hits": 125,
+            "parent_recall": 1.0,
+            "parent_ci": [
+              0.9702,
+              1.0
+            ],
+            "child_recall": 1.0,
+            "child_ci": [
+              0.9702,
+              1.0
+            ],
+            "recall_delta": 0.0,
+            "lost": 0,
+            "gained": 0,
+            "lost_rate": 0.0,
+            "lost_ci": [
+              0.0,
+              0.0298
+            ]
+          },
+          "homoglyph": {
+            "n": 125,
+            "parent_hits": 125,
+            "child_hits": 125,
+            "parent_recall": 1.0,
+            "parent_ci": [
+              0.9702,
+              1.0
+            ],
+            "child_recall": 1.0,
+            "child_ci": [
+              0.9702,
+              1.0
+            ],
+            "recall_delta": 0.0,
+            "lost": 0,
+            "gained": 0,
+            "lost_rate": 0.0,
+            "lost_ci": [
+              0.0,
+              0.0298
+            ]
+          }
+        }
+      },
+      "psr": {
+        "metric": "ASR proxy (payload survival)",
+        "psr": 0.0016,
+        "survived": 1,
+        "total_attack": 625,
+        "threshold": 0.5
+      },
+      "rouge1": {
+        "metric": "ROUGE-1 utility proxy",
+        "rouge1_f1": 0.6345,
+        "rouge1_precision": 0.6496,
+        "rouge1_recall": 0.6208,
+        "n": 625
+      }
+    },
+    "keyword_heuristic": {
+      "slicing": {
+        "recall_by_position": {
+          "end": {
+            "support": 265,
+            "recall": 0.0189,
+            "tp": 5,
+            "fn": 260
+          },
+          "middle": {
+            "support": 150,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 150
+          },
+          "start": {
+            "support": 210,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 210
+          }
+        },
+        "recall_by_attack_type": {
+          "Base Encoding": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Blocking Internet Connection": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Bringing Down Hosts and Servers (Denial of Service)": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Business Intelligence": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Compromising Computers": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Conversational Agent": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Corrupting an Operating System": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Data Eavesdropping": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Emoji Substitution": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Encrypting Documents and Demanding Ransom (Ransomware)": {
+            "support": 25,
+            "recall": 0.2,
+            "tp": 5,
+            "fn": 20
+          },
+          "Entertainment": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Information Dissemination": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Introduce System Fingerprinting": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Keylogging": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Language Translation (Test)": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Marketing & Advertising": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Misinformation & Propaganda": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Research Assistance": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Reverse Text": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Scams & Fraud": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Screen Scraping": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Sentiment Analysis": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Substitution Ciphers": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Task Automation": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          },
+          "Traffic Analysis": {
+            "support": 25,
+            "recall": 0.0,
+            "tp": 0,
+            "fn": 25
+          }
+        },
+        "fpr_on_test_negatives": {
+          "fpr": 0.0123,
+          "support": 81,
+          "fp": 1,
+          "tn": 80
+        },
+        "fpr_on_hard_negatives": {
+          "fpr": 0.0,
+          "support": 15,
+          "fp": 0,
+          "tn": 15
+        },
+        "span_f1": {
+          "span_f1": null,
+          "na_reason": "span predictions not available for binary predictors",
+          "n": 0
+        },
+        "recall_by_obfuscation_family": {
+          "base64": {
+            "support": 125,
+            "recall": 0.008,
+            "tp": 1,
+            "fn": 124,
+            "ci": [
+              0.0014,
+              0.0439
+            ]
+          },
+          "hex": {
+            "support": 125,
+            "recall": 0.008,
+            "tp": 1,
+            "fn": 124,
+            "ci": [
+              0.0014,
+              0.0439
+            ]
+          },
+          "homoglyph": {
+            "support": 125,
+            "recall": 0.008,
+            "tp": 1,
+            "fn": 124,
+            "ci": [
+              0.0014,
+              0.0439
+            ]
+          },
+          "leetspeak": {
+            "support": 125,
+            "recall": 0.008,
+            "tp": 1,
+            "fn": 124,
+            "ci": [
+              0.0014,
+              0.0439
+            ]
+          },
+          "zero_width": {
+            "support": 125,
+            "recall": 0.008,
+            "tp": 1,
+            "fn": 124,
+            "ci": [
+              0.0014,
+              0.0439
+            ]
+          }
+        },
+        "recall_by_position_within_family": {
+          "base64": {
+            "end": {
+              "support": 53,
+              "recall": 0.0189,
+              "tp": 1,
+              "fn": 52,
+              "ci": [
+                0.0033,
+                0.0994
+              ]
+            },
+            "middle": {
+              "support": 30,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 30,
+              "ci": [
+                0.0,
+                0.1135
+              ]
+            },
+            "start": {
+              "support": 42,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 42,
+              "ci": [
+                0.0,
+                0.0838
+              ]
+            }
+          },
+          "hex": {
+            "end": {
+              "support": 53,
+              "recall": 0.0189,
+              "tp": 1,
+              "fn": 52,
+              "ci": [
+                0.0033,
+                0.0994
+              ]
+            },
+            "middle": {
+              "support": 30,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 30,
+              "ci": [
+                0.0,
+                0.1135
+              ]
+            },
+            "start": {
+              "support": 42,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 42,
+              "ci": [
+                0.0,
+                0.0838
+              ]
+            }
+          },
+          "homoglyph": {
+            "end": {
+              "support": 53,
+              "recall": 0.0189,
+              "tp": 1,
+              "fn": 52,
+              "ci": [
+                0.0033,
+                0.0994
+              ]
+            },
+            "middle": {
+              "support": 30,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 30,
+              "ci": [
+                0.0,
+                0.1135
+              ]
+            },
+            "start": {
+              "support": 42,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 42,
+              "ci": [
+                0.0,
+                0.0838
+              ]
+            }
+          },
+          "leetspeak": {
+            "end": {
+              "support": 53,
+              "recall": 0.0189,
+              "tp": 1,
+              "fn": 52,
+              "ci": [
+                0.0033,
+                0.0994
+              ]
+            },
+            "middle": {
+              "support": 30,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 30,
+              "ci": [
+                0.0,
+                0.1135
+              ]
+            },
+            "start": {
+              "support": 42,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 42,
+              "ci": [
+                0.0,
+                0.0838
+              ]
+            }
+          },
+          "zero_width": {
+            "end": {
+              "support": 53,
+              "recall": 0.0189,
+              "tp": 1,
+              "fn": 52,
+              "ci": [
+                0.0033,
+                0.0994
+              ]
+            },
+            "middle": {
+              "support": 30,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 30,
+              "ci": [
+                0.0,
+                0.1135
+              ]
+            },
+            "start": {
+              "support": 42,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 42,
+              "ci": [
+                0.0,
+                0.0838
+              ]
+            }
+          }
+        },
+        "recall_by_domain_within_family": {
+          "base64": {
+            "code": {
+              "support": 50,
+              "recall": 0.02,
+              "tp": 1,
+              "fn": 49,
+              "ci": [
+                0.0035,
+                0.105
+              ]
+            },
+            "text": {
+              "support": 75,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 75,
+              "ci": [
+                0.0,
+                0.0487
+              ]
+            }
+          },
+          "hex": {
+            "code": {
+              "support": 50,
+              "recall": 0.02,
+              "tp": 1,
+              "fn": 49,
+              "ci": [
+                0.0035,
+                0.105
+              ]
+            },
+            "text": {
+              "support": 75,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 75,
+              "ci": [
+                0.0,
+                0.0487
+              ]
+            }
+          },
+          "homoglyph": {
+            "code": {
+              "support": 50,
+              "recall": 0.02,
+              "tp": 1,
+              "fn": 49,
+              "ci": [
+                0.0035,
+                0.105
+              ]
+            },
+            "text": {
+              "support": 75,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 75,
+              "ci": [
+                0.0,
+                0.0487
+              ]
+            }
+          },
+          "leetspeak": {
+            "code": {
+              "support": 50,
+              "recall": 0.02,
+              "tp": 1,
+              "fn": 49,
+              "ci": [
+                0.0035,
+                0.105
+              ]
+            },
+            "text": {
+              "support": 75,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 75,
+              "ci": [
+                0.0,
+                0.0487
+              ]
+            }
+          },
+          "zero_width": {
+            "code": {
+              "support": 50,
+              "recall": 0.02,
+              "tp": 1,
+              "fn": 49,
+              "ci": [
+                0.0035,
+                0.105
+              ]
+            },
+            "text": {
+              "support": 75,
+              "recall": 0.0,
+              "tp": 0,
+              "fn": 75,
+              "ci": [
+                0.0,
+                0.0487
+              ]
+            }
+          }
+        }
+      },
+      "paired": {
+        "missing_parents": 0,
+        "by_family": {
+          "base64": {
+            "n": 125,
+            "parent_hits": 5,
+            "child_hits": 1,
+            "parent_recall": 0.04,
+            "parent_ci": [
+              0.0172,
+              0.0902
+            ],
+            "child_recall": 0.008,
+            "child_ci": [
+              0.0014,
+              0.0439
+            ],
+            "recall_delta": -0.032,
+            "lost": 4,
+            "gained": 0,
+            "lost_rate": 0.032,
+            "lost_ci": [
+              0.0125,
+              0.0794
+            ]
+          },
+          "hex": {
+            "n": 125,
+            "parent_hits": 5,
+            "child_hits": 1,
+            "parent_recall": 0.04,
+            "parent_ci": [
+              0.0172,
+              0.0902
+            ],
+            "child_recall": 0.008,
+            "child_ci": [
+              0.0014,
+              0.0439
+            ],
+            "recall_delta": -0.032,
+            "lost": 4,
+            "gained": 0,
+            "lost_rate": 0.032,
+            "lost_ci": [
+              0.0125,
+              0.0794
+            ]
+          },
+          "leetspeak": {
+            "n": 125,
+            "parent_hits": 5,
+            "child_hits": 1,
+            "parent_recall": 0.04,
+            "parent_ci": [
+              0.0172,
+              0.0902
+            ],
+            "child_recall": 0.008,
+            "child_ci": [
+              0.0014,
+              0.0439
+            ],
+            "recall_delta": -0.032,
+            "lost": 4,
+            "gained": 0,
+            "lost_rate": 0.032,
+            "lost_ci": [
+              0.0125,
+              0.0794
+            ]
+          },
+          "zero_width": {
+            "n": 125,
+            "parent_hits": 5,
+            "child_hits": 1,
+            "parent_recall": 0.04,
+            "parent_ci": [
+              0.0172,
+              0.0902
+            ],
+            "child_recall": 0.008,
+            "child_ci": [
+              0.0014,
+              0.0439
+            ],
+            "recall_delta": -0.032,
+            "lost": 4,
+            "gained": 0,
+            "lost_rate": 0.032,
+            "lost_ci": [
+              0.0125,
+              0.0794
+            ]
+          },
+          "homoglyph": {
+            "n": 125,
+            "parent_hits": 5,
+            "child_hits": 1,
+            "parent_recall": 0.04,
+            "parent_ci": [
+              0.0172,
+              0.0902
+            ],
+            "child_recall": 0.008,
+            "child_ci": [
+              0.0014,
+              0.0439
+            ],
+            "recall_delta": -0.032,
+            "lost": 4,
+            "gained": 0,
+            "lost_rate": 0.032,
+            "lost_ci": [
+              0.0125,
+              0.0794
+            ]
+          }
+        }
+      },
+      "psr": {
+        "metric": "ASR proxy (payload survival)",
+        "psr": 0.8992,
+        "survived": 562,
+        "total_attack": 625,
+        "threshold": 0.5
+      },
+      "rouge1": {
+        "metric": "ROUGE-1 utility proxy",
+        "rouge1_f1": 0.8907,
+        "rouge1_precision": 0.8338,
+        "rouge1_recall": 0.9987,
+        "n": 625
+      }
+    }
+  }
 }

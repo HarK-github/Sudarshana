@@ -55,12 +55,13 @@ def _fmt(val: Any, fmt: str = ".4f", na: str = "N/A") -> str:
 
 def _read_lines(path: Path, max_lines: int = 60) -> str:
     if not path.exists():
-        return f"*File not found: {path.relative_to(REPO_ROOT)}*"
+        return f"*File not found: {path.resolve().relative_to(REPO_ROOT.resolve()).as_posix()}*"
     lines = path.read_text(encoding="utf-8").splitlines()
     truncated = len(lines) > max_lines
     block = "\n".join(lines[:max_lines])
     if truncated:
-        block += f"\n\n*[... truncated at {max_lines} lines — see full file: {path.relative_to(REPO_ROOT)}]*"
+        shown = path.resolve().relative_to(REPO_ROOT.resolve()).as_posix()
+        block += f"\n\n*[... truncated at {max_lines} lines — see full file: {shown}]*"
     return block
 
 
@@ -201,10 +202,24 @@ def make_report() -> str:
     oracle_psr_hi = oracle_cell.get("psr_hi")
     oracle_n = oracle_cell.get("n", 0)
 
-    # P5 keyword_heuristic row (may also be named 'baseline' in stale JSON)
-    preds = full_p5.get("predictors", {})
-    kw_key = "keyword_heuristic" if "keyword_heuristic" in preds else "baseline"
-    kw = preds.get(kw_key, {})
+    from sudarshana.evaluation.heldout import format_heldout_section
+
+    heldout = _load_json(P5_DIR / "heldout.json")
+    heldout_section = format_heldout_section(heldout)
+    from sudarshana.evaluation.ablation import format_ablation_section
+
+    ablation_section = format_ablation_section(_load_json(RESULTS_DIR / "ablation_ladder.json") or None)
+    if heldout.get("status") == "OK":
+        obf_limitation = (
+            "6. **Obfuscated held-out** — surface-obfuscated test payloads are evaluated in section 5d. "
+            "`homoglyph` is reserved from training augmentation."
+        )
+        obf_open_row = ""
+    else:
+        obf_limitation = (
+            "6. **No obfuscated set** — obfuscated held-out evaluation skipped (P1/P2 deliverable)."
+        )
+        obf_open_row = "| Obfuscated held-out set | P1/P2 | Needed for heldout evaluation |\n"
 
     report = f"""# Sudarshana — Final Project Report
 ## DSL504 Natural Language Processing | Group Project
@@ -285,6 +300,14 @@ See `results/p5/sensitivity.json` and `reports/figures/redaction_sensitivity.png
 
 See `results/p5/latency.json` and `reports/figures/latency_p50_p95.png`.
 
+### 5d. Obfuscated held-out
+
+{heldout_section}
+
+### 5e. FPR calibration and ablation ladder
+
+{ablation_section}
+
 ---
 
 ## 6. Limitations & Open Items
@@ -295,7 +318,7 @@ See `results/p5/latency.json` and `reports/figures/latency_p50_p95.png`.
 3. **ASR proxy** — PSR measures payload-text survival; real ASR requires LLM execution.
 4. **ROUGE-1 utility proxy** — surface-text overlap; actual utility requires downstream eval.
 5. **token_head: N/A** — no trained weights; all token-head metrics are N/A.
-6. **No obfuscated set** — obfuscated held-out evaluation skipped (P1/P2 deliverable).
+{obf_limitation}
 7. **No pair-input evaluation** — P3 pair collator not integrated.
 8. **No LLM ASR** — LLMBackend protocol stubbed.
 9. **Sensitivity is SIMULATED** — gold span perturbations, not predicted spans.
@@ -306,8 +329,7 @@ See `results/p5/latency.json` and `reports/figures/latency_p50_p95.png`.
 |------|-------|---------|
 | Trained token-head weights | P4 | Needed for token_head predictor, span-F1 |
 | Pair-input collator | P3 | Needed for fair comparison vs document-only baseline |
-| Obfuscated held-out set | P1/P2 | Needed for heldout evaluation |
-| Real LLM ASR | All | Requires LLM endpoint + prompt harness |
+{obf_open_row}| Real LLM ASR | All | Requires LLM endpoint + prompt harness |
 
 ---
 
