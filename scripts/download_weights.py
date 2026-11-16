@@ -52,12 +52,17 @@ def download_weight(folder_name: str, asset_name: str, force: bool = False) -> N
 
 def main():
     parser = argparse.ArgumentParser(description="Download model weights from GitHub Release")
+    parser.add_argument("--all", action="store_true", default=False, help="Download all model weights (default)")
     parser.add_argument("--step", choices=list(WEIGHT_MAPPINGS.keys()) + ["all"], default="all",
                         help="Which step weights to download (default: all)")
     parser.add_argument("--force", action="store_true", help="Force overwrite existing weights")
     args = parser.parse_args()
 
-    targets = list(WEIGHT_MAPPINGS.keys()) if args.step == "all" else [args.step]
+    if args.all or args.step == "all":
+        targets = list(WEIGHT_MAPPINGS.keys())
+    else:
+        targets = [args.step]
+
     for k in targets:
         folder, asset = WEIGHT_MAPPINGS[k]
         download_weight(folder, asset, force=args.force)
