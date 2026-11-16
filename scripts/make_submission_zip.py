@@ -29,6 +29,7 @@ INCLUDE_DIRS = [
     "results",
     "models",
     "data/splits",
+    "ui",
 ]
 INCLUDE_ROOT_FILES = [
     "README.md",
