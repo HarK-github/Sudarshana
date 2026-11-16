@@ -1,0 +1,22 @@
+# Ablation Step 4: Pair Input (user_task, chunk) with Chunking and Max Pooling
+_base_: "configs/base_training.yaml"
+step_name: "step4_pair_input"
+hypothesis: "H3 (Task Context): Condition on (user_task, chunk) pairs to reduce false positives on instructional hard negatives"
+normalize: true
+chunking: true
+chunk_size: 256
+chunk_stride: 192
+pair_input: true
+max_task_length: 64
+max_chunk_length: 256
+total_max_length: 323
+pooling_method: "top2_damped"
+top_k: 2
+counterfactual_pairs: true
+use_token_head: false
+use_type_head: false
+obf_augment: false
+lambda_tok: 0.0
+lambda_type: 0.0
+output_dir: "checkpoints/step4_pair_input"
+results_dir: "results/step4_pair_input"

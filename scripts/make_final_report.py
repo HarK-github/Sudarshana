@@ -211,15 +211,78 @@ def make_report() -> str:
     ablation_section = format_ablation_section(_load_json(RESULTS_DIR / "ablation_ladder.json") or None)
     if heldout.get("status") == "OK":
         obf_limitation = (
-            "6. **Obfuscated held-out** — surface-obfuscated test payloads are evaluated in section 5d. "
+            "**Obfuscated held-out** — surface-obfuscated test payloads are evaluated in section 5d. "
             "`homoglyph` is reserved from training augmentation."
         )
-        obf_open_row = ""
     else:
         obf_limitation = (
-            "6. **No obfuscated set** — obfuscated held-out evaluation skipped (P1/P2 deliverable)."
+            "**No obfuscated set** — obfuscated held-out evaluation skipped (P1/P2 deliverable)."
         )
-        obf_open_row = "| Obfuscated held-out set | P1/P2 | Needed for heldout evaluation |\n"
+
+    # Load ablation and P3 data
+    ablation_raw = _load_json(REPORTS_DIR / "ablation_ladder_tables.json")
+    ablation_text = _read_lines(REPORTS_DIR / "ablation_summary.md", 60)
+    p3_report_text = _read_lines(REPORTS_DIR / "p3_model_and_training_report.md", 60)
+    t35_raw = _load_json(RESULTS_DIR / "table_3_5_obfuscation_comparison.json")
+    t38_raw = _load_json(RESULTS_DIR / "table_3_8_latency.json")
+
+    # Build ablation ladder table
+    def _ablation_table_md() -> str:
+        if not ablation_raw:
+            return "> N/A: ablation_ladder_tables.json not found."
+        steps = ablation_raw.get("table_3_2_ablation_ladder", [])
+        if not steps:
+            return "> N/A: no steps in table."
+        rows = [
+            "| Step | Recall | Clean FPR | HN FPR@90% | Span F1 | Latency (ms) | Provenance |",
+            "|------|--------|-----------|-----------|---------|-------------|------------|",
+        ]
+        for s in steps:
+            step = s.get("step", "")
+            recall = f"{s['recall']:.4f}" if isinstance(s.get("recall"), (int, float)) else "N/A"
+            cfpr = f"{s['clean_fpr']:.4f}" if isinstance(s.get("clean_fpr"), (int, float)) else "N/A"
+            hn = f"{s['hard_neg_at_90rec']:.4f}" if isinstance(s.get("hard_neg_at_90rec"), (int, float)) else "N/A"
+            sf1 = str(s.get("span_f1", "n/a"))
+            lat = f"{s['latency_ms']:.2f}" if isinstance(s.get("latency_ms"), (int, float)) else "N/A"
+            rows.append(f"| {step} | {recall} | {cfpr} | {hn} | {sf1} | {lat} | team-reported (P3) |")
+        return "\n".join(rows)
+
+    # Build obfuscation table
+    def _obfuscation_table_md() -> str:
+        if not t35_raw:
+            return "> N/A: table_3_5_obfuscation_comparison.json not found."
+        rows = [
+            "| Obfuscation Type | Step1 Recall | Step2 Recall | Step6 Recall |",
+            "|-----------------|-------------|-------------|-------------|",
+        ]
+        for obf, v in t35_raw.items():
+            s1 = _fmt(v.get("step1", {}).get("recall") if isinstance(v.get("step1"), dict) else v.get("baseline_recall"), ".4f")
+            s2 = _fmt(v.get("step2", {}).get("recall") if isinstance(v.get("step2"), dict) else v.get("with_normalizer_recall"), ".4f")
+            s6 = _fmt(v.get("step6", {}).get("recall") if isinstance(v.get("step6"), dict) else v.get("with_normalizer_and_aug_recall"), ".4f")
+            rows.append(f"| {obf} | {s1} | {s2} | {s6} |")
+        return "\n".join(rows)
+
+    # Build latency table
+    def _latency_table_md() -> str:
+        if not t38_raw:
+            return "> N/A: table_3_8_latency.json not found."
+        base = t38_raw.get("baseline", {})
+        fp = t38_raw.get("full_pipeline", {})
+        device = t38_raw.get("device", "unknown")
+        rows = [
+            f"> Hardware: {device}, ~{t38_raw.get('document_tokens_approx', 2000)}-token document (team-reported P3)",
+            "",
+            "| Stage | Mean (ms) | Median (ms) | p95 (ms) |",
+            "|-------|-----------|------------|---------|",
+        ]
+        if base:
+            rows.append(f"| Keyword baseline | {_fmt(base.get('mean_latency_ms'), '.2f')} | {_fmt(base.get('median_latency_ms'), '.2f')} | {_fmt(base.get('p95_latency_ms'), '.2f')} |")
+        if fp:
+            rows.append(f"| Full pipeline (model forward) | {_fmt(fp.get('mean_latency_ms'), '.2f')} | {_fmt(fp.get('median_latency_ms'), '.2f')} | {_fmt(fp.get('p95_latency_ms'), '.2f')} |")
+        factor = t38_raw.get("latency_increase_factor")
+        if factor:
+            rows.append(f"\nLatency increase factor (full/baseline): {factor:.2f}×")
+        return "\n".join(rows)
 
     report = f"""# Sudarshana — Final Project Report
 ## DSL504 Natural Language Processing | Group Project
@@ -279,6 +342,54 @@ def make_report() -> str:
 
 ---
 
+## 4b. Model Architecture & Training (P3-reported)
+
+> Source: `reports/p3_model_and_training_report.md` (owner P3, please review)
+
+{p3_report_text}
+
+> ⚠️ **P5 Audit Note — H2 prose mismatch:** The hypothesis text above (P3-authored) claims
+> "100.00% recall across all five perturbation suites." The measured values in
+> `results/table_3_5_obfuscation_comparison.json` are 97.60%–99.20% (Base64=98.40%,
+> Homoglyphs=97.60%, Zero-width=98.40%, Leetspeak=99.20%, Markdown=98.40%). The claim
+> should read "≥97.60% recall across all five suites." P3 owns this correction.
+
+---
+
+## 4c. Ablation Ladder (team-reported, P3, n=206, seed=42)
+
+> Source: `reports/ablation_ladder_tables.json` (owner P3, please review)
+> Provenance: team-reported (P3-measured). n=206 for all steps. All numbers from JSON.
+
+{_ablation_table_md()}
+
+> See `reports/ablation_summary.md` and `reports/figures/ladder_recall_vs_fpr.png` for full analysis.
+
+### Ablation Summary (excerpt)
+
+> Source: `reports/ablation_summary.md` (owner P3, please review)
+
+{ablation_text}
+
+---
+
+## 4d. Obfuscation Held-Out Results (team-reported, P3)
+
+> Source: `results/table_3_5_obfuscation_comparison.json` (owner P3, please review)
+> Provenance: team-reported (P3). n=206 for each obfuscation type.
+
+{_obfuscation_table_md()}
+
+---
+
+## 4e. Latency Per Stage incl. Model Forward (team-reported, P3)
+
+> Source: `results/table_3_8_latency.json` (owner P3, please review)
+
+{_latency_table_md()}
+
+---
+
 ## 5. P5 Evaluation
 
 **Split**: {full_p5.get("split", "test")} (N=206: 125 injected, 81 clean)
@@ -315,21 +426,26 @@ See `results/p5/latency.json` and `reports/figures/latency_p50_p95.png`.
 1. **Real split sizes differ from team baseline** — P5 evaluates on committed sample splits
    (test=206, hard_neg=15); team baseline ran on full dataset (test=42 999). Not comparable.
 2. **Hard-neg N=15** — FPR estimates indicative only (wide Wilson CIs).
-3. **ASR proxy** — PSR measures payload-text survival; real ASR requires LLM execution.
+3. **ASR proxy (PSR)** — PSR = payload survival rate. Real ASR requires LLM execution and
+   behavioural verification. No LLM endpoint available; PSR is the proxy label.
 4. **ROUGE-1 utility proxy** — surface-text overlap; actual utility requires downstream eval.
-5. **token_head: N/A** — no trained weights; all token-head metrics are N/A.
-{obf_limitation}
-7. **No pair-input evaluation** — P3 pair collator not integrated.
-8. **No LLM ASR** — LLMBackend protocol stubbed.
-9. **Sensitivity is SIMULATED** — gold span perturbations, not predicted spans.
+5. **token_head: N/A (weights absent)** — no trained weights committed; all token-head
+   span-F1, PSR, ROUGE-1 metrics are N/A. Re-eval requires P4 to push weights.
+6. **Sensitivity is SIMULATED** — gold span perturbations, not predicted spans from trained model.
+7. **Obfuscated set sourced from table_3_5** — team-reported (P3). No separate held-out JSONL.
+8. {obf_limitation}
+9. **pair-input eval present (step4)** — step4_pair_input metrics available (team-reported P3).
+10. **No LLM ASR** — LLMBackend protocol stubbed; requires real LLM endpoint.
+11. **Team baseline FPR (val) ~0.68** — honest estimate from baseline_day2.json (val split).
 
 ### Open Items
 
-| Item | Owner | Blocker |
-|------|-------|---------|
-| Trained token-head weights | P4 | Needed for token_head predictor, span-F1 |
-| Pair-input collator | P3 | Needed for fair comparison vs document-only baseline |
-{obf_open_row}| Real LLM ASR | All | Requires LLM endpoint + prompt harness |
+| Item | Status | Owner | Note |
+|------|--------|-------|------|
+| Trained token-head weights | BLOCKED | P4 | Needed for token_head, span-F1, real PSR |
+| Real LLM ASR | N/A | All | No LLM endpoint; PSR proxy used |
+| Full splits re-eval | OPEN | P1/P2 | team baseline n=42999 vs P5 n=206 |
+| token_head re-eval | BLOCKED | P4 | weights absent in repo |
 
 ---
 

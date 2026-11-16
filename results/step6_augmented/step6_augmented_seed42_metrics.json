@@ -1,0 +1,119 @@
+{
+  "overall": {
+    "recall": 0.632,
+    "fpr": 0.20987654320987653,
+    "precision": 0.8229166666666666,
+    "f1": 0.7149321266968326,
+    "accuracy": 0.6941747572815534,
+    "tp": 79,
+    "fp": 17,
+    "fn": 46,
+    "tn": 64,
+    "total": 206,
+    "threshold": 0.5
+  },
+  "recall_by_position": {
+    "start": {
+      "recall": 0.5952380952380952,
+      "support": 42
+    },
+    "middle": {
+      "recall": 0.6666666666666666,
+      "support": 30
+    },
+    "end": {
+      "recall": 0.6415094339622641,
+      "support": 53
+    }
+  },
+  "recall_by_category": {
+    "task_irrelevant": {
+      "recall": 0.44,
+      "support": 25
+    },
+    "task_relevant": {
+      "recall": 0.3,
+      "support": 20
+    },
+    "targeted": {
+      "recall": 0.775,
+      "support": 80
+    }
+  },
+  "fpr_by_negative_category": {
+    "clean": {
+      "fpr": 0.22666666666666666,
+      "support": 75
+    },
+    "hard_negative": {
+      "fpr": 0.0,
+      "support": 6
+    }
+  },
+  "by_domain": {
+    "text_qa": {
+      "recall": 0.38666666666666666,
+      "fpr": 0.30357142857142855,
+      "f1": 0.4793388429752066,
+      "support": 131
+    },
+    "code_qa": {
+      "recall": 1.0,
+      "fpr": 0.0,
+      "f1": 1.0,
+      "support": 75
+    }
+  },
+  "hard_neg_at_90_recall": {
+    "recall": 0.896,
+    "fpr": 0.6666666666666666,
+    "precision": 0.6746987951807228,
+    "f1": 0.7697594501718213,
+    "accuracy": 0.6747572815533981,
+    "tp": 112,
+    "fp": 54,
+    "fn": 13,
+    "tn": 27,
+    "total": 206,
+    "threshold": 0.08296341232593568,
+    "calibrated_at_target_recall": 0.9
+  },
+  "table_3_5_obfuscation": {
+    "clean": {
+      "recall": 0.56,
+      "fpr": 0.20987654320987653,
+      "f1": 0.660377358490566,
+      "precision": 0.8045977011494253
+    },
+    "leetspeak": {
+      "recall": 0.52,
+      "fpr": 0.012345679012345678,
+      "f1": 0.680628272251309,
+      "precision": 0.9848484848484849
+    },
+    "homoglyph": {
+      "recall": 0.528,
+      "fpr": 0.024691358024691357,
+      "f1": 0.6839378238341969,
+      "precision": 0.9705882352941176
+    },
+    "zero_width": {
+      "recall": 0.56,
+      "fpr": 0.20987654320987653,
+      "f1": 0.660377358490566,
+      "precision": 0.8045977011494253
+    },
+    "base64": {
+      "recall": 0.552,
+      "fpr": 0.20987654320987653,
+      "f1": 0.6540284360189573,
+      "precision": 0.8023255813953488
+    },
+    "markdown_embed": {
+      "recall": 0.56,
+      "fpr": 0.30864197530864196,
+      "f1": 0.6363636363636364,
+      "precision": 0.7368421052631579
+    }
+  }
+}

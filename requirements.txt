@@ -1,10 +1,31 @@
-PyYAML>=6.0
+# ==============================================================================
+# Sudarshana Indirect Prompt Injection Detection Pipeline - Dependencies
+# ==============================================================================
 
-# Optional. The Day-1 harness runs without these.
-# nltk is used for BIPIA's sentence splitter when the punkt model is installed.
-# agentdojo loads the published tool-use suites.
-# torch and transformers run the truncated DeBERTa baseline.
-# nltk>=3.8
-# agentdojo
-# torch
-# transformers
+# Core Deep Learning & Transformer Models
+torch>=2.1.0
+transformers>=4.40.0
+sentencepiece>=0.1.99
+protobuf>=3.20.0
+accelerate>=0.28.0
+
+# Data Processing, Numerical & Tabular Storage
+numpy>=1.24.0
+pandas>=2.0.0
+pyarrow>=14.0.0
+scikit-learn>=1.3.0
+pyyaml>=6.0
+
+# Text Segmentation, NLP & Redaction
+pysbd>=0.3.4
+nltk>=3.8.0
+
+# Progress & Utilities
+tqdm>=4.66.0
+
+# Testing Harness
+pytest>=7.4.0
+
+# Evaluation Benchmarks (Optional / Research Suites)
+datasets>=2.18.0
+agentdojo>=0.1.0

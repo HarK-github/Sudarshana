@@ -243,6 +243,38 @@ def make_figures(downstream: dict, slicing: dict, latency: dict) -> list[Path]:
     except Exception as _exc:
         print(f"  [figures] sensitivity figure error: {_exc}")
 
+    # --- 6. Ladder Recall vs FPR (new P5 figure) ---
+    try:
+        import json as _json_ladder
+        abl_path = REPO_ROOT / "reports" / "ablation_ladder_tables.json"
+        if abl_path.exists():
+            with open(abl_path) as _af:
+                _abl = _json_ladder.load(_af)
+            steps = _abl.get("table_3_2_ablation_ladder", [])
+            if steps:
+                step_labels = [s.get("step", f"step{i+1}") for i, s in enumerate(steps)]
+                recalls = [s.get("recall", 0.0) for s in steps]
+                fprs = [s.get("clean_fpr", 0.0) for s in steps]
+                fig, ax = plt.subplots(figsize=(8, 5))
+                ax.plot(fprs, recalls, "o-", color="#4c72b0", linewidth=2, markersize=8, label="Ablation steps")
+                for i, (fpr, rec, label) in enumerate(zip(fprs, recalls, step_labels)):
+                    ax.annotate(f"S{i+1}", (fpr, rec), textcoords="offset points", xytext=(5, 5), fontsize=8)
+                ax.set_xlabel("Clean FPR (N=75)")
+                ax.set_ylabel("Recall")
+                ax.set_title("Ablation Ladder: Recall vs Clean FPR\n(team-reported, P3, n=206)")
+                ax.set_xlim(-0.05, 1.05)
+                ax.set_ylim(-0.05, 1.05)
+                ax.axhline(0.9, color="gray", linestyle="--", linewidth=0.8, label="90% recall")
+                ax.legend()
+                fig.tight_layout()
+                p_ladder = FIGURES_DIR / "ladder_recall_vs_fpr.png"
+                fig.savefig(p_ladder, dpi=100)
+                plt.close(fig)
+                created.append(p_ladder)
+                print(f"  [figure] {p_ladder.name}")
+    except Exception as _exc2:
+        print(f"  [figures] ladder figure error: {_exc2}")
+
     return created
 
 
@@ -278,6 +310,186 @@ def make_metrics_table(full_metrics: dict) -> str:
 # ---------------------------------------------------------------------------
 # Full eval report
 # ---------------------------------------------------------------------------
+
+def _ablation_ladder_rows(full_metrics: dict) -> str:
+    """Build ablation ladder table rows from full_metrics['team']['ablation_steps']."""
+    import json as _json
+    p = REPO_ROOT / "reports" / "ablation_ladder_tables.json"
+    if not p.exists():
+        return "| N/A | ablation_ladder_tables.json not found | — | — | — | — | — |"
+    with open(p) as fh:
+        abl = _json.load(fh)
+    steps = abl.get("table_3_2_ablation_ladder", [])
+    rows = []
+    for s in steps:
+        step = s.get("step", "")
+        recall = f"{s.get('recall', 0):.4f}" if isinstance(s.get("recall"), (int, float)) else "N/A"
+        cfpr = f"{s.get('clean_fpr', 0):.4f}" if isinstance(s.get("clean_fpr"), (int, float)) else "N/A"
+        hn90 = f"{s.get('hard_neg_at_90rec', 0):.4f}" if isinstance(s.get("hard_neg_at_90rec"), (int, float)) else "N/A"
+        sf1 = str(s.get("span_f1", "n/a"))
+        lat = f"{s.get('latency_ms', 0):.2f}" if isinstance(s.get("latency_ms"), (int, float)) else "N/A"
+        rows.append(f"| {step} | {step} | {recall} | {cfpr} | {hn90} | {sf1} | {lat} |")
+    return "\n".join(rows) if rows else "| — | — | — | — | — | — | — |"
+
+
+def _recomputed_slicing_section(full_metrics: dict) -> str:
+    """Build recomputed-from-predictions slicing section."""
+    team = full_metrics.get("team", {})
+    recomp = {}
+    # Try loading from team_models.json
+    import json as _json
+    p = REPO_ROOT / "results" / "p5" / "team_models.json"
+    if p.exists():
+        with open(p) as fh:
+            tm = _json.load(fh)
+        recomp = tm.get("recomputed_from_predictions", {})
+
+    if not recomp or recomp.get("status") == "N/A":
+        return "> N/A: predictions file not found or no metadata available."
+
+    n = recomp.get("n", "N/A")
+    overall = recomp.get("overall", {})
+    recall = _fmt(overall.get("recall"), ".4f")
+    fpr = _fmt(overall.get("fpr"), ".4f")
+    prec = _fmt(overall.get("precision"), ".4f")
+    f1 = _fmt(overall.get("f1"), ".4f")
+    prov = recomp.get("_provenance", "recomputed")
+
+    lines = [
+        f"**Overall** (n={n}, provenance: {prov}): recall={recall}, FPR={fpr}, precision={prec}, F1={f1}",
+        "",
+        "**By Position** (attack records only):",
+        "",
+        "| Position | Support | Recall | Wilson 95% CI |",
+        "|----------|---------|--------|--------------|",
+    ]
+    by_pos = recomp.get("by_position", {})
+    if isinstance(by_pos, dict) and by_pos.get("status") != "N/A":
+        for pos, v in sorted(by_pos.items()):
+            if isinstance(v, dict) and v.get("status") != "N/A":
+                lines.append(
+                    f"| {pos} | {v.get('support', 0)} | {_fmt(v.get('recall'), '.4f')} "
+                    f"| [{_fmt(v.get('recall_ci_lo'), '.3f')}, {_fmt(v.get('recall_ci_hi'), '.3f')}] |"
+                )
+    else:
+        lines.append("| N/A — position metadata not in predictions file | — | — | — |")
+
+    lines += [
+        "",
+        "**By Attack Type** (attack records only):",
+        "",
+        "| Attack Type | Support | Recall | Wilson 95% CI |",
+        "|-------------|---------|--------|--------------|",
+    ]
+    by_at = recomp.get("by_attack_type", {})
+    if isinstance(by_at, dict) and by_at.get("status") != "N/A":
+        for at, v in sorted(by_at.items()):
+            if isinstance(v, dict) and v.get("status") != "N/A":
+                lines.append(
+                    f"| {at} | {v.get('support', 0)} | {_fmt(v.get('recall'), '.4f')} "
+                    f"| [{_fmt(v.get('recall_ci_lo'), '.3f')}, {_fmt(v.get('recall_ci_hi'), '.3f')}] |"
+                )
+    else:
+        lines.append("| N/A — attack_type metadata not in predictions file | — | — | — |")
+
+    return "\n".join(lines)
+
+
+def _obfuscation_rows(full_metrics: dict) -> str:
+    """Build obfuscation table from table_3_5_obfuscation_comparison.json."""
+    import json as _json
+    p = REPO_ROOT / "results" / "table_3_5_obfuscation_comparison.json"
+    if not p.exists():
+        return "| N/A | — | — | — |"
+    with open(p) as fh:
+        t35 = _json.load(fh)
+    rows = []
+    for obf_type, v in t35.items():
+        s1 = _fmt(v.get("step1", {}).get("recall") if isinstance(v.get("step1"), dict) else v.get("baseline_recall"), ".4f")
+        s2 = _fmt(v.get("step2", {}).get("recall") if isinstance(v.get("step2"), dict) else v.get("with_normalizer_recall"), ".4f")
+        s6 = _fmt(v.get("step6", {}).get("recall") if isinstance(v.get("step6"), dict) else v.get("with_normalizer_and_aug_recall"), ".4f")
+        rows.append(f"| {obf_type} | {s1} | {s2} | {s6} |")
+    return "\n".join(rows) if rows else "| N/A | — | — | — |"
+
+
+def _full_latency_rows(full_metrics: dict) -> str:
+    """Build latency table from table_3_8_latency.json (team-reported) + p5 latency.json."""
+    import json as _json
+    rows = []
+    # Team-reported model forward
+    p38 = REPO_ROOT / "results" / "table_3_8_latency.json"
+    if p38.exists():
+        with open(p38) as fh:
+            t38 = _json.load(fh)
+        base = t38.get("baseline", {})
+        fp = t38.get("full_pipeline", {})
+        if base:
+            rows.append(
+                f"| keyword baseline (team) | {_fmt(base.get('mean_latency_ms'), '.2f')} "
+                f"| {_fmt(base.get('median_latency_ms'), '.2f')} "
+                f"| {_fmt(base.get('p95_latency_ms'), '.2f')} |"
+            )
+        if fp:
+            rows.append(
+                f"| full pipeline / model forward (team) | {_fmt(fp.get('mean_latency_ms'), '.2f')} "
+                f"| {_fmt(fp.get('median_latency_ms'), '.2f')} "
+                f"| {_fmt(fp.get('p95_latency_ms'), '.2f')} |"
+            )
+    # P5-measured pipeline stages
+    p_lat = REPO_ROOT / "results" / "p5" / "latency.json"
+    if p_lat.exists():
+        with open(p_lat) as fh:
+            lat = _json.load(fh)
+        for stage, v in lat.get("stages", {}).items():
+            if isinstance(v, dict) and "p50_ms" in v:
+                rows.append(
+                    f"| {stage} (P5-measured) | {_fmt(v.get('mean_ms'), '.2f')} "
+                    f"| {_fmt(v.get('p50_ms'), '.2f')} "
+                    f"| {_fmt(v.get('p95_ms'), '.2f')} |"
+                )
+    return "\n".join(rows) if rows else "| N/A | — | — | — |"
+
+
+def _reconciliation_section(full_metrics: dict) -> str:
+    """Build reconciliation flags section."""
+    import json as _json
+    p = REPO_ROOT / "results" / "p5" / "team_models.json"
+    if not p.exists():
+        return "> team_models.json not found; run run_p5_eval.py first."
+    with open(p) as fh:
+        tm = _json.load(fh)
+    flags = tm.get("reconciliation_flags", [])
+    if not flags:
+        return "> No reconciliation flags (|diff| ≤ 0.005 for all checked metrics)."
+    lines = [
+        "| Step | Metric | Recomputed | Team-Reported | |diff| | Note |",
+        "|------|--------|-----------|--------------|-------|------|",
+    ]
+    for f in flags:
+        lines.append(
+            f"| {f.get('step')} | {f.get('metric')} | {_fmt(f.get('recomputed'), '.4f')} "
+            f"| {_fmt(f.get('team_reported'), '.4f')} | {_fmt(f.get('diff'), '.4f')} "
+            f"| {f.get('note', '')} |"
+        )
+    return "\n".join(lines)
+
+
+def _group_members_table() -> str:
+    """Build group members table from reports/group_members.json."""
+    import json as _json
+    p = REPO_ROOT / "reports" / "group_members.json"
+    if not p.exists():
+        return "| N/A | — | — |"
+    with open(p) as fh:
+        members = _json.load(fh)
+    lines = [
+        "| Name | Reg. No. | Email |",
+        "|------|----------|-------|",
+    ]
+    for m in members:
+        lines.append(f"| {m.get('name', 'N/A')} | {m.get('reg_no', 'N/A')} | {m.get('email', 'N/A')} |")
+    return "\n".join(lines)
+
 
 def make_eval_report(
     downstream: dict,
@@ -477,12 +689,10 @@ def make_eval_report(
             "6. **Obfuscated held-out** — surface-obfuscated test payloads are evaluated in section 8. "
             "`homoglyph` is reserved from training augmentation."
         )
-        obf_open_row = ""
     else:
         obf_limitation = (
             "6. **No obfuscated set** — obfuscated held-out evaluation skipped (P1/P2 deliverable)."
         )
-        obf_open_row = "| Obfuscated held-out set | P1/P2 | Needed for heldout evaluation |\n"
 
     report = f"""# P5 Evaluation Report — Sudarshana Indirect Prompt-Injection Detection
 
@@ -638,26 +848,75 @@ Benchmark: ~{latency.get('benchmark_doc_word_estimate', 'N/A')} estimated tokens
 
 ---
 
-## 10. Open Items
+## 10a. Ablation Ladder (team-reported, P3, n=206, seed=42)
 
-| Item | Owner | Blocker |
-|------|-------|---------|
-| Trained token-head weights | P4 | Needed for token_head predictor, span-F1, real PSR/ROUGE-1 |
-| Pair-input collator (user_task + document) | P3 | Needed for fair comparison vs document-only baseline |
-{obf_open_row}| Real LLM ASR measurement | All | Requires LLM endpoint + prompt harness |
+> Source: `reports/ablation_ladder_tables.json` (owner P3, please review)
+> Provenance: team-reported (P3-measured). n=206 for all steps.
+
+| Step | Variant | Recall | Clean FPR (N=75) | HN FPR @ 90% Rec | Span F1 | Latency (ms) |
+|------|---------|--------|-----------------|-----------------|---------|-------------|
+{_ablation_ladder_rows(full_metrics)}
 
 ---
 
-## 11. Group Members
+## 10b. Trained-Model Recall by Position / Attack Type (recomputed, P5)
 
-| Name | Reg. No. |
-|------|----------|
-| [NAME] | [REG NO] |
-| [NAME] | [REG NO] |
-| [NAME] | [REG NO] |
-| [NAME] | [REG NO] |
+> Source: `reports/audit/raw_test_predictions.jsonl` (n=206)
+> Provenance: recomputed (P5, from raw_test_predictions.jsonl, is_blocked as predicted label)
 
-*Fill in before submission.*
+{_recomputed_slicing_section(full_metrics)}
+
+---
+
+## 10c. Obfuscation Held-Out Table (team-reported, P3)
+
+> Source: `results/table_3_5_obfuscation_comparison.json` (owner P3, please review)
+> Provenance: team-reported. n=206 for each obfuscation type.
+
+| Obfuscation Type | Step1 Recall | Step2 Recall | Step6 Recall |
+|-----------------|-------------|-------------|-------------|
+{_obfuscation_rows(full_metrics)}
+
+---
+
+## 10d. Latency Per Stage incl. Model Forward (team-reported, P3)
+
+> Source: `results/table_3_8_latency.json` (owner P3, please review)
+> Hardware: AMD Ryzen 7 7735U (16 vCPUs, CPU mode), ~2000-token document
+
+| Stage | Mean (ms) | Median (ms) | p95 (ms) |
+|-------|-----------|------------|---------|
+{_full_latency_rows(full_metrics)}
+
+---
+
+## 10e. Reconciliation Flags
+
+> P5 recomputes metrics from `raw_test_predictions.jsonl` (is_blocked as predicted label)
+> and compares to team-reported step metrics (threshold-calibrated scores).
+> Differences expected due to different thresholds; flagged when |diff| > 0.005.
+
+{_reconciliation_section(full_metrics)}
+
+---
+
+## 11. Open Items
+
+| Item | Status | Owner | Note |
+|------|--------|-------|------|
+| Pair-input collator eval | RESOLVED — step4 metrics present | P3 | results/step4_pair_input/ |
+| Obfuscated set (table_3_5) | RESOLVED — table ingested (team-reported) | P3 | results/table_3_5_obfuscation_comparison.json |
+| Model-forward latency | RESOLVED — table_3_8 ingested (team-reported) | P3 | results/table_3_8_latency.json |
+| Trained token-head weights | BLOCKED — no weight files in repo | P4 | token_head metrics N/A |
+| Real LLM ASR | N/A — no LLM endpoint | All | PSR proxy used instead |
+| Full splits re-eval (n=206 vs n=42999) | OPEN — splits differ; not comparable | P1/P2 | team baseline n=42999 |
+| token_head re-eval | BLOCKED — weights absent | P4 | span-F1 and PSR N/A |
+
+---
+
+## 12. Group Members
+
+{_group_members_table()}
 
 ---
 

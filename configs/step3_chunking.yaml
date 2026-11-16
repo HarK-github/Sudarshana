@@ -1,0 +1,19 @@
+# Ablation Step 3: Chunking with Max Pooling (256-token chunks, 64-token overlap, single-string)
+_base_: "configs/base_training.yaml"
+step_name: "step3_chunking"
+hypothesis: "H1 (Length): 256-token chunking with 64-token overlap and max pooling"
+normalize: true
+chunking: true
+chunk_size: 256
+chunk_stride: 192
+max_tokens: 256
+pair_input: false
+pooling_method: "top2_damped"
+top_k: 2
+use_token_head: false
+use_type_head: false
+obf_augment: false
+lambda_tok: 0.0
+lambda_type: 0.0
+output_dir: "checkpoints/step3_chunking"
+results_dir: "results/step3_chunking"

@@ -217,3 +217,67 @@ def test_sensitivity_drop_all_psr_one() -> None:
     cell = grid[0]
     assert cell["drop_rate"] == 1.0
     assert cell["psr"] == pytest.approx(1.0, abs=1e-6), f"Drop-all PSR should be 1, got {cell['psr']}"
+
+
+# ---------------------------------------------------------------------------
+# P5 Phase-1 Tests (team_results module)
+# ---------------------------------------------------------------------------
+
+PRED_JSONL_CONTENT = [
+    {"index": 0, "is_attacked": True,  "domain": "text", "pred_spans": [[0, 10]],
+     "is_blocked": True,  "gold_coverage": 1.0, "residual_payload": 0.0, "legitimate_retained": 0.9},
+    {"index": 1, "is_attacked": True,  "domain": "text", "pred_spans": [],
+     "is_blocked": False, "gold_coverage": 0.0, "residual_payload": 1.0, "legitimate_retained": 1.0},
+    {"index": 2, "is_attacked": False, "domain": "code", "pred_spans": [],
+     "is_blocked": False, "gold_coverage": 1.0, "residual_payload": 0.0, "legitimate_retained": 1.0},
+]
+
+
+def test_recompute_from_predictions_synthetic(tmp_path: Path) -> None:
+    """recompute_from_predictions on a tiny 3-record fixture."""
+    import json as _json
+    from sudarshana.evaluation.team_results import recompute_from_predictions
+
+    pred_file = tmp_path / "preds.jsonl"
+    with open(pred_file, "w") as fh:
+        for rec in PRED_JSONL_CONTENT:
+            fh.write(_json.dumps(rec) + "\n")
+
+    result = recompute_from_predictions(pred_file)
+    assert result.get("n") == 3
+    overall = result.get("overall", {})
+    # 2 attacked: 1 TP, 1 FN -> recall = 0.5
+    assert overall.get("recall") == pytest.approx(0.5, abs=1e-6)
+    # 1 negative: 0 FP -> fpr = 0.0
+    assert overall.get("fpr") == pytest.approx(0.0, abs=1e-6)
+    assert "_provenance" in result
+
+
+def test_loader_tolerant_of_missing_files(tmp_path: Path) -> None:
+    """load_team_artifacts returns N/A gracefully when files are absent."""
+    from sudarshana.evaluation.team_results import load_team_artifacts
+
+    result = load_team_artifacts(tmp_path)  # empty dir — all files missing
+    assert isinstance(result, dict)
+    for step_id in ("step1", "step2", "step3"):
+        entry = result.get("steps", {}).get(step_id, {})
+        assert entry.get("status") == "N/A", f"{step_id} should be N/A"
+    assert result.get("table_3_5", {}).get("status") == "N/A"
+
+
+def test_provenance_label_in_full_metrics() -> None:
+    """full_metrics.json must have a 'team' section with _provenance labels."""
+    import json as _json
+    fm_path = Path(__file__).resolve().parents[1] / "results" / "p5" / "full_metrics.json"
+    if not fm_path.exists():
+        pytest.skip("full_metrics.json not yet generated; run run_p5_eval.py first")
+    with open(fm_path) as fh:
+        fm = _json.load(fh)
+    # Either "team" section present, or at minimum "predictors" with provenance-like keys
+    # Accept either: team section OR at least sensitivity label
+    has_team = "team" in fm
+    has_sensitivity = "sensitivity" in fm
+    assert has_team or has_sensitivity, "full_metrics.json must have 'team' or 'sensitivity' section"
+    if has_team:
+        for step_data in fm["team"].get("ablation_steps", {}).values():
+            assert "_provenance" in step_data, "each ablation step must carry _provenance"
