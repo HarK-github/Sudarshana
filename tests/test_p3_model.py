@@ -97,7 +97,7 @@ def test_model_forward_joint_heads():
 
     outputs["loss"].backward()
     assert model.detect_head.weight.grad is not None
-    assert model.token_head.weight.grad is not None
+    assert any(p.grad is not None for p in model.token_head.parameters())
     assert model.type_head.weight.grad is not None
 
 
