@@ -252,6 +252,190 @@ Evaluated on the held-out test split ($n = 206$ total: 125 attacked documents ac
 
 ---
 
+## 4b. Model Architecture & Training (P3-reported)
+
+> Source: `reports/p3_model_and_training_report.md` (owner P3, please review)
+
+# P3 Final Report: Model Architecture & Training Integration
+**Author:** P3 (Model Architecture & Training Integration Lead)  
+**Project:** Sudarshana Indirect Prompt Injection Detection Pipeline  
+**Date:** November 15, 2026  
+**Status:** Complete & Frozen (`models/final_step1..6/`)
+
+---
+
+## 1. Executive Summary & Hypotheses Verification
+
+Across the 7-day implementation schedule, we designed, implemented, and validated the complete 6-step Ablation Ladder for the Sudarshana indirect prompt-injection detection pipeline. All 4 core architectural hypotheses were empirically validated on the held-out test split (206 documents: 125 injected across 25 held-out attack types, 81 benign including 6 curated instructional hard negatives):
+
+1. **Hypothesis H1 (Chunking & Context Preservation):** Moving from single-string 512-token truncation (`step1_baseline`) to sliding-window 256-token chunking with 64-token overlap and max-pooling (`step3_chunking`) eliminates the truncation vulnerability, maintaining $100.00\%$ detection recall on injections placed at the `end` of long documents (vs. $16.98\%$ in baseline).
+2. **Hypothesis H2 (Obfuscation & Normalization Robustness):** Coupling a character-level normalizer (NFKC, zero-width stripping, Base64/Hex decoding) with synthetic obfuscation augmentation (`step6_augmented`) achieves $100.00\%$ recall across all five perturbation suites (Leetspeak, Homoglyphs, Zero-Width characters, Base64 wrappers, Markdown embeds) while driving calibrated hard-negative FPR to $0.00\%$.
+3. **Hypothesis H3 (Pair-Input Disambiguation):** Cross-attending `[CLS] user_task [SEP] chunk [SEP]` (`step4_pair_input`) breaks naive imperative shortcuts, reducing hard-negative False Positive Rate from $83.33\%$ down to $16.67\%$ under calibrated decision thresholds, without dropping recall on task-relevant or targeted injections.
+4. **Hypothesis H4 (Joint Detection & Token Head Redaction):** Adding a sequence token classification head ($\mathbf{H} \to \mathbb{R}^{B \times L \times 3}$) with joint loss ($\mathcal{L}_{\text{detect}} + 0.5 \times \mathcal{L}_{\text{tok}}$) produces token-level probability maps and BIO labels (`O`, `B-INJ`, `I-INJ`) that enable sentence-level redaction without compromising document-level recall ($100.00\%$).
+
+All six production checkpoints, model configs, fast tokenizers, and validation-calibrated decision thresholds are frozen and archived in `models/final_step1_baseline/` through `models/final_step6_augmented/`.
+
+---
+
+## 2. Report Section 2.3: Models and Training Specification
+
+### 2.1 Shared Backbone Architecture
+All six ablation variants are built upon the same pretrained transformer encoder backbone:
+- **Pretrained Encoder:** Microsoft DeBERTa-v3 (`microsoft/deberta-v3-base`, 86M backbone parameters, hidden dimension $d = 768$, 12 layers, 12 attention heads, vocabulary size $128,100$ using SentencePiece). For resource-constrained and local sandboxed environments, the architecture smoothly adapts to `microsoft/deberta-v3-xsmall` ($d = 384$, 12 layers) with identical head interfaces.
+- **Disentangled Attention:** DeBERTa-v3 disentangles content and relative position vectors, computing attention matrices as:
+  $$\mathbf{A}_{i,j} = \mathbf{c}_i \mathbf{c}_j^\top + \mathbf{c}_i \mathbf{p}_{i \to j}^\top + \mathbf{p}_{j \to i} \mathbf{c}_j^\top$$
+  This formulation preserves syntactic dependency between distant tokens, making it sensitive to injected instructional syntax embedded inside passive retrieved documents.
+
+### 2.2 Multi-Task Head Architecture
+The multi-task head (`DebertaMultiTaskFilter`) mounts three specialized prediction heads directly atop the shared encoder's final hidden representation $\mathbf{H} \in \mathbb{R}^{B \times L \times d}$:
+1. **Document / Chunk Detection Head (`detect_head`):**
+   - Input: Pooled `[CLS]` representation $\mathbf{h}_{\text{CLS}} = \mathbf{H}_{:, 0, :} \in \mathbb{R}^{B \times d}$.
+   - Structure: Dropout ($p=0.1$) $\to$ Linear layer $\mathbb{R}^d \to \mathbb{R}^2$.
+   - Output: Logits $\mathbf{z}_{\text{detect}} \in \mathbb{R}^{B \times 2}$ yielding chunk injection probability $P(y=1 \mid \text{chunk}) = \text{Softmax}(\mathbf{z}_{\text{detect}})_1$.
+2. **Token Classification Head (`token_head`, enabled in Steps 5 and 6):**
+   - Input: Full sequence hidden states $\mathbf{H} \in \mathbb{R}^{B \times L \times d}$.
+   - Structure: Dropout ($p=0.1$) $\to$ Linear layer $\mathbb{R}^d \to \mathbb{R}^3$ corresponding to labels `0: O`, `1: B-INJ`, `2: I-INJ`.
+   - Supervision: Subword tokens belonging to the `user_task` segment, `[CLS]`, `[SEP]`, and `[PAD]` are strictly masked with `ignore_index = -100`. Only document/chunk tokens receive token loss.
+   - Output: Token logits $\mathbf{z}_{\text{tok}} \in \mathbb{R}^{B \times L \times 3}$. Sentence redaction probability is computed as $P(\text{INJ} \mid t) = P(\text{B-INJ}) + P(\text{I-INJ})$.
+3. **Auxiliary Attack-Type Head (`type_head`, optional Day 5 hook):**
+   - Input: Pooled `[CLS]` representation $\mathbf{h}_{\text{CLS}} \in \mathbb{R}^{B \times d}$.
+   - Structure: Dropout ($p=0.1$) $\to$ Linear layer $\mathbb{R}^d \to \mathbb{R}^{25}$ mapping to the 25 training attack types ($15$ text $+ 10$ code).
+   - Supervision: CrossEntropyLoss masked to compute gradients strictly on positive injected samples (`labels == 1`).
+
+### 2.3 Joint Loss Formulation
+To jointly optimize document-level detection, subword span localization, and optional attack classification, we define the composite multi-task objective:
+$$\mathcal{L} = \mathcal{L}_{\text{detect}} + \lambda_{\text{tok}} \cdot \mathcal{L}_{\text{tok}} + \lambda_{\text{type}} \cdot \mathcal{L}_{\text{type}}$$
+Where:
+- $\mathcal{L}_{\text{detect}} = \text{CrossEntropyLoss}(\mathbf{z}_{\text{detect}}, y_{\text{chunk}})$
+- $\mathcal{L}_{\text{tok}} = \frac{1}{\sum_{i,j} \mathbb{I}(y_{i,j} \neq -100)} \sum_{i,j} \text{CrossEntropyLoss}(\mathbf{z}_{\text{tok}}[i,j], y_{\text{tok}}[i,j])$
+- $\mathcal{L}_{\text{type}} = \frac{1}{\sum_i \mathbb{I}(y_i = 1)} \sum_{i: y_i = 1} \text{CrossEntropyLoss}(\mathbf{z}_{\text{type}}[i], y_{\text{type}}[i])$
+- **Loss Weights:** Hyperparameter tuning on the Day 4 validation sweep confirmed that $\lambda_{\text{tok}} = 0.5$ optimally balances document-level recall against token-level Span F1 without gradient dominance. $\lambda_{\text{type}} = 0.0$ for the standard Step 6 release ($0.1$ when auxiliary type regularizer is enabled).
+
+### 2.4 Standardized Training Hyperparameters
+Per Section 2.3 of the specification (*"Same for every variant"*), all 6 ablation steps were trained under identical computational and optimization budgets:
+
+| Hyperparameter | Value | Description / Justification |
+| :--- | :--- | :--- |
+
+*[... truncated at 60 lines — see full file: reports/p3_model_and_training_report.md]*
+
+---
+
+## 4c. Ablation Ladder (team-reported, P3, n=206, seed=42)
+
+> Source: `reports/ablation_ladder_tables.json` (owner P3, please review)
+> Provenance: team-reported (P3-measured). n=206 for all steps. All numbers from JSON.
+
+| Step | Recall | Clean FPR | HN FPR@90% | Span F1 | Latency (ms) | Provenance |
+|------|--------|-----------|-----------|---------|-------------|------------|
+| step1_baseline | 0.6080 | 0.2667 | 0.0000 | n/a | 43.56 | team-reported (P3) |
+| step2_normalizer | 0.3520 | 0.1467 | 0.0000 | n/a | 46.12 | team-reported (P3) |
+| step3_chunking | 0.2800 | 0.2133 | 1.0000 | n/a | 152.40 | team-reported (P3) |
+| step4_pair_input | 0.3520 | 0.2267 | 1.0000 | n/a | 158.85 | team-reported (P3) |
+| step5_token_head | 0.4880 | 0.0667 | 0.8333 | 34.42% | 164.20 | team-reported (P3) |
+| step6_augmented | 0.6160 | 0.1733 | 0.8333 | 34.42% | 166.61 | team-reported (P3) |
+
+> See `reports/ablation_summary.md` and `reports/figures/ladder_recall_vs_fpr.png` for full analysis.
+
+### Ablation Summary (excerpt)
+
+> Source: `reports/ablation_summary.md` (owner P3, please review)
+
+# Sudarshana Ablation Ladder: Final Experimental Report
+
+## 1. Table 3.2 (Comprehensive): Full Detection & Classification Metrics (Calibrated Operating Thresholds)
+| Step | Variant | Calib $\tau^*$ | Recall | Clean FPR (N=75) | Hard-Neg FPR | HN FPR @ 90% Rec | Precision | F1 Score | Span F1 | Latency |
+| :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| 1 | **step1_baseline** | 0.4973 | 60.80% | 26.67% | 0.00% | 0.00% | 0.7917 | 0.6878 | n/a | 43.56 ms |
+| 2 | **step2_normalizer** | 0.5920 | 35.20% | 14.67% | 0.00% | 0.00% | 0.8000 | 0.4889 | n/a | 46.12 ms |
+| 3 | **step3_chunking** | 0.6082 | 28.00% | 21.33% | 16.67% | 100.00% | 0.6731 | 0.3955 | n/a | 152.40 ms |
+| 4 | **step4_pair_input** | 0.5868 | 35.20% | 22.67% | 0.00% | 100.00% | 0.7213 | 0.4731 | n/a | 158.85 ms |
+| 5 | **step5_token_head** | 0.7466 | 48.80% | 6.67% | 0.00% | 83.33% | 0.9242 | 0.6387 | 34.42% | 164.20 ms |
+| 6 | **step6_augmented** | 0.7162 | 61.60% | 17.33% | 0.00% | 83.33% | 0.8556 | 0.7163 | 34.42% | 166.61 ms |
+
+## 1b. Table 3.2 (Course Specification Format — Page 9 Template)
+| Step | Variant | Recall | Clean FPR (N=75) | Hard-Neg FPR @ 90% Rec | Span F1 | ASR (LLM) | ROUGE-1 | Latency |
+| :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| 1 | **step1_baseline** | 60.80% | 26.67% | 0.00% | n/a | [P5 handoff] | [P5 handoff] | 43.56 ms |
+| 2 | **step2_normalizer** | 35.20% | 14.67% | 0.00% | n/a | [P5 handoff] | [P5 handoff] | 46.12 ms |
+| 3 | **step3_chunking** | 28.00% | 21.33% | 100.00% | n/a | [P5 handoff] | [P5 handoff] | 152.40 ms |
+| 4 | **step4_pair_input** | 35.20% | 22.67% | 100.00% | n/a | [P5 handoff] | [P5 handoff] | 158.85 ms |
+| 5 | **step5_token_head** | 48.80% | 6.67% | 83.33% | 34.42% | [P5 handoff] | [P5 handoff] | 164.20 ms |
+| 6 | **step6_augmented** | 61.60% | 17.33% | 83.33% | 34.42% | [P5 handoff] | [P5 handoff] | 166.61 ms |
+
+## 1c. Uncalibrated Baseline (tau = 0.50) Reference Comparison
+| Step | Variant | Test Recall (0.5) | Clean FPR (0.5) | Precision (0.5) | F1 Score (0.5) |
+| :---: | :--- | :---: | :---: | :---: | :---: |
+| 1 | **step1_baseline** | 54.40% | 24.00% | 0.7907 | 0.6445 |
+| 2 | **step2_normalizer** | 86.40% | 57.33% | 0.7152 | 0.7826 |
+| 3 | **step3_chunking** | 40.00% | 33.33% | 0.6579 | 0.4975 |
+| 4 | **step4_pair_input** | 45.60% | 28.00% | 0.7308 | 0.5616 |
+| 5 | **step5_token_head** | 63.20% | 33.33% | 0.7596 | 0.6900 |
+| 6 | **step6_augmented** | 63.20% | 22.67% | 0.8229 | 0.7149 |
+
+## 2. Table 3.3: Truncation vs. Chunking (Hypothesis H1)
+| Variant | Start Recall | Middle Recall | End Recall |
+| :--- | :---: | :---: | :---: |
+| **step1_baseline** | 50.00% | 76.67% | 60.38% |
+| **step2_normalizer** | 40.48% | 40.00% | 28.30% |
+| **step3_chunking** | 26.19% | 26.67% | 30.19% |
+| **step4_pair_input** | 35.71% | 30.00% | 37.74% |
+| **step5_token_head** | 52.38% | 40.00% | 50.94% |
+| **step6_augmented** | 59.52% | 66.67% | 60.38% |
+
+## 3. Table 3.4: Recall by Attack Category (Hypothesis H3)
+| Variant | Task-Irrelevant | Task-Relevant | Targeted |
+| :--- | :---: | :---: | :---: |
+| **step1_baseline** | 44.00% | 45.00% | 70.00% |
+| **step2_normalizer** | 40.00% | 35.00% | 33.75% |
+| **step3_chunking** | 32.00% | 25.00% | 27.50% |
+| **step4_pair_input** | 40.00% | 30.00% | 35.00% |
+| **step5_token_head** | 24.00% | 25.00% | 62.50% |
+| **step6_augmented** | 40.00% | 30.00% | 76.25% |
+
+## 4. Table 3.5: Obfuscation Robustness Suite (Hypothesis H2)
+| Obfuscation Type | Baseline Recall (Step 1) | With Normalizer (Step 2) | With Normalizer & Augmentation (Step 6) |
+| :--- | :---: | :---: | :---: |
+| **Base64 wrapper** | 40.00% | 95.20% | 98.40% |
+| **Homoglyphs** | 63.20% | 67.20% | 97.60% |
+| **Zero-width characters** | 44.80% | 96.00% | 98.40% |
+| **Leetspeak** | 63.20% | 96.00% | 99.20% |
+| **Markdown embeds** | 58.40% | 96.00% | 98.40% |
+
+*[... truncated at 60 lines — see full file: reports/ablation_summary.md]*
+
+---
+
+## 4d. Obfuscation Held-Out Results (team-reported, P3)
+
+> Source: `results/table_3_5_obfuscation_comparison.json` (owner P3, please review)
+> Provenance: team-reported (P3). n=206 for each obfuscation type.
+
+| Obfuscation Type | Step1 Recall | Step2 Recall | Step6 Recall |
+|-----------------|-------------|-------------|-------------|
+| Base64 wrapper | 0.4000 | 0.9520 | 0.9840 |
+| Homoglyphs | 0.6320 | 0.6720 | 0.9760 |
+| Zero-width characters | 0.4480 | 0.9600 | 0.9840 |
+| Leetspeak | 0.6320 | 0.9600 | 0.9920 |
+| Markdown embeds | 0.5840 | 0.9600 | 0.9840 |
+
+---
+
+## 4e. Latency Per Stage incl. Model Forward (team-reported, P3)
+
+> Source: `results/table_3_8_latency.json` (owner P3, please review)
+
+> Hardware: cpu, ~2000-token document (team-reported P3)
+
+| Stage | Mean (ms) | Median (ms) | p95 (ms) |
+|-------|-----------|------------|---------|
+| Keyword baseline | 43.56 | 41.17 | 55.14 |
+| Full pipeline (model forward) | 166.61 | 167.83 | 185.01 |
+
+Latency increase factor (full/baseline): 3.82×
+
+---
+
 ## 5. P5 Evaluation
 
 **Split**: test (N=206: 125 injected, 81 clean)
@@ -262,7 +446,7 @@ Evaluated on the held-out test split ($n = 206$ total: 125 attacked documents ac
 | Predictor | Recall | FPR (test) | FPR (hard-neg) | PSR | ROUGE-1 F1 |
 |-----------|--------|------------|----------------|-----|------------|
 | none | 0.0000 | 0.0000 | 0.0000 | 1.0000 | 0.8962 |
-| oracle | 1.0000 | 0.0000 | 0.0000 | 0.0000 | 0.7298 |
+| oracle | 1.0000 | 0.0000 | 0.0000 | 0.0000 | 0.8996 |
 | keyword_heuristic | 0.0400 | 0.0123 | 0.0000 | 1.0000 | 0.8967 |
 | token_head | N/A (no weights — checkpoints/ | N/A | N/A | N/A (no weights — checkpoints/ | N/A (no weights — checkpoints/ |
 
@@ -285,22 +469,25 @@ See `results/p5/latency.json` and `reports/figures/latency_p50_p95.png`.
 1. **Real split sizes differ from team baseline** — P5 evaluates on committed sample splits
    (test=206, hard_neg=15); team baseline ran on full dataset (test=42 999). Not comparable.
 2. **Hard-neg N=15** — FPR estimates indicative only (wide Wilson CIs).
-3. **ASR proxy** — PSR measures payload-text survival; real ASR requires LLM execution.
+3. **ASR proxy (PSR)** — PSR = payload survival rate. Real ASR requires LLM execution and
+   behavioural verification. No LLM endpoint available; PSR is the proxy label.
 4. **ROUGE-1 utility proxy** — surface-text overlap; actual utility requires downstream eval.
-5. **token_head: N/A** — no trained weights; all token-head metrics are N/A.
-6. **No obfuscated set** — obfuscated held-out evaluation skipped (P1/P2 deliverable).
-7. **No pair-input evaluation** — P3 pair collator not integrated.
-8. **No LLM ASR** — LLMBackend protocol stubbed.
-9. **Sensitivity is SIMULATED** — gold span perturbations, not predicted spans.
+5. **token_head: N/A (weights absent)** — no trained weights committed; all token-head
+   span-F1, PSR, ROUGE-1 metrics are N/A. Re-eval requires P4 to push weights.
+6. **Sensitivity is SIMULATED** — gold span perturbations, not predicted spans from trained model.
+7. **Obfuscated set sourced from table_3_5** — team-reported (P3). No separate held-out JSONL.
+8. **pair-input eval present (step4)** — step4_pair_input metrics available (team-reported P3).
+9. **No LLM ASR** — LLMBackend protocol stubbed; requires real LLM endpoint.
+10. **Team baseline FPR (val) ~0.68** — honest estimate from baseline_day2.json (val split).
 
 ### Open Items
 
-| Item | Owner | Blocker |
-|------|-------|---------|
-| Trained token-head weights | P4 | Needed for token_head predictor, span-F1 |
-| Pair-input collator | P3 | Needed for fair comparison vs document-only baseline |
-| Obfuscated held-out set | P1/P2 | Needed for heldout evaluation |
-| Real LLM ASR | All | Requires LLM endpoint + prompt harness |
+| Item | Status | Owner | Note |
+|------|--------|-------|------|
+| Trained token-head weights | BLOCKED | P4 | Needed for token_head, span-F1, real PSR |
+| Real LLM ASR | N/A | All | No LLM endpoint; PSR proxy used |
+| Full splits re-eval | OPEN | P1/P2 | team baseline n=42999 vs P5 n=206 |
+| token_head re-eval | BLOCKED | P4 | weights absent in repo |
 
 ---
 

@@ -11,8 +11,8 @@
       "span_f1_na_reason": "span predictions not available for binary predictors",
       "psr": 1.0,
       "rouge1_f1": 0.8962,
-      "latency_p50_ms": 14.57,
-      "latency_p95_ms": 14.68,
+      "latency_p50_ms": 0.06,
+      "latency_p95_ms": 0.1,
       "baseline_day2_recall": null,
       "baseline_day2_fpr": null
     },
@@ -24,9 +24,9 @@
       "span_f1": null,
       "span_f1_na_reason": "span predictions not available for binary predictors",
       "psr": 0.0,
-      "rouge1_f1": 0.7298,
-      "latency_p50_ms": 14.57,
-      "latency_p95_ms": 14.68,
+      "rouge1_f1": 0.8996,
+      "latency_p50_ms": 0.06,
+      "latency_p95_ms": 0.1,
       "baseline_day2_recall": null,
       "baseline_day2_fpr": null
     },
@@ -39,8 +39,8 @@
       "span_f1_na_reason": "span predictions not available for binary predictors",
       "psr": 1.0,
       "rouge1_f1": 0.8967,
-      "latency_p50_ms": 14.57,
-      "latency_p95_ms": 14.68,
+      "latency_p50_ms": 0.06,
+      "latency_p95_ms": 0.1,
       "baseline_day2_recall": 0.9964489990467111,
       "baseline_day2_fpr": 0.4456207892204042
     },
@@ -65,9 +65,9 @@
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.0298,
-        "rouge1_f1": 0.7298,
-        "rouge1_lo": 0.6503,
-        "rouge1_hi": 0.8038
+        "rouge1_f1": 0.8996,
+        "rouge1_lo": 0.8505,
+        "rouge1_hi": 0.9411
       },
       {
         "keep_fraction": 1.0,
@@ -76,9 +76,9 @@
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.0298,
-        "rouge1_f1": 0.7298,
-        "rouge1_lo": 0.6503,
-        "rouge1_hi": 0.8038
+        "rouge1_f1": 0.8996,
+        "rouge1_lo": 0.8505,
+        "rouge1_hi": 0.9411
       },
       {
         "keep_fraction": 1.0,
@@ -87,9 +87,9 @@
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.0298,
-        "rouge1_f1": 0.7298,
-        "rouge1_lo": 0.6503,
-        "rouge1_hi": 0.8038
+        "rouge1_f1": 0.8996,
+        "rouge1_lo": 0.8505,
+        "rouge1_hi": 0.9411
       },
       {
         "keep_fraction": 1.0,
@@ -98,9 +98,9 @@
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.0298,
-        "rouge1_f1": 0.7298,
-        "rouge1_lo": 0.6503,
-        "rouge1_hi": 0.8038
+        "rouge1_f1": 0.8996,
+        "rouge1_lo": 0.8505,
+        "rouge1_hi": 0.9411
       },
       {
         "keep_fraction": 0.9,
@@ -109,9 +109,9 @@
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.0298,
-        "rouge1_f1": 0.7452,
-        "rouge1_lo": 0.6672,
-        "rouge1_hi": 0.8197
+        "rouge1_f1": 0.9097,
+        "rouge1_lo": 0.8614,
+        "rouge1_hi": 0.9505
       },
       {
         "keep_fraction": 0.9,
@@ -120,9 +120,9 @@
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.0298,
-        "rouge1_f1": 0.7452,
-        "rouge1_lo": 0.6672,
-        "rouge1_hi": 0.8197
+        "rouge1_f1": 0.9097,
+        "rouge1_lo": 0.8614,
+        "rouge1_hi": 0.9505
       },
       {
         "keep_fraction": 0.9,
@@ -131,9 +131,9 @@
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.0298,
-        "rouge1_f1": 0.7452,
-        "rouge1_lo": 0.6672,
-        "rouge1_hi": 0.8197
+        "rouge1_f1": 0.9097,
+        "rouge1_lo": 0.8614,
+        "rouge1_hi": 0.9505
       },
       {
         "keep_fraction": 0.9,
@@ -142,97 +142,97 @@
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.0298,
-        "rouge1_f1": 0.7452,
-        "rouge1_lo": 0.6672,
-        "rouge1_hi": 0.8197
+        "rouge1_f1": 0.9097,
+        "rouge1_lo": 0.8614,
+        "rouge1_hi": 0.9505
       },
       {
         "keep_fraction": 0.75,
         "drop_rate": 0.0,
         "n": 125,
-        "psr": 0.04,
-        "psr_lo": 0.0172,
-        "psr_hi": 0.0902,
-        "rouge1_f1": 0.7649,
-        "rouge1_lo": 0.6892,
-        "rouge1_hi": 0.8381
+        "psr": 0.032,
+        "psr_lo": 0.0125,
+        "psr_hi": 0.0794,
+        "rouge1_f1": 0.9137,
+        "rouge1_lo": 0.8712,
+        "rouge1_hi": 0.9521
       },
       {
         "keep_fraction": 0.75,
         "drop_rate": 0.1,
         "n": 125,
-        "psr": 0.04,
-        "psr_lo": 0.0172,
-        "psr_hi": 0.0902,
-        "rouge1_f1": 0.7649,
-        "rouge1_lo": 0.6892,
-        "rouge1_hi": 0.8381
+        "psr": 0.032,
+        "psr_lo": 0.0125,
+        "psr_hi": 0.0794,
+        "rouge1_f1": 0.9137,
+        "rouge1_lo": 0.8712,
+        "rouge1_hi": 0.9521
       },
       {
         "keep_fraction": 0.75,
         "drop_rate": 0.25,
         "n": 125,
-        "psr": 0.04,
-        "psr_lo": 0.0172,
-        "psr_hi": 0.0902,
-        "rouge1_f1": 0.7649,
-        "rouge1_lo": 0.6892,
-        "rouge1_hi": 0.8381
+        "psr": 0.032,
+        "psr_lo": 0.0125,
+        "psr_hi": 0.0794,
+        "rouge1_f1": 0.9137,
+        "rouge1_lo": 0.8712,
+        "rouge1_hi": 0.9521
       },
       {
         "keep_fraction": 0.75,
         "drop_rate": 0.5,
         "n": 125,
-        "psr": 0.04,
-        "psr_lo": 0.0172,
-        "psr_hi": 0.0902,
-        "rouge1_f1": 0.7649,
-        "rouge1_lo": 0.6892,
-        "rouge1_hi": 0.8381
+        "psr": 0.032,
+        "psr_lo": 0.0125,
+        "psr_hi": 0.0794,
+        "rouge1_f1": 0.9137,
+        "rouge1_lo": 0.8712,
+        "rouge1_hi": 0.9521
       },
       {
         "keep_fraction": 0.5,
         "drop_rate": 0.0,
         "n": 125,
-        "psr": 0.288,
-        "psr_lo": 0.2159,
-        "psr_hi": 0.3728,
-        "rouge1_f1": 0.8824,
-        "rouge1_lo": 0.8319,
-        "rouge1_hi": 0.9229
+        "psr": 0.32,
+        "psr_lo": 0.2446,
+        "psr_hi": 0.4061,
+        "rouge1_f1": 0.9402,
+        "rouge1_lo": 0.9176,
+        "rouge1_hi": 0.9565
       },
       {
         "keep_fraction": 0.5,
         "drop_rate": 0.1,
         "n": 125,
-        "psr": 0.288,
-        "psr_lo": 0.2159,
-        "psr_hi": 0.3728,
-        "rouge1_f1": 0.8824,
-        "rouge1_lo": 0.8319,
-        "rouge1_hi": 0.9229
+        "psr": 0.32,
+        "psr_lo": 0.2446,
+        "psr_hi": 0.4061,
+        "rouge1_f1": 0.9402,
+        "rouge1_lo": 0.9176,
+        "rouge1_hi": 0.9565
       },
       {
         "keep_fraction": 0.5,
         "drop_rate": 0.25,
         "n": 125,
-        "psr": 0.288,
-        "psr_lo": 0.2159,
-        "psr_hi": 0.3728,
-        "rouge1_f1": 0.8824,
-        "rouge1_lo": 0.8319,
-        "rouge1_hi": 0.9229
+        "psr": 0.32,
+        "psr_lo": 0.2446,
+        "psr_hi": 0.4061,
+        "rouge1_f1": 0.9402,
+        "rouge1_lo": 0.9176,
+        "rouge1_hi": 0.9565
       },
       {
         "keep_fraction": 0.5,
         "drop_rate": 0.5,
         "n": 125,
-        "psr": 0.288,
-        "psr_lo": 0.2159,
-        "psr_hi": 0.3728,
-        "rouge1_f1": 0.8824,
-        "rouge1_lo": 0.8319,
-        "rouge1_hi": 0.9229
+        "psr": 0.32,
+        "psr_lo": 0.2446,
+        "psr_hi": 0.4061,
+        "rouge1_f1": 0.9402,
+        "rouge1_lo": 0.9176,
+        "rouge1_hi": 0.9565
       }
     ],
     "oracle_by_attack_type": {
@@ -248,7 +248,7 @@
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.4345,
-        "rouge1_f1": 0.7849
+        "rouge1_f1": 0.949
       },
       "Language Translation (Test)": {
         "n": 5,
@@ -262,70 +262,70 @@
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.4345,
-        "rouge1_f1": 0.3991
+        "rouge1_f1": 0.7879
       },
       "Screen Scraping": {
         "n": 5,
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.4345,
-        "rouge1_f1": 0.0
+        "rouge1_f1": 0.7818
       },
       "Encrypting Documents and Demanding Ransom (Ransomware)": {
         "n": 5,
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.4345,
-        "rouge1_f1": 0.1979
+        "rouge1_f1": 0.7979
       },
       "Substitution Ciphers": {
         "n": 5,
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.4345,
-        "rouge1_f1": 0.9888
+        "rouge1_f1": 0.9885
       },
       "Entertainment": {
         "n": 5,
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.4345,
-        "rouge1_f1": 0.997
+        "rouge1_f1": 0.9933
       },
       "Misinformation & Propaganda": {
         "n": 5,
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.4345,
-        "rouge1_f1": 0.9938
+        "rouge1_f1": 0.9854
       },
       "Reverse Text": {
         "n": 5,
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.4345,
-        "rouge1_f1": 0.9666
+        "rouge1_f1": 0.9696
       },
       "Scams & Fraud": {
         "n": 5,
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.4345,
-        "rouge1_f1": 0.9773
+        "rouge1_f1": 0.9723
       },
       "Corrupting an Operating System": {
         "n": 5,
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.4345,
-        "rouge1_f1": 0.587
+        "rouge1_f1": 0.9909
       },
       "Introduce System Fingerprinting": {
         "n": 5,
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.4345,
-        "rouge1_f1": 0.3886
+        "rouge1_f1": 1.0
       },
       "Marketing & Advertising": {
         "n": 5,
@@ -339,70 +339,70 @@
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.4345,
-        "rouge1_f1": 0.5959
+        "rouge1_f1": 0.7884
       },
       "Research Assistance": {
         "n": 5,
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.4345,
-        "rouge1_f1": 0.9913
+        "rouge1_f1": 0.9816
       },
       "Task Automation": {
         "n": 5,
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.4345,
-        "rouge1_f1": 0.7922
+        "rouge1_f1": 0.7825
       },
       "Data Eavesdropping": {
         "n": 5,
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.4345,
-        "rouge1_f1": 0.2
+        "rouge1_f1": 0.7978
       },
       "Emoji Substitution": {
         "n": 5,
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.4345,
-        "rouge1_f1": 0.9794
+        "rouge1_f1": 0.9705
       },
       "Sentiment Analysis": {
         "n": 5,
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.4345,
-        "rouge1_f1": 0.9645
+        "rouge1_f1": 0.9619
       },
       "Keylogging": {
         "n": 5,
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.4345,
-        "rouge1_f1": 0.4
+        "rouge1_f1": 0.6
       },
       "Compromising Computers": {
         "n": 5,
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.4345,
-        "rouge1_f1": 0.772
+        "rouge1_f1": 0.7775
       },
       "Conversational Agent": {
         "n": 5,
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.4345,
-        "rouge1_f1": 0.9763
+        "rouge1_f1": 0.9788
       },
       "Information Dissemination": {
         "n": 5,
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.4345,
-        "rouge1_f1": 0.5888
+        "rouge1_f1": 0.9309
       },
       "Base Encoding": {
         "n": 5,
@@ -418,22 +418,208 @@
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.0838,
-        "rouge1_f1": 0.809
+        "rouge1_f1": 0.8716
       },
       "middle": {
         "n": 30,
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.1135,
-        "rouge1_f1": 0.7115
+        "rouge1_f1": 0.9081
       },
       "end": {
         "n": 53,
         "psr": 0.0,
         "psr_lo": 0.0,
         "psr_hi": 0.0676,
-        "rouge1_f1": 0.6774
+        "rouge1_f1": 0.9169
       }
     }
+  },
+  "team": {
+    "ablation_steps": {
+      "step1": {
+        "recall": 0.544,
+        "fpr": 0.2222222222222222,
+        "precision": 0.7906976744186046,
+        "f1": 0.6445497630331752,
+        "n": 206,
+        "_source": "results/step1_baseline/step1_baseline_seed42_metrics.json",
+        "_provenance": "team-reported",
+        "_owner": "P3"
+      },
+      "step2": {
+        "recall": 0.864,
+        "fpr": 0.5308641975308642,
+        "precision": 0.7152317880794702,
+        "f1": 0.782608695652174,
+        "n": 206,
+        "_source": "results/step2_normalizer/step2_normalizer_seed42_metrics.json",
+        "_provenance": "team-reported",
+        "_owner": "P3"
+      },
+      "step3": {
+        "recall": 0.4,
+        "fpr": 0.32098765432098764,
+        "precision": 0.6578947368421053,
+        "f1": 0.4975124378109454,
+        "n": 206,
+        "_source": "results/step3_chunking/step3_chunking_seed42_metrics.json",
+        "_provenance": "team-reported",
+        "_owner": "P3"
+      },
+      "step4": {
+        "recall": 0.456,
+        "fpr": 0.25925925925925924,
+        "precision": 0.7307692307692307,
+        "f1": 0.5615763546798029,
+        "n": 206,
+        "_source": "results/step4_pair_input/step4_pair_input_seed42_metrics.json",
+        "_provenance": "team-reported",
+        "_owner": "P3"
+      },
+      "step5": {
+        "recall": 0.632,
+        "fpr": 0.30864197530864196,
+        "precision": 0.7596153846153846,
+        "f1": 0.6899563318777292,
+        "n": 206,
+        "_source": "results/step5_token_head/step5_token_head_seed42_metrics.json",
+        "_provenance": "team-reported",
+        "_owner": "P3"
+      },
+      "step6": {
+        "recall": 0.632,
+        "fpr": 0.20987654320987653,
+        "precision": 0.8229166666666666,
+        "f1": 0.7149321266968326,
+        "n": 206,
+        "_source": "results/step6_augmented/step6_augmented_seed42_metrics.json",
+        "_provenance": "team-reported",
+        "_owner": "P3"
+      }
+    },
+    "obfuscation_table": {
+      "_source": "results/table_3_5_obfuscation_comparison.json",
+      "_provenance": "team-reported",
+      "_owner": "P3"
+    },
+    "latency_model_forward": {
+      "mean_ms": 166.6088433310506,
+      "median_ms": 167.83254999609198,
+      "baseline_mean_ms": 43.558730002162825,
+      "device": "cpu",
+      "_source": "results/table_3_8_latency.json",
+      "_provenance": "team-reported",
+      "_owner": "P3",
+      "_hardware_note": "AMD Ryzen 7 7735U (16 vCPUs, CPU mode), ~2000 token document"
+    },
+    "heldout_obfuscation": {
+      "_source": "results/table_3_5_obfuscation_comparison.json",
+      "_provenance": "team-reported",
+      "_owner": "P3",
+      "_note": "Per-obfuscation-type recall for step1/step2/step6 on full obfuscated test set"
+    },
+    "reconciliation_flags": [
+      {
+        "step": "step1",
+        "metric": "recall",
+        "recomputed": 0.32,
+        "team_reported": 0.544,
+        "diff": 0.22400000000000003,
+        "flag": "|diff|=0.2240 > 0.005",
+        "note": "P5 recomputed uses is_blocked as predicted label vs step metrics using threshold-calibrated scores"
+      },
+      {
+        "step": "step2",
+        "metric": "recall",
+        "recomputed": 0.32,
+        "team_reported": 0.864,
+        "diff": 0.544,
+        "flag": "|diff|=0.5440 > 0.005",
+        "note": "P5 recomputed uses is_blocked as predicted label vs step metrics using threshold-calibrated scores"
+      },
+      {
+        "step": "step2",
+        "metric": "fpr",
+        "recomputed": 0.2222222222222222,
+        "team_reported": 0.5308641975308642,
+        "diff": 0.308641975308642,
+        "flag": "|diff|=0.3086 > 0.005",
+        "note": "P5 recomputed uses is_blocked as predicted label vs step metrics using threshold-calibrated scores"
+      },
+      {
+        "step": "step3",
+        "metric": "recall",
+        "recomputed": 0.32,
+        "team_reported": 0.4,
+        "diff": 0.08000000000000002,
+        "flag": "|diff|=0.0800 > 0.005",
+        "note": "P5 recomputed uses is_blocked as predicted label vs step metrics using threshold-calibrated scores"
+      },
+      {
+        "step": "step3",
+        "metric": "fpr",
+        "recomputed": 0.2222222222222222,
+        "team_reported": 0.32098765432098764,
+        "diff": 0.09876543209876543,
+        "flag": "|diff|=0.0988 > 0.005",
+        "note": "P5 recomputed uses is_blocked as predicted label vs step metrics using threshold-calibrated scores"
+      },
+      {
+        "step": "step4",
+        "metric": "recall",
+        "recomputed": 0.32,
+        "team_reported": 0.456,
+        "diff": 0.136,
+        "flag": "|diff|=0.1360 > 0.005",
+        "note": "P5 recomputed uses is_blocked as predicted label vs step metrics using threshold-calibrated scores"
+      },
+      {
+        "step": "step4",
+        "metric": "fpr",
+        "recomputed": 0.2222222222222222,
+        "team_reported": 0.25925925925925924,
+        "diff": 0.037037037037037035,
+        "flag": "|diff|=0.0370 > 0.005",
+        "note": "P5 recomputed uses is_blocked as predicted label vs step metrics using threshold-calibrated scores"
+      },
+      {
+        "step": "step5",
+        "metric": "recall",
+        "recomputed": 0.32,
+        "team_reported": 0.632,
+        "diff": 0.312,
+        "flag": "|diff|=0.3120 > 0.005",
+        "note": "P5 recomputed uses is_blocked as predicted label vs step metrics using threshold-calibrated scores"
+      },
+      {
+        "step": "step5",
+        "metric": "fpr",
+        "recomputed": 0.2222222222222222,
+        "team_reported": 0.30864197530864196,
+        "diff": 0.08641975308641975,
+        "flag": "|diff|=0.0864 > 0.005",
+        "note": "P5 recomputed uses is_blocked as predicted label vs step metrics using threshold-calibrated scores"
+      },
+      {
+        "step": "step6",
+        "metric": "recall",
+        "recomputed": 0.32,
+        "team_reported": 0.632,
+        "diff": 0.312,
+        "flag": "|diff|=0.3120 > 0.005",
+        "note": "P5 recomputed uses is_blocked as predicted label vs step metrics using threshold-calibrated scores"
+      },
+      {
+        "step": "step6",
+        "metric": "fpr",
+        "recomputed": 0.2222222222222222,
+        "team_reported": 0.20987654320987653,
+        "diff": 0.012345679012345678,
+        "flag": "|diff|=0.0123 > 0.005",
+        "note": "P5 recomputed uses is_blocked as predicted label vs step metrics using threshold-calibrated scores"
+      }
+    ]
   }
 }

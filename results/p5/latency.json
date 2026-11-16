@@ -3,21 +3,21 @@
   "benchmark_doc_chars": 12674,
   "stages": {
     "sentence_segmentation": {
-      "p50_ms": 14.74,
-      "p95_ms": 17.77,
-      "mean_ms": 15.35,
+      "p50_ms": 17.14,
+      "p95_ms": 33.65,
+      "mean_ms": 19.87,
       "n_runs": 20
     },
     "redact": {
-      "p50_ms": 14.57,
-      "p95_ms": 14.68,
-      "mean_ms": 14.57,
+      "p50_ms": 0.06,
+      "p95_ms": 0.1,
+      "mean_ms": 0.07,
       "n_runs": 20
     },
     "tokenizer_encode": {
-      "p50_ms": 2.03,
-      "p95_ms": 2.15,
-      "mean_ms": 2.05,
+      "p50_ms": 3.49,
+      "p95_ms": 4.79,
+      "mean_ms": 3.69,
       "n_runs": 20
     },
     "model_forward": {
