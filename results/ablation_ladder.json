@@ -1,0 +1,609 @@
+{
+  "schema_version": "1.1",
+  "target_fpr": 0.05,
+  "calibration_split": "val",
+  "seed": 2023,
+  "max_tokens": 512,
+  "frozen_rung": "1_baseline",
+  "redaction_threshold": 0.35,
+  "redaction_threshold_note": "Token-span cutoff from configs/prototype_config.yaml. Not overwritten by the detection false-positive threshold.",
+  "git_head": "77bed2f828b43a5e61c09fbb75a16f49df99af3e",
+  "rungs": [
+    {
+      "id": "1_baseline",
+      "name": "Baseline \u2014 truncated, single string",
+      "status": "OK",
+      "reason": null,
+      "threshold": 71.51743049192336,
+      "tight": true,
+      "val": {
+        "threshold": 71.51743049192336,
+        "recall": 0.0267,
+        "fpr": 0.0435,
+        "fp": 1,
+        "negatives": 23,
+        "tp": 2,
+        "positives": 75,
+        "fpr_ci": [
+          0.0077,
+          0.2099
+        ],
+        "recall_ci": [
+          0.0073,
+          0.0921
+        ],
+        "tight": true
+      },
+      "test": {
+        "threshold": 71.51743049192336,
+        "recall": 0.0,
+        "fpr": 0.0,
+        "fp": 0,
+        "negatives": 81,
+        "tp": 0,
+        "positives": 125,
+        "fpr_ci": [
+          0.0,
+          0.0453
+        ],
+        "recall_ci": [
+          0.0,
+          0.0298
+        ],
+        "rows": 206
+      },
+      "hard_negatives": {
+        "threshold": 71.51743049192336,
+        "recall": null,
+        "fpr": 0.0,
+        "fp": 0,
+        "negatives": 15,
+        "tp": 0,
+        "positives": 0,
+        "fpr_ci": [
+          0.0,
+          0.2039
+        ],
+        "recall_ci": [
+          0.0,
+          1.0
+        ],
+        "rows": 15
+      },
+      "obfuscated": {
+        "status": "OK",
+        "missing_parents": 0,
+        "by_family": {
+          "base64": {
+            "n": 125,
+            "parent_hits": 0,
+            "child_hits": 0,
+            "parent_recall": 0.0,
+            "child_recall": 0.0,
+            "recall_delta": 0.0,
+            "parent_ci": [
+              0.0,
+              0.0298
+            ],
+            "child_ci": [
+              0.0,
+              0.0298
+            ]
+          },
+          "hex": {
+            "n": 125,
+            "parent_hits": 0,
+            "child_hits": 0,
+            "parent_recall": 0.0,
+            "child_recall": 0.0,
+            "recall_delta": 0.0,
+            "parent_ci": [
+              0.0,
+              0.0298
+            ],
+            "child_ci": [
+              0.0,
+              0.0298
+            ]
+          },
+          "leetspeak": {
+            "n": 125,
+            "parent_hits": 0,
+            "child_hits": 0,
+            "parent_recall": 0.0,
+            "child_recall": 0.0,
+            "recall_delta": 0.0,
+            "parent_ci": [
+              0.0,
+              0.0298
+            ],
+            "child_ci": [
+              0.0,
+              0.0298
+            ]
+          },
+          "zero_width": {
+            "n": 125,
+            "parent_hits": 0,
+            "child_hits": 0,
+            "parent_recall": 0.0,
+            "child_recall": 0.0,
+            "recall_delta": 0.0,
+            "parent_ci": [
+              0.0,
+              0.0298
+            ],
+            "child_ci": [
+              0.0,
+              0.0298
+            ]
+          },
+          "homoglyph": {
+            "n": 125,
+            "parent_hits": 0,
+            "child_hits": 0,
+            "parent_recall": 0.0,
+            "child_recall": 0.0,
+            "recall_delta": 0.0,
+            "parent_ci": [
+              0.0,
+              0.0298
+            ],
+            "child_ci": [
+              0.0,
+              0.0298
+            ]
+          }
+        },
+        "clean": {
+          "threshold": 71.51743049192336,
+          "recall": null,
+          "fpr": 0.0,
+          "fp": 0,
+          "negatives": 81,
+          "tp": 0,
+          "positives": 0,
+          "fpr_ci": [
+            0.0,
+            0.0453
+          ],
+          "recall_ci": [
+            0.0,
+            1.0
+          ],
+          "rows": 81
+        }
+      },
+      "recall_reference": {
+        "threshold": -95.97013283389626,
+        "recall": 0.96,
+        "fpr": 1.0,
+        "fp": 23,
+        "negatives": 23,
+        "tp": 72,
+        "positives": 75,
+        "fpr_ci": [
+          0.8569,
+          1.0
+        ],
+        "recall_ci": [
+          0.8889,
+          0.9863
+        ],
+        "target_recall": 0.95
+      }
+    },
+    {
+      "id": "2_normalizer",
+      "name": "+ Normalizer",
+      "status": "NOT_RUN",
+      "reason": "no normalizer module"
+    },
+    {
+      "id": "3_chunking",
+      "name": "+ Chunking with max pooling",
+      "status": "NOT_RUN",
+      "reason": "no chunker module"
+    },
+    {
+      "id": "4_pair",
+      "name": "+ Pair input",
+      "status": "NOT_RUN",
+      "reason": "incremental pair rung waits until the normalizer and chunker run; the lexical pair arm is in available_arms"
+    },
+    {
+      "id": "5_token_head",
+      "name": "+ Token head and redaction",
+      "status": "NOT_RUN",
+      "reason": "no token-head checkpoint weights"
+    },
+    {
+      "id": "6_augmentation",
+      "name": "+ Obfuscation augmentation",
+      "status": "NOT_RUN",
+      "reason": "no training augmenter"
+    }
+  ],
+  "available_arms": {
+    "document": {
+      "model": "truncated-lexical",
+      "score": "truncated lexical log-odds, before the sigmoid. The sigmoid maps large positive log-odds to exactly 1 and collapses distinct documents.",
+      "input": "document",
+      "uses_user_task": false,
+      "max_tokens": 512,
+      "n_train": 386,
+      "target_fpr": 0.05,
+      "threshold": 71.51743049192336,
+      "tight": true,
+      "reason": null,
+      "n_primary": 98,
+      "n_excluded": 0,
+      "val": {
+        "threshold": 71.51743049192336,
+        "recall": 0.0267,
+        "fpr": 0.0435,
+        "fp": 1,
+        "negatives": 23,
+        "tp": 2,
+        "positives": 75,
+        "fpr_ci": [
+          0.0077,
+          0.2099
+        ],
+        "recall_ci": [
+          0.0073,
+          0.0921
+        ],
+        "tight": true
+      },
+      "recall_reference": {
+        "threshold": -95.97013283389626,
+        "recall": 0.96,
+        "fpr": 1.0,
+        "fp": 23,
+        "negatives": 23,
+        "tp": 72,
+        "positives": 75,
+        "fpr_ci": [
+          0.8569,
+          1.0
+        ],
+        "recall_ci": [
+          0.8889,
+          0.9863
+        ],
+        "target_recall": 0.95
+      },
+      "test": {
+        "threshold": 71.51743049192336,
+        "recall": 0.0,
+        "fpr": 0.0,
+        "fp": 0,
+        "negatives": 81,
+        "tp": 0,
+        "positives": 125,
+        "fpr_ci": [
+          0.0,
+          0.0453
+        ],
+        "recall_ci": [
+          0.0,
+          0.0298
+        ],
+        "rows": 206
+      },
+      "hard_negatives": {
+        "threshold": 71.51743049192336,
+        "recall": null,
+        "fpr": 0.0,
+        "fp": 0,
+        "negatives": 15,
+        "tp": 0,
+        "positives": 0,
+        "fpr_ci": [
+          0.0,
+          0.2039
+        ],
+        "recall_ci": [
+          0.0,
+          1.0
+        ],
+        "rows": 15
+      },
+      "obfuscated": {
+        "status": "OK",
+        "missing_parents": 0,
+        "by_family": {
+          "base64": {
+            "n": 125,
+            "parent_hits": 0,
+            "child_hits": 0,
+            "parent_recall": 0.0,
+            "child_recall": 0.0,
+            "recall_delta": 0.0,
+            "parent_ci": [
+              0.0,
+              0.0298
+            ],
+            "child_ci": [
+              0.0,
+              0.0298
+            ]
+          },
+          "hex": {
+            "n": 125,
+            "parent_hits": 0,
+            "child_hits": 0,
+            "parent_recall": 0.0,
+            "child_recall": 0.0,
+            "recall_delta": 0.0,
+            "parent_ci": [
+              0.0,
+              0.0298
+            ],
+            "child_ci": [
+              0.0,
+              0.0298
+            ]
+          },
+          "leetspeak": {
+            "n": 125,
+            "parent_hits": 0,
+            "child_hits": 0,
+            "parent_recall": 0.0,
+            "child_recall": 0.0,
+            "recall_delta": 0.0,
+            "parent_ci": [
+              0.0,
+              0.0298
+            ],
+            "child_ci": [
+              0.0,
+              0.0298
+            ]
+          },
+          "zero_width": {
+            "n": 125,
+            "parent_hits": 0,
+            "child_hits": 0,
+            "parent_recall": 0.0,
+            "child_recall": 0.0,
+            "recall_delta": 0.0,
+            "parent_ci": [
+              0.0,
+              0.0298
+            ],
+            "child_ci": [
+              0.0,
+              0.0298
+            ]
+          },
+          "homoglyph": {
+            "n": 125,
+            "parent_hits": 0,
+            "child_hits": 0,
+            "parent_recall": 0.0,
+            "child_recall": 0.0,
+            "recall_delta": 0.0,
+            "parent_ci": [
+              0.0,
+              0.0298
+            ],
+            "child_ci": [
+              0.0,
+              0.0298
+            ]
+          }
+        },
+        "clean": {
+          "threshold": 71.51743049192336,
+          "recall": null,
+          "fpr": 0.0,
+          "fp": 0,
+          "negatives": 81,
+          "tp": 0,
+          "positives": 0,
+          "fpr_ci": [
+            0.0,
+            0.0453
+          ],
+          "recall_ci": [
+            0.0,
+            1.0
+          ],
+          "rows": 81
+        }
+      }
+    },
+    "pair": {
+      "model": "truncated-lexical",
+      "score": "truncated lexical log-odds, before the sigmoid. The sigmoid maps large positive log-odds to exactly 1 and collapses distinct documents.",
+      "input": "user_task_then_document",
+      "uses_user_task": true,
+      "max_tokens": 512,
+      "n_train": 386,
+      "target_fpr": 0.05,
+      "threshold": 72.73086911512883,
+      "tight": true,
+      "reason": null,
+      "n_primary": 98,
+      "n_excluded": 0,
+      "val": {
+        "threshold": 72.73086911512883,
+        "recall": 0.0267,
+        "fpr": 0.0435,
+        "fp": 1,
+        "negatives": 23,
+        "tp": 2,
+        "positives": 75,
+        "fpr_ci": [
+          0.0077,
+          0.2099
+        ],
+        "recall_ci": [
+          0.0073,
+          0.0921
+        ],
+        "tight": true
+      },
+      "recall_reference": {
+        "threshold": -116.40287663999023,
+        "recall": 0.96,
+        "fpr": 1.0,
+        "fp": 23,
+        "negatives": 23,
+        "tp": 72,
+        "positives": 75,
+        "fpr_ci": [
+          0.8569,
+          1.0
+        ],
+        "recall_ci": [
+          0.8889,
+          0.9863
+        ],
+        "target_recall": 0.95
+      },
+      "test": {
+        "threshold": 72.73086911512883,
+        "recall": 0.0,
+        "fpr": 0.0,
+        "fp": 0,
+        "negatives": 81,
+        "tp": 0,
+        "positives": 125,
+        "fpr_ci": [
+          0.0,
+          0.0453
+        ],
+        "recall_ci": [
+          0.0,
+          0.0298
+        ],
+        "rows": 206
+      },
+      "hard_negatives": {
+        "threshold": 72.73086911512883,
+        "recall": null,
+        "fpr": 0.0,
+        "fp": 0,
+        "negatives": 15,
+        "tp": 0,
+        "positives": 0,
+        "fpr_ci": [
+          0.0,
+          0.2039
+        ],
+        "recall_ci": [
+          0.0,
+          1.0
+        ],
+        "rows": 15
+      },
+      "obfuscated": {
+        "status": "OK",
+        "missing_parents": 0,
+        "by_family": {
+          "base64": {
+            "n": 125,
+            "parent_hits": 0,
+            "child_hits": 0,
+            "parent_recall": 0.0,
+            "child_recall": 0.0,
+            "recall_delta": 0.0,
+            "parent_ci": [
+              0.0,
+              0.0298
+            ],
+            "child_ci": [
+              0.0,
+              0.0298
+            ]
+          },
+          "hex": {
+            "n": 125,
+            "parent_hits": 0,
+            "child_hits": 0,
+            "parent_recall": 0.0,
+            "child_recall": 0.0,
+            "recall_delta": 0.0,
+            "parent_ci": [
+              0.0,
+              0.0298
+            ],
+            "child_ci": [
+              0.0,
+              0.0298
+            ]
+          },
+          "leetspeak": {
+            "n": 125,
+            "parent_hits": 0,
+            "child_hits": 0,
+            "parent_recall": 0.0,
+            "child_recall": 0.0,
+            "recall_delta": 0.0,
+            "parent_ci": [
+              0.0,
+              0.0298
+            ],
+            "child_ci": [
+              0.0,
+              0.0298
+            ]
+          },
+          "zero_width": {
+            "n": 125,
+            "parent_hits": 0,
+            "child_hits": 0,
+            "parent_recall": 0.0,
+            "child_recall": 0.0,
+            "recall_delta": 0.0,
+            "parent_ci": [
+              0.0,
+              0.0298
+            ],
+            "child_ci": [
+              0.0,
+              0.0298
+            ]
+          },
+          "homoglyph": {
+            "n": 125,
+            "parent_hits": 0,
+            "child_hits": 0,
+            "parent_recall": 0.0,
+            "child_recall": 0.0,
+            "recall_delta": 0.0,
+            "parent_ci": [
+              0.0,
+              0.0298
+            ],
+            "child_ci": [
+              0.0,
+              0.0298
+            ]
+          }
+        },
+        "clean": {
+          "threshold": 72.73086911512883,
+          "recall": null,
+          "fpr": 0.0,
+          "fp": 0,
+          "negatives": 81,
+          "tp": 0,
+          "positives": 0,
+          "fpr_ci": [
+            0.0,
+            0.0453
+          ],
+          "recall_ci": [
+            0.0,
+            1.0
+          ],
+          "rows": 81
+        }
+      }
+    }
+  }
+}

@@ -10,7 +10,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
-from .p5_common import load_jsonl, position_bin, spans_from_record, SPLITS_DIR
+from .p5_common import load_jsonl, position_bin, spans_from_record, SPLITS_DIR, wilson_ci
 
 
 # ---------------------------------------------------------------------------
@@ -83,6 +83,73 @@ def recall_by_attack_type(
         s = _summarize(labels, preds_)
         out[atype] = {"support": len(labels), "recall": s["recall"], "tp": s["tp"], "fn": s["fn"]}
     return out
+
+
+def _recall_table(groups: dict[str, list[int]]) -> dict[str, dict[str, Any]]:
+    """Recall for buckets of positive predictions, with a Wilson interval."""
+    out: dict[str, dict[str, Any]] = {}
+    for key, preds in sorted(groups.items()):
+        labels = [1] * len(preds)
+        summary = _summarize(labels, preds)
+        lo, hi = wilson_ci(summary["tp"], summary["positives"])
+        out[key] = {
+            "support": len(preds),
+            "recall": summary["recall"],
+            "tp": summary["tp"],
+            "fn": summary["fn"],
+            "ci": [lo, hi],
+        }
+    return out
+
+
+def _family_name(record: dict) -> str:
+    return str(record.get("obfuscation_family") or "unspecified")
+
+
+def _domain_name(record: dict) -> str:
+    value = record.get("domain")
+    if value in (None, ""):
+        value = record.get("modality")
+    return str(value or "unknown")
+
+
+def recall_by_obfuscation_family(
+    records: list[dict],
+    predictions: list[int],
+) -> dict[str, dict[str, Any]]:
+    """Per-family recall on injected records."""
+    buckets: dict[str, list[int]] = defaultdict(list)
+    for record, pred in zip(records, predictions):
+        if int(record["label"]) != 1:
+            continue
+        buckets[_family_name(record)].append(pred)
+    return _recall_table(buckets)
+
+
+def recall_by_position_within_family(
+    records: list[dict],
+    predictions: list[int],
+) -> dict[str, dict[str, dict[str, Any]]]:
+    """Recall by position bin inside each obfuscation family."""
+    buckets: dict[str, dict[str, list[int]]] = defaultdict(lambda: defaultdict(list))
+    for record, pred in zip(records, predictions):
+        if int(record["label"]) != 1:
+            continue
+        buckets[_family_name(record)][position_bin(record)].append(pred)
+    return {family: _recall_table(bins) for family, bins in sorted(buckets.items())}
+
+
+def recall_by_domain_within_family(
+    records: list[dict],
+    predictions: list[int],
+) -> dict[str, dict[str, dict[str, Any]]]:
+    """Recall by domain (or modality) inside each obfuscation family."""
+    buckets: dict[str, dict[str, list[int]]] = defaultdict(lambda: defaultdict(list))
+    for record, pred in zip(records, predictions):
+        if int(record["label"]) != 1:
+            continue
+        buckets[_family_name(record)][_domain_name(record)].append(pred)
+    return {family: _recall_table(bins) for family, bins in sorted(buckets.items())}
 
 
 # ---------------------------------------------------------------------------
@@ -220,10 +287,15 @@ def compute_slicing(
     predictor_fn: Any,
 ) -> dict[str, Any]:
     """Run all slicing metrics and return combined dict."""
-    return {
+    result: dict[str, Any] = {
         "recall_by_position": recall_by_position(records, predictions),
         "recall_by_attack_type": recall_by_attack_type(records, predictions),
         "fpr_on_test_negatives": fpr_on_test_negatives(records, predictions),
         "fpr_on_hard_negatives": fpr_on_hard_negatives(hard_neg_records, predictor_fn),
         "span_f1": {"span_f1": None, "na_reason": "span predictions not available for binary predictors", "n": 0},
     }
+    if any("obfuscation_family" in record for record in records):
+        result["recall_by_obfuscation_family"] = recall_by_obfuscation_family(records, predictions)
+        result["recall_by_position_within_family"] = recall_by_position_within_family(records, predictions)
+        result["recall_by_domain_within_family"] = recall_by_domain_within_family(records, predictions)
+    return result

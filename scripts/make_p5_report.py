@@ -504,8 +504,11 @@ def make_eval_report(
     def _fig_md(stem: str, caption: str) -> str:
         p = FIGURES_DIR / f"{stem}.png"
         if p.exists():
-            rel = p.relative_to(REPO_ROOT)
-            return f"![{caption}]({rel})\n*{caption}*"
+            try:
+                shown = p.resolve().relative_to(REPO_ROOT.resolve()).as_posix()
+            except ValueError:
+                shown = p.as_posix()
+            return f"![{caption}]({shown})\n*{caption}*"
         return f"*Figure not available: {stem}.png*"
 
     def _psr_val(pname: str) -> str:
@@ -671,15 +674,24 @@ def make_eval_report(
     # Available predictors for downstream section
     avail_pnames = list(downstream.get("predictors", {}).keys())
 
-    # Heldout status
-    heldout_status = heldout.get("status", "SKIPPED")
-    heldout_reason = heldout.get("reason", "")
-    if heldout_status == "SKIPPED":
-        heldout_text = f"> **SKIPPED**: {heldout_reason}"
+    from sudarshana.evaluation.heldout import format_heldout_section
+
+    heldout_text = format_heldout_section(heldout)
+    from sudarshana.evaluation.ablation import format_ablation_section
+
+    ladder_path = REPO_ROOT / "results" / "ablation_ladder.json"
+    if ladder_path.is_file():
+        ablation_text = format_ablation_section(json.loads(ladder_path.read_text(encoding="utf-8")))
     else:
-        heldout_text = (
-            f"Evaluated on `{heldout.get('path', 'unknown')}` "
-            f"({heldout.get('n_records', 0)} records)."
+        ablation_text = format_ablation_section(None)
+    if heldout.get("status") == "OK":
+        obf_limitation = (
+            "6. **Obfuscated held-out** — surface-obfuscated test payloads are evaluated in section 8. "
+            "`homoglyph` is reserved from training augmentation."
+        )
+    else:
+        obf_limitation = (
+            "6. **No obfuscated set** — obfuscated held-out evaluation skipped (P1/P2 deliverable)."
         )
 
     report = f"""# P5 Evaluation Report — Sudarshana Indirect Prompt-Injection Detection
@@ -785,6 +797,12 @@ Benchmark: ~{latency.get('benchmark_doc_word_estimate', 'N/A')} estimated tokens
 
 ---
 
+## 8a. FPR calibration and ablation ladder
+
+{ablation_text}
+
+---
+
 ## 9. ⚠️ SIMULATED Redaction Sensitivity Analysis
 
 > All results in this section are **SIMULATED**. Gold spans are perturbed to model imperfect
@@ -823,7 +841,7 @@ Benchmark: ~{latency.get('benchmark_doc_word_estimate', 'N/A')} estimated tokens
 3. **ASR proxy** — PSR measures payload-text survival; real ASR requires LLM execution and behavioural verification.
 4. **ROUGE-1 utility proxy** — surface-text overlap; actual task utility requires downstream agent evaluation.
 5. **token_head: N/A** — no trained weights; all token-head metrics are N/A.
-6. **No obfuscated set** — obfuscated held-out evaluation skipped (P1/P2 deliverable).
+{obf_limitation}
 7. **No pair-input evaluation** — P3's (user_task, document) pair collator not integrated; all predictors use document-only input.
 8. **No LLM ASR** — `LLMBackend` protocol stubbed; `compute_llm_asr` returns N/A.
 9. **Sensitivity is SIMULATED** — gold span perturbations, not real predicted spans from a trained model.
@@ -931,13 +949,13 @@ def main() -> None:
     # Metrics table
     table_md = make_metrics_table(full_metrics)
     table_path = REPORTS_DIR / "p5_metrics_table.md"
-    table_path.write_text(table_md)
+    table_path.write_text(table_md, encoding="utf-8", newline="\n")
     print(f"  Saved → {table_path.relative_to(REPO_ROOT)}")
 
     # Eval report
     report_md = make_eval_report(downstream, slicing, latency, heldout, full_metrics, figure_paths)
     report_path = REPORTS_DIR / "p5_eval_report.md"
-    report_path.write_text(report_md)
+    report_path.write_text(report_md, encoding="utf-8", newline="\n")
     print(f"  Saved → {report_path.relative_to(REPO_ROOT)}")
 
     # PDF attempt: pandoc → reportlab → skip

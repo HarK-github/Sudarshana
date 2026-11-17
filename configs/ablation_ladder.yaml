@@ -1,0 +1,11 @@
+# Incremental ladder plus the available-arms table, both at the same false-positive cap.
+target_fpr: 0.05
+target_recall_reference: 0.95
+splits_dir: data/splits
+calibration_split: val
+eval_splits: [test, hard_negatives]
+obfuscated: data/splits/obfuscated.jsonl
+max_tokens: 512
+seed: 2023
+calibration_output: results/calibration_day6.json
+output: results/ablation_ladder.json

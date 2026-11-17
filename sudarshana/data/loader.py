@@ -7,9 +7,17 @@ Ensures strict schema compliance: (user_task, document, label, injection_span, a
 import json
 import os
 from typing import Any, Dict, List, Optional, Tuple
-import torch
-from torch.utils.data import Dataset
-from transformers import PreTrainedTokenizerFast
+
+try:
+    import torch
+    from torch.utils.data import Dataset
+    from transformers import PreTrainedTokenizerFast
+    _TORCH_AVAILABLE = True
+except ImportError:  # pragma: no cover
+    torch = None                    # type: ignore[assignment]
+    Dataset = object                # type: ignore[assignment,misc]
+    PreTrainedTokenizerFast = None  # type: ignore[assignment,misc]
+    _TORCH_AVAILABLE = False
 
 from .counterfactuals import COUNTERFACTUAL_SUFFIX
 from .labeling import coerce_spans, tokenize_and_align_document

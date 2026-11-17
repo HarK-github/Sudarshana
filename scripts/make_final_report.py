@@ -55,12 +55,13 @@ def _fmt(val: Any, fmt: str = ".4f", na: str = "N/A") -> str:
 
 def _read_lines(path: Path, max_lines: int = 60) -> str:
     if not path.exists():
-        return f"*File not found: {path.relative_to(REPO_ROOT)}*"
+        return f"*File not found: {path.resolve().relative_to(REPO_ROOT.resolve()).as_posix()}*"
     lines = path.read_text(encoding="utf-8").splitlines()
     truncated = len(lines) > max_lines
     block = "\n".join(lines[:max_lines])
     if truncated:
-        block += f"\n\n*[... truncated at {max_lines} lines — see full file: {path.relative_to(REPO_ROOT)}]*"
+        shown = path.resolve().relative_to(REPO_ROOT.resolve()).as_posix()
+        block += f"\n\n*[... truncated at {max_lines} lines — see full file: {shown}]*"
     return block
 
 
@@ -201,6 +202,23 @@ def make_report() -> str:
     oracle_psr_hi = oracle_cell.get("psr_hi")
     oracle_n = oracle_cell.get("n", 0)
 
+    from sudarshana.evaluation.heldout import format_heldout_section
+
+    heldout = _load_json(P5_DIR / "heldout.json")
+    heldout_section = format_heldout_section(heldout)
+    from sudarshana.evaluation.ablation import format_ablation_section
+
+    ablation_section = format_ablation_section(_load_json(RESULTS_DIR / "ablation_ladder.json") or None)
+    if heldout.get("status") == "OK":
+        obf_limitation = (
+            "**Obfuscated held-out** — surface-obfuscated test payloads are evaluated in section 5d. "
+            "`homoglyph` is reserved from training augmentation."
+        )
+    else:
+        obf_limitation = (
+            "**No obfuscated set** — obfuscated held-out evaluation skipped (P1/P2 deliverable)."
+        )
+
     # Load ablation and P3 data
     ablation_raw = _load_json(REPORTS_DIR / "ablation_ladder_tables.json")
     ablation_text = _read_lines(REPORTS_DIR / "ablation_summary.md", 60)
@@ -265,11 +283,6 @@ def make_report() -> str:
         if factor:
             rows.append(f"\nLatency increase factor (full/baseline): {factor:.2f}×")
         return "\n".join(rows)
-
-    # P5 keyword_heuristic row (may also be named 'baseline' in stale JSON)
-    preds = full_p5.get("predictors", {})
-    kw_key = "keyword_heuristic" if "keyword_heuristic" in preds else "baseline"
-    kw = preds.get(kw_key, {})
 
     report = f"""# Sudarshana — Final Project Report
 ## DSL504 Natural Language Processing | Group Project
@@ -398,6 +411,14 @@ See `results/p5/sensitivity.json` and `reports/figures/redaction_sensitivity.png
 
 See `results/p5/latency.json` and `reports/figures/latency_p50_p95.png`.
 
+### 5d. Obfuscated held-out
+
+{heldout_section}
+
+### 5e. FPR calibration and ablation ladder
+
+{ablation_section}
+
 ---
 
 ## 6. Limitations & Open Items
@@ -412,9 +433,10 @@ See `results/p5/latency.json` and `reports/figures/latency_p50_p95.png`.
    span-F1, PSR, ROUGE-1 metrics are N/A. Re-eval requires P4 to push weights.
 6. **Sensitivity is SIMULATED** — gold span perturbations, not predicted spans from trained model.
 7. **Obfuscated set sourced from table_3_5** — team-reported (P3). No separate held-out JSONL.
-8. **pair-input eval present (step4)** — step4_pair_input metrics available (team-reported P3).
-9. **No LLM ASR** — LLMBackend protocol stubbed; requires real LLM endpoint.
-10. **Team baseline FPR (val) ~0.68** — honest estimate from baseline_day2.json (val split).
+8. {obf_limitation}
+9. **pair-input eval present (step4)** — step4_pair_input metrics available (team-reported P3).
+10. **No LLM ASR** — LLMBackend protocol stubbed; requires real LLM endpoint.
+11. **Team baseline FPR (val) ~0.68** — honest estimate from baseline_day2.json (val split).
 
 ### Open Items
 

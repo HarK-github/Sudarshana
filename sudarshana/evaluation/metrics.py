@@ -277,6 +277,85 @@ def predictions_at_threshold(probabilities: list[float], threshold: float) -> li
     return [1 if probability >= threshold else 0 for probability in probabilities]
 
 
+def threshold_at_fpr(
+    probabilities: list[float],
+    labels: list[int],
+    target_fpr: float,
+) -> dict[str, Any]:
+    """Lowest threshold whose false-positive rate is at most ``target_fpr``.
+
+    A score greater than or equal to the threshold counts as a detection.
+    Predicting nothing has false-positive rate 0, so a feasible threshold
+    exists whenever the split has a negative. ``tight`` is true when the
+    next-lower candidate exceeds the cap.
+    """
+    if not 0 <= target_fpr <= 1:
+        raise ValueError("target FPR must be in [0, 1]")
+    if len(probabilities) != len(labels):
+        raise ValueError("probabilities and labels must have the same length")
+    if not probabilities:
+        return {
+            "threshold": None,
+            "reason": "no rows",
+            "fpr": None,
+            "recall": None,
+            "tight": None,
+            "fp": 0,
+            "negatives": 0,
+            "tp": 0,
+            "positives": 0,
+            "fpr_ci": None,
+            "recall_ci": None,
+        }
+
+    scores = [float(probability) for probability in probabilities]
+    gold = [int(label) for label in labels]
+    candidates = sorted(set(scores))
+    candidates.append(max(candidates) + 1.0)
+
+    previous: dict[str, float] | None = None
+    for threshold in candidates:
+        summary = summarize(gold, predictions_at_threshold(scores, threshold))
+        fpr = summary["fpr"]
+        if fpr is None:
+            return {
+                "threshold": None,
+                "reason": "no negatives",
+                "fpr": None,
+                "recall": summary["recall"],
+                "tight": None,
+                "fp": summary["fp"],
+                "negatives": summary["negatives"],
+                "tp": summary["tp"],
+                "positives": summary["positives"],
+                "fpr_ci": None,
+                "recall_ci": _wilson_interval(summary["tp"], summary["positives"]),
+            }
+        if fpr <= target_fpr:
+            return {
+                "threshold": threshold,
+                "reason": None,
+                "fpr": fpr,
+                "recall": summary["recall"],
+                "tight": previous is not None and previous["fpr"] > target_fpr,
+                "fp": summary["fp"],
+                "negatives": summary["negatives"],
+                "tp": summary["tp"],
+                "positives": summary["positives"],
+                "fpr_ci": _wilson_interval(summary["fp"], summary["negatives"]),
+                "recall_ci": _wilson_interval(summary["tp"], summary["positives"]),
+            }
+        previous = {"threshold": threshold, "fpr": float(fpr)}
+    raise RuntimeError("predicting nothing must meet every false-positive cap")
+
+
+def _wilson_interval(successes: int, total: int) -> list[float]:
+    from sudarshana.evaluation.p5_common import wilson_ci
+
+    low, high = wilson_ci(int(successes), int(total))
+    return [low, high]
+
+
 def negative_fpr(rows: list[dict], predictions: list[int], predicate) -> dict[str, float | int | None]:
     chosen_labels: list[int] = []
     chosen_predictions: list[int] = []
