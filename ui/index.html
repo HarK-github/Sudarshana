@@ -483,10 +483,12 @@
       }
     }
 
+    let currentSample = null;  // P5: last REPLAY sample loaded from the picker
     async function loadSampleById(id) {
       try {
         const res = await fetch(`/api/sample?id=${id}`);
         const data = await res.json();
+        currentSample = data;
         displayResult(data);
         // Pre-fill inputs
         document.getElementById('input-doc').value = data.document;
@@ -503,6 +505,18 @@
         alert("Please paste document content to analyze.");
         return;
       }
+      // P5: unedited picked sample -> keep REPLAY result (recorded model predictions)
+      if (currentSample && text.replace(/\r\n/g, "\n") === (currentSample.document || "").replace(/\r\n/g, "\n") && userTask === (currentSample.user_task || "")) {
+        const vb = document.getElementById('verdict-badge');
+        vb.textContent = "SCANNING…";
+        vb.className = "verdict-pill";
+        await new Promise(r => setTimeout(r, 600));
+        displayResult(currentSample);
+        return;
+      }
+      const vb2 = document.getElementById('verdict-badge');
+      vb2.textContent = "SCANNING…";
+      vb2.className = "verdict-pill";
       try {
         const res = await fetch('/api/analyze', {
           method: 'POST',
