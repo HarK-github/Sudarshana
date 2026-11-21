@@ -344,14 +344,32 @@ class SudarshanaRequestHandler(SimpleHTTPRequestHandler):
         self._send_json(tables)
 
 
-def run_server(port: int = 8000, open_browser: bool = True) -> None:
-    server_address = ("127.0.0.1", port)
+def get_lan_ip() -> str:
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "127.0.0.1"
+
+
+def run_server(host: str = "0.0.0.0", port: int = 8000, open_browser: bool = True) -> None:
+    server_address = (host, port)
     httpd = HTTPServer(server_address, SudarshanaRequestHandler)
-    url = f"http://127.0.0.1:{port}"
-    print(f"Sudarshana Demo UI running at {url}")
-    print(f"Weights present: {HAS_LIVE_MODEL} | Redaction engine: {_REDACT_AVAILABLE}")
+    lan_ip = get_lan_ip()
+    local_url = f"http://localhost:{port}"
+    wifi_url = f"http://{lan_ip}:{port}"
+    print("=" * 60)
+    print("  Sudarshana Demo UI Server Active")
+    print(f"  • Local:        {local_url}")
+    print(f"  • Wi-Fi / LAN:  {wifi_url}")
+    print(f"  • Weights:      {HAS_LIVE_MODEL}")
+    print(f"  • Redaction:    {_REDACT_AVAILABLE}")
+    print("=" * 60)
     if open_browser:
-        webbrowser.open(url)
+        webbrowser.open(local_url)
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
@@ -361,7 +379,8 @@ def run_server(port: int = 8000, open_browser: bool = True) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Sudarshana Demo UI Server")
+    parser.add_argument("--host", type=str, default="0.0.0.0", help="Host interface to listen on (default: 0.0.0.0)")
     parser.add_argument("--port", type=int, default=8000, help="Port to listen on (default: 8000)")
     parser.add_argument("--no-browser", action="store_true", help="Do not open browser automatically")
     args = parser.parse_args()
-    run_server(port=args.port, open_browser=not args.no_browser)
+    run_server(host=args.host, port=args.port, open_browser=not args.no_browser)
