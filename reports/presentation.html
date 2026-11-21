@@ -20,19 +20,12 @@
     }
     .mono { font-family: 'JetBrains Mono', monospace; }
 
-    /* a16z Palette */
-    .color-navy { color: #173462; }
-    .color-body { color: #2a3b5c; }
-    .color-notes { color: #5f6b80; }
-    .color-footer { color: #8a93a3; }
-
     /* Series Colors */
     .s-purple { color: #65327d; border-bottom: 2px solid #65327d; }
     .s-teal { color: #089582; border-bottom: 2px solid #089582; }
     .s-green { color: #62b33a; border-bottom: 2px solid #62b33a; }
     .s-orange { color: #f0a656; border-bottom: 2px solid #f0a656; }
     .s-gray { color: #b8bfcb; border-bottom: 2px solid #b8bfcb; }
-    .s-lilac { color: #b5a0bf; border-bottom: 2px solid #b5a0bf; }
 
     /* Highlighter Blocks (Strictly one per headline) */
     .hl-lime {
@@ -87,7 +80,7 @@
       background: #ffffff;
     }
 
-    /* Placeholder Tile */
+    /* Placeholder Box */
     .placeholder-box {
       border: 2px dashed #b8bfcb;
       background: #f8fafc;
@@ -97,9 +90,9 @@
 </head>
 <body>
 
-  <!-- Top Slim Progress -->
+  <!-- Top Progress Bar -->
   <div class="fixed top-0 left-0 w-full h-1 bg-[#e6e9ee] z-50">
-    <div id="progress" class="h-full bg-[#089582] transition-all duration-300" style="width: 10%;"></div>
+    <div id="progress" class="h-full bg-[#089582] transition-all duration-300" style="width: 9%;"></div>
   </div>
 
   <!-- SLIDE 1: Cover Slide -->
@@ -118,11 +111,11 @@
       <div>
         <div class="text-[11px] font-bold text-[#173462] uppercase mb-2">Project Authors</div>
         <div class="text-[12px] text-[#173462] space-y-1">
-          <div><strong class="text-[#089582]">Harshit Kandpal:</strong> P4 Lead (Token Head & Redaction)</div>
-          <div><strong>Tanmay Jaiswal:</strong> P1 (Data Pipeline & Schema)</div>
-          <div><strong>Utkarsh Chatterjee:</strong> P2 (Pair Input & Conditioning)</div>
-          <div><strong>Sujal Som:</strong> P3 (Model Architecture & Ladder)</div>
-          <div><strong>Kinshuk Gupta:</strong> P5 (Downstream Eval & UI)</div>
+          <div><strong class="text-[#089582]">Harshit Kandpal:</strong> Token Head & Redaction Engine</div>
+          <div><strong>Tanmay Jaiswal:</strong> Data Pipeline & Schema</div>
+          <div><strong>Utkarsh Chatterjee:</strong> Task Conditioning & Disambiguation</div>
+          <div><strong>Sujal Som:</strong> Model Architecture & Training Ladder</div>
+          <div><strong>Kinshuk Gupta:</strong> Downstream Evaluation & UI</div>
         </div>
         <div class="text-[10px] text-[#5f6b80] mt-4">November 2026 · IIT Bhilai</div>
       </div>
@@ -137,57 +130,56 @@
           A modular defense pipeline from character normalization to token-level surgical redaction.
         </p>
 
-        <!-- Ringed Category Bubbles Exhibit -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
           <div class="p-4 border border-[#e6e9ee] rounded-lg bg-white">
             <div class="flex items-center gap-2 mb-1">
               <span class="w-3 h-3 rounded-full bg-[#b8bfcb]"></span>
-              <strong class="text-[13px] text-[#173462]">Layer 1 · Normalizer & Encodings (P1)</strong>
+              <strong class="text-[13px] text-[#173462]">Layer 1 · Normalizer & Encodings</strong>
             </div>
-            <p class="text-[12px] text-[#2a3b5c] pl-5">NFKC normalization, zero-width stripping, and Base64/Hex decoders.</p>
+            <p class="text-[12px] text-[#2a3b5c] pl-5">Tanmay Jaiswal: NFKC normalization, zero-width stripping, and Base64/Hex decoders.</p>
           </div>
           <div class="p-4 border border-[#e6e9ee] rounded-lg bg-white">
             <div class="flex items-center gap-2 mb-1">
               <span class="w-3 h-3 rounded-full bg-[#65327d]"></span>
-              <strong class="text-[13px] text-[#173462]">Layer 2 · Task Conditioning (P2)</strong>
+              <strong class="text-[13px] text-[#173462]">Layer 2 · Task Conditioning</strong>
             </div>
-            <p class="text-[12px] text-[#2a3b5c] pl-5"><code class="mono text-[11px] bg-slate-100 px-1 py-0.5 rounded">[CLS] user_task [SEP] chunk [SEP]</code> cross-attention.</p>
+            <p class="text-[12px] text-[#2a3b5c] pl-5">Utkarsh Chatterjee: <code class="mono text-[11px] bg-slate-100 px-1 py-0.5 rounded">[CLS] user_task [SEP] chunk [SEP]</code> cross-attention.</p>
           </div>
           <div class="p-4 border border-[#e6e9ee] rounded-lg bg-white">
             <div class="flex items-center gap-2 mb-1">
               <span class="w-3 h-3 rounded-full bg-[#f0a656]"></span>
-              <strong class="text-[13px] text-[#173462]">Layer 3 · Multi-Task DeBERTa (P3)</strong>
+              <strong class="text-[13px] text-[#173462]">Layer 3 · Multi-Task DeBERTa Model</strong>
             </div>
-            <p class="text-[12px] text-[#2a3b5c] pl-5">DeBERTa-v3 multi-task filter & 6-step ablation ladder.</p>
+            <p class="text-[12px] text-[#2a3b5c] pl-5">Sujal Som: DeBERTa-v3 multi-task filter & 6-step ablation ladder.</p>
           </div>
           <div class="p-4 border-2 border-[#089582] rounded-lg bg-[#f0fdf4]">
             <div class="flex items-center gap-2 mb-1">
               <span class="w-3 h-3 rounded-full bg-[#089582]"></span>
-              <strong class="text-[13px] text-[#089582]">Layer 4 · Token Head & Redaction (P4 - Harshit Kandpal)</strong>
+              <strong class="text-[13px] text-[#089582]">Layer 4 · Token Head & Surgical Redaction</strong>
             </div>
-            <p class="text-[12px] text-[#2a3b5c] pl-5">Subword gap-bridging & structure-aware boundary expander.</p>
+            <p class="text-[12px] text-[#2a3b5c] pl-5">Harshit Kandpal: Subword gap-bridging & structure-aware boundary expander.</p>
           </div>
           <div class="p-4 border border-[#e6e9ee] rounded-lg bg-white md:col-span-2">
             <div class="flex items-center gap-2 mb-1">
               <span class="w-3 h-3 rounded-full bg-[#62b33a]"></span>
-              <strong class="text-[13px] text-[#173462]">Layer 5 · Downstream LLM Evaluation & UI (P5)</strong>
+              <strong class="text-[13px] text-[#173462]">Layer 5 · Downstream LLM Evaluation & UI</strong>
             </div>
-            <p class="text-[12px] text-[#2a3b5c] pl-5">98.40% Protected Success Rate, semantic ROUGE-1 evaluation, and interactive web dashboard.</p>
+            <p class="text-[12px] text-[#2a3b5c] pl-5">Kinshuk Gupta: 98.40% Protected Success Rate, semantic ROUGE-1 evaluation, and interactive web dashboard.</p>
           </div>
         </div>
       </div>
       <div class="flex justify-between items-center text-[10px] text-[#5f6b80] pt-4 border-t border-[#e6e9ee]">
-        <span>Slide 1 / 10 · Use [←] and [→] keys</span>
+        <span>Slide 1 / 11 · Use [←] and [→] keys</span>
         <span>Sources: 1/ Microsoft BIPIA Benchmark (50 Attack Types); Sudarshana architecture (2026).</span>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 2: PLACEHOLDER P1 (Tanmay Jaiswal) -->
+  <!-- SLIDE 2: PLACEHOLDER (Tanmay Jaiswal) -->
   <div class="slide" id="slide-2">
     <div class="panel panel-mint">
       <div>
-        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">P1 Data Pipeline · Tanmay Jaiswal</div>
+        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">Data Engineering · Tanmay Jaiswal</div>
         <h2 class="text-[27px] font-bold text-[#173462] leading-[1.25] tracking-tight mb-6">
           Deterministic character span ground truth is the foundational prerequisite for <span class="hl-lime">training subword sequence taggers</span>.
         </h2>
@@ -201,12 +193,12 @@
     <div class="exhibit">
       <div>
         <h2 class="text-[18px] font-bold text-[#173462] mb-1">
-          P1: Unified Data Pipeline & Schema [PLACEHOLDER — Tanmay Jaiswal]
+          Unified Data Pipeline & Schema [PLACEHOLDER — Tanmay Jaiswal]
         </h2>
         <p class="text-[12px] italic text-[#5f6b80] mb-6">Designated component exhibit reserved for Tanmay Jaiswal.</p>
 
         <div class="placeholder-box p-6 space-y-4 max-w-3xl">
-          <div class="text-[11px] font-bold text-[#f0a656] uppercase tracking-wider">[ PLACEHOLDER: P1 DATA PIPELINE ]</div>
+          <div class="text-[11px] font-bold text-[#f0a656] uppercase tracking-wider">[ PLACEHOLDER: DATA PIPELINE ]</div>
           <div class="text-[15px] font-bold text-[#173462]">Content to be finalized by Tanmay Jaiswal</div>
           <ul class="space-y-2 text-[12px] text-[#2a3b5c]">
             <li>• Microsoft BIPIA benchmark across 5 application domains (Text QA, Code QA, Table QA, Email, Summarization).</li>
@@ -217,17 +209,17 @@
         </div>
       </div>
       <div class="flex justify-between items-center text-[10px] text-[#5f6b80] pt-4 border-t border-[#e6e9ee]">
-        <span>Slide 2 / 10 · Placeholder</span>
+        <span>Slide 2 / 11 · Placeholder</span>
         <span>Sources: 1/ data/splits/train.jsonl (n=386); 2/ data/splits/test.jsonl (n=206).</span>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 3: PLACEHOLDER P2 (Utkarsh Chatterjee) -->
+  <!-- SLIDE 3: PLACEHOLDER (Utkarsh Chatterjee) -->
   <div class="slide" id="slide-3">
     <div class="panel panel-orchid">
       <div>
-        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">P2 Pair Input · Utkarsh Chatterjee</div>
+        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">Task Conditioning · Utkarsh Chatterjee</div>
         <h2 class="text-[27px] font-bold text-[#173462] leading-[1.25] tracking-tight mb-6">
           Conditioning on user tasks eliminates the imperative ambiguity that causes <span class="hl-magenta">false positive blocks</span>.
         </h2>
@@ -241,12 +233,12 @@
     <div class="exhibit">
       <div>
         <h2 class="text-[18px] font-bold text-[#173462] mb-1">
-          P2: Pair-Input Conditioning & Disambiguation [PLACEHOLDER — Utkarsh Chatterjee]
+          Pair-Input Conditioning & Disambiguation [PLACEHOLDER — Utkarsh Chatterjee]
         </h2>
         <p class="text-[12px] italic text-[#5f6b80] mb-6">Designated component exhibit reserved for Utkarsh Chatterjee.</p>
 
         <div class="placeholder-box p-6 space-y-4 max-w-3xl">
-          <div class="text-[11px] font-bold text-[#f0a656] uppercase tracking-wider">[ PLACEHOLDER: P2 PAIR INPUT ]</div>
+          <div class="text-[11px] font-bold text-[#f0a656] uppercase tracking-wider">[ PLACEHOLDER: PAIR INPUT ]</div>
           <div class="text-[15px] font-bold text-[#173462]">Content to be finalized by Utkarsh Chatterjee</div>
           <ul class="space-y-2 text-[12px] text-[#2a3b5c]">
             <li>• Conditioning architecture: <code class="mono text-[11px] bg-slate-200 px-1 py-0.5 rounded text-[#173462]">[CLS] user_task [SEP] document_chunk [SEP]</code>.</li>
@@ -257,17 +249,17 @@
         </div>
       </div>
       <div class="flex justify-between items-center text-[10px] text-[#5f6b80] pt-4 border-t border-[#e6e9ee]">
-        <span>Slide 3 / 10 · Placeholder</span>
+        <span>Slide 3 / 11 · Placeholder</span>
         <span>Sources: 1/ data/splits/hard_negatives.jsonl; 2/ results/calibration_day6.json.</span>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 4: PLACEHOLDER P3 (Sujal Som) -->
+  <!-- SLIDE 4: PLACEHOLDER (Sujal Som) -->
   <div class="slide" id="slide-4">
     <div class="panel panel-mint">
       <div>
-        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">P3 Model & Ladder · Sujal Som</div>
+        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">Model & Ladder · Sujal Som</div>
         <h2 class="text-[27px] font-bold text-[#173462] leading-[1.25] tracking-tight mb-6">
           Sliding-window chunking and adversarial augmentations drove test recall to <span class="hl-lime">100.00% across all positions</span>.
         </h2>
@@ -281,12 +273,12 @@
     <div class="exhibit">
       <div>
         <h2 class="text-[18px] font-bold text-[#173462] mb-1">
-          P3: Multi-Task Model & 6-Step Ablation Ladder [PLACEHOLDER — Sujal Som]
+          Multi-Task Model & 6-Step Ablation Ladder [PLACEHOLDER — Sujal Som]
         </h2>
         <p class="text-[12px] italic text-[#5f6b80] mb-6">Designated component exhibit reserved for Sujal Som.</p>
 
         <div class="placeholder-box p-6 space-y-4 max-w-3xl">
-          <div class="text-[11px] font-bold text-[#f0a656] uppercase tracking-wider">[ PLACEHOLDER: P3 MODEL & ABLATION LADDER ]</div>
+          <div class="text-[11px] font-bold text-[#f0a656] uppercase tracking-wider">[ PLACEHOLDER: MODEL & ABLATION LADDER ]</div>
           <div class="text-[15px] font-bold text-[#173462]">Content to be finalized by Sujal Som</div>
           <ul class="space-y-2 text-[12px] text-[#2a3b5c]">
             <li>• DeBERTa-v3 multi-task filter architecture with decoupled heads and joint loss (<code class="mono text-[11px]">L_detect + 0.5 * L_tok</code>).</li>
@@ -297,17 +289,72 @@
         </div>
       </div>
       <div class="flex justify-between items-center text-[10px] text-[#5f6b80] pt-4 border-t border-[#e6e9ee]">
-        <span>Slide 4 / 10 · Placeholder</span>
+        <span>Slide 4 / 11 · Placeholder</span>
         <span>Sources: 1/ reports/ablation_ladder_tables.json; 2/ models/final_step1..6/.</span>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 5: P4 TOKEN HEAD & INFERENCE (HARSHIT KANDPAL - FULL CONTENT) -->
+  <!-- SLIDE 5: HARSHIT KANDPAL - PIPELINE FLOWCHART (NEW!) -->
   <div class="slide" id="slide-5">
     <div class="panel panel-mint">
       <div>
-        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">P4 Token Head · Harshit Kandpal</div>
+        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">Pipeline Architecture · Harshit Kandpal</div>
+        <h2 class="text-[27px] font-bold text-[#173462] leading-[1.25] tracking-tight mb-6">
+          Surgical redaction operates across seven sequential stages from raw windows to <span class="hl-lime">sanitized carrier output</span>.
+        </h2>
+        <div class="mt-8">
+          <div class="text-[44px] font-bold text-[#089582] leading-none mb-1">7 Stages</div>
+          <div class="text-[11px] italic text-[#2a3b5c]">end-to-end token detection and container expansion pipeline</div>
+        </div>
+      </div>
+      <div class="text-[10px] text-[#8a93a3]">©2026  Sudarshana</div>
+    </div>
+    <div class="exhibit">
+      <div>
+        <h2 class="text-[18px] font-bold text-[#173462] mb-1">
+          Harshit Kandpal: Token Detection & Structure-Aware Redaction Pipeline¹
+        </h2>
+        <p class="text-[12px] italic text-[#5f6b80] mb-3">
+          Sliding-Window Inference → Subword Gap-Bridging → Syntactic Container Expansion → Fallback Calibration.
+  <!-- SLIDE 5: HARSHIT KANDPAL - PIPELINE FLOWCHART (CHART-ONLY EXHIBIT) -->
+  <div class="slide" id="slide-5">
+    <div class="panel panel-mint">
+      <div>
+        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">Pipeline Architecture · Harshit Kandpal</div>
+        <h2 class="text-[27px] font-bold text-[#173462] leading-[1.25] tracking-tight mb-6">
+          Surgical redaction operates across seven sequential stages from raw windows to <span class="hl-lime">sanitized carrier output</span>.
+        </h2>
+        <div class="mt-8">
+          <div class="text-[44px] font-bold text-[#089582] leading-none mb-1">7 Stages</div>
+          <div class="text-[11px] italic text-[#2a3b5c]">end-to-end token detection and container expansion pipeline</div>
+        </div>
+      </div>
+      <div class="text-[10px] text-[#8a93a3]">©2026  Sudarshana</div>
+    </div>
+    <div class="exhibit">
+      <div>
+        <h2 class="text-[18px] font-bold text-[#173462] mb-3">
+          <span class="s-purple">Token Classification Sequence Head¹</span> & <span class="s-teal">Structure-Aware Redaction Pipeline²</span>
+        </h2>
+
+        <!-- High-Res Flowchart Image Embedded (Chart-only, zero lingering text) -->
+        <div class="border border-[#e6e9ee] rounded-lg p-2 bg-white flex justify-center shadow-sm">
+          <img src="figures/p4_pipeline_flowchart.png" alt="Pipeline Flowchart" class="max-h-[520px] w-auto object-contain">
+        </div>
+      </div>
+      <div class="flex justify-between items-center text-[10px] text-[#5f6b80] pt-4 border-t border-[#e6e9ee]">
+        <span>Slide 5 / 11 · Harshit Kandpal (Flowchart)</span>
+        <span>Sources: 1/ sudarshana/models/token_head.py; 2/ sudarshana/redaction/redact.py.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: HARSHIT KANDPAL - TOKEN HEAD & GAP-BRIDGING (CHART-ONLY EXHIBIT) -->
+  <div class="slide" id="slide-6">
+    <div class="panel panel-mint">
+      <div>
+        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">Token Localization · Harshit Kandpal</div>
         <h2 class="text-[27px] font-bold text-[#173462] leading-[1.25] tracking-tight mb-6">
           Bridging subword token gaps merges fragmented attack detections into <span class="hl-lime">coherent malicious spans</span>.
         </h2>
@@ -320,46 +367,27 @@
     </div>
     <div class="exhibit">
       <div>
-        <h2 class="text-[18px] font-bold text-[#173462] mb-1">
-          <span class="s-purple">Raw token confidence map¹</span> vs. <span class="s-teal">gap-bridged injection spans²</span> (subword level)
+        <h2 class="text-[18px] font-bold text-[#173462] mb-3">
+          <span class="s-purple">Raw Subword Token Confidences¹</span> vs. <span class="s-teal">Gap-Bridged Injection Spans² (G ≤ 2)</span>
         </h2>
-        <p class="text-[12px] italic text-[#5f6b80] mb-6">
-          Overcoming tokenizer subword fragmentation across sliding-window max-pooling.
-        </p>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
-          <div class="p-4 border border-[#e6e9ee] rounded-lg bg-white">
-            <h3 class="text-[14px] font-bold text-[#65327d] mb-2">Sequence Tagging Architecture</h3>
-            <ul class="space-y-2 text-[12px] text-[#2a3b5c]">
-              <li>• <strong class="text-[#173462]">Pretrained Backbone:</strong> <code class="mono text-[11px] bg-slate-100 px-1 py-0.5 rounded">microsoft/deberta-v3-xsmall</code> (~22M active, 70.7M total parameters) operating on commodity CPU.</li>
-              <li>• <strong class="text-[#173462]">3-Class Linear Head:</strong> Projects hidden dimension 384 → 3 classes (<code class="mono text-[11px]">0: O</code>, <code class="mono text-[11px]">1: B-INJ</code>, <code class="mono text-[11px]">2: I-INJ</code>).</li>
-              <li>• <strong class="text-[#173462]">Weighted CrossEntropy:</strong> Positive injection tokens represent only ~2–4% of text. Loss is weighted with <code class="mono text-[11px] text-[#65327d] font-bold">w = [1.0, 8.0, 8.0]</code> to penalize missed attacks 8x more heavily.</li>
-              <li>• <strong class="text-[#173462]">Special Token Masking:</strong> <code class="mono text-[11px]">[CLS]</code>, <code class="mono text-[11px]">[SEP]</code>, <code class="mono text-[11px]">[PAD]</code> and query tokens masked with <code class="mono text-[11px]">-100</code>.</li>
-            </ul>
-          </div>
-          <div class="p-4 border-2 border-[#089582] rounded-lg bg-[#f0fdf4]">
-            <h3 class="text-[14px] font-bold text-[#089582] mb-2">Inference & Gap-Bridging (G ≤ 2)</h3>
-            <ul class="space-y-2 text-[12px] text-[#2a3b5c]">
-              <li>• <strong class="text-[#173462]">Sliding-Window Max-Pooling:</strong> 256-token windows with 64 stride. Overlapping probabilities max-pooled: <code class="mono text-[11px]">P(inj) = P(B-INJ) + P(I-INJ)</code>.</li>
-              <li>• <strong class="text-[#173462]">Confidence Threshold:</strong> Tokens with <code class="mono text-[11px]">P ≥ 0.35</code> flagged as malicious.</li>
-              <li>• <strong class="text-[#173462]">Subword Gap-Bridging:</strong> Connective tokens ('to', 'the', '.') frequently dip below threshold. Unflagged gaps of ≤ 2 tokens between positive tokens are bridged into continuous spans.</li>
-              <li>• <strong class="text-[#173462]">Round-Trip Offsets:</strong> Subwords mapped back with exact character precision to the raw document.</li>
-            </ul>
-          </div>
+        <!-- High-Res Token Gap-Bridging Diagram Embedded (Chart-only, zero lingering text) -->
+        <div class="border border-[#e6e9ee] rounded-lg p-2 bg-white flex justify-center shadow-sm">
+          <img src="figures/token_gap_bridging.png" alt="Token Gap-Bridging Diagram" class="max-h-[520px] w-auto object-contain">
         </div>
       </div>
       <div class="flex justify-between items-center text-[10px] text-[#5f6b80] pt-4 border-t border-[#e6e9ee]">
-        <span>Slide 5 / 10 · Component P4 (Harshit Kandpal)</span>
+        <span>Slide 6 / 11 · Harshit Kandpal (Token Localization)</span>
         <span>Sources: 1/ sudarshana/models/token_head.py; 2/ sudarshana/redaction/redact.py (predict_spans).</span>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 6: P4 STRUCTURE-AWARE REDACTION (HARSHIT KANDPAL - FULL CONTENT) -->
-  <div class="slide" id="slide-6">
+  <!-- SLIDE 7: HARSHIT KANDPAL - STRUCTURE-AWARE REDACTION (CHART-ONLY EXHIBIT) -->
+  <div class="slide" id="slide-7">
     <div class="panel panel-orchid">
       <div>
-        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">P4 Redaction · Harshit Kandpal</div>
+        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">Surgical Redaction · Harshit Kandpal</div>
         <h2 class="text-[27px] font-bold text-[#173462] leading-[1.25] tracking-tight mb-6">
           Syntactic container expansion prevents prose sentence splitters from <span class="hl-magenta">destroying markdown tables and code</span>.
         </h2>
@@ -372,44 +400,27 @@
     </div>
     <div class="exhibit">
       <div>
-        <h2 class="text-[18px] font-bold text-[#173462] mb-1">
-          <span class="s-purple">Naive sentence splitting (PySBD)¹</span> vs. <span class="s-teal">Hierarchical syntactic container expansion²</span>
+        <h2 class="text-[18px] font-bold text-[#173462] mb-3">
+          <span class="s-purple">Baseline PySBD (35%)¹</span> vs. <span class="s-teal">Hierarchical Structure-Aware Redaction (50%)²</span>
         </h2>
-        <p class="text-[12px] italic text-[#5f6b80] mb-6">
-          Preserving syntax integrity across markdown tables, code fences, docstrings, and prose.
-        </p>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
-          <div class="p-4 border border-[#e6e9ee] rounded-lg bg-white">
-            <div class="text-[13px] font-bold text-[#65327d] mb-1">Markdown Tables</div>
-            <p class="text-[11px] text-[#2a3b5c]">Bounded strictly to the single enclosing row <code class="mono text-[10px]">[\n, \n]</code>. Surrounding legitimate data rows remain 100% intact.</p>
-          </div>
-          <div class="p-4 border border-[#e6e9ee] rounded-lg bg-white">
-            <div class="text-[13px] font-bold text-[#089582] mb-1">Code & Docstrings</div>
-            <p class="text-[11px] text-[#2a3b5c]">Expands to the enclosing block delimiter (<code class="mono text-[10px]">```</code>, <code class="mono text-[10px]">'''</code>, <code class="mono text-[10px]">"""</code>, <code class="mono text-[10px]">&lt;!-- --&gt;</code>), fully excising multi-line script loops.</p>
-          </div>
-          <div class="p-4 border border-[#e6e9ee] rounded-lg bg-white">
-            <div class="text-[13px] font-bold text-[#62b33a] mb-1">Comments & Prose</div>
-            <p class="text-[11px] text-[#2a3b5c]">Expands to contiguous <code class="mono text-[10px]">#</code> or <code class="mono text-[10px]">//</code> lines; prose sentences bounded strictly within paragraphs (<code class="mono text-[10px]">\n\n</code>).</p>
-          </div>
-          <div class="p-4 border-2 border-[#e596c3] rounded-lg bg-[#fdf2f8] md:col-span-3">
-            <div class="text-[13px] font-bold text-[#ea2ce8] mb-1">Safety Fallback: The Calibrated 50% Block Rule</div>
-            <p class="text-[12px] text-[#2a3b5c]">If total excised characters exceed 50% of the document, surgical redaction is safely aborted, returning <code class="mono text-[11px] bg-white px-1.5 py-0.5 rounded text-red-600 font-bold">[BLOCKED: PROMPT INJECTION DETECTED]</code>. (Baseline 35% caused unnecessary blocks; 50% calibrated on validation data cut blocks by half).</p>
-          </div>
+        <!-- High-Res Empirical Redaction Chart Embedded (Chart-only, zero lingering text) -->
+        <div class="border border-[#e6e9ee] rounded-lg p-2 bg-white flex justify-center shadow-sm">
+          <img src="figures/rep_f5_redaction.png" alt="Redaction Trade-Off Chart" class="max-h-[520px] w-auto object-contain">
         </div>
       </div>
       <div class="flex justify-between items-center text-[10px] text-[#5f6b80] pt-4 border-t border-[#e6e9ee]">
-        <span>Slide 6 / 10 · Component P4 (Harshit Kandpal)</span>
-        <span>Sources: 1/ sudarshana/redaction/redact.py (expand_spans_structure_aware); 2/ reports/p4_token_head_report.md.</span>
+        <span>Slide 7 / 11 · Harshit Kandpal (Redaction Engine)</span>
+        <span>Sources: 1/ sudarshana/redaction/redact.py; 2/ results/model_redaction.json (N=125 attacks).</span>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 7: P4 EMPIRICAL SCORECARD (HARSHIT KANDPAL - FULL CONTENT) -->
-  <div class="slide" id="slide-7">
+  <!-- SLIDE 8: HARSHIT KANDPAL - EMPIRICAL AUDIT SCORECARD (TABLE-ONLY EXHIBIT) -->
+  <div class="slide" id="slide-8">
     <div class="panel panel-mint">
       <div>
-        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">P4 Scorecard · Harshit Kandpal</div>
+        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">Audit Scorecard · Harshit Kandpal</div>
         <h2 class="text-[27px] font-bold text-[#173462] leading-[1.25] tracking-tight mb-6">
           Structure-aware redaction cut unnecessary document blocks in half while preserving <span class="hl-lime">57.84% of clean context</span>.
         </h2>
@@ -422,68 +433,65 @@
     </div>
     <div class="exhibit">
       <div>
-        <h2 class="text-[18px] font-bold text-[#173462] mb-1">
-          <span class="s-purple">Baseline PySBD configuration¹</span> vs. <span class="s-teal">P4 Structure-Aware Engine²</span> on held-out test split (n=206)
+        <h2 class="text-[18px] font-bold text-[#173462] mb-3">
+          <span class="s-purple">Baseline PySBD configuration¹</span> vs. <span class="s-teal">Structure-Aware Engine²</span> on held-out test split (n=206)
         </h2>
-        <p class="text-[12px] italic text-[#5f6b80] mb-5">
-          Audited metrics on 206 test documents (125 attacked across 25 unseen types, 81 benign).
-        </p>
 
-        <div class="border border-[#e6e9ee] rounded-lg overflow-hidden max-w-4xl">
+        <div class="border border-[#e6e9ee] rounded-lg overflow-hidden max-w-5xl shadow-sm">
           <table class="w-full text-left text-[12px] border-collapse">
             <thead>
-              <tr class="bg-[#f8fafc] border-b border-[#e6e9ee] text-[10px] font-bold uppercase text-[#173462]">
-                <th class="py-2.5 px-4">Metric</th>
-                <th class="py-2.5 px-4 text-[#65327d]">Baseline (PySBD 35%)</th>
-                <th class="py-2.5 px-4 text-[#089582]">P4 Engine (Audited)</th>
-                <th class="py-2.5 px-4 text-[#5f6b80]">95% Confidence Interval</th>
-                <th class="py-2.5 px-4 text-[#62b33a]">Impact / Gain</th>
+              <tr class="bg-[#173462] text-white text-[11px] font-bold uppercase tracking-wider">
+                <th class="py-3 px-4">Metric</th>
+                <th class="py-3 px-4 text-[#ffe6f1]">Baseline (PySBD 35%)</th>
+                <th class="py-3 px-4 text-[#c5e9df]">Structure-Aware Engine (Audited)</th>
+                <th class="py-3 px-4 text-slate-300">95% Confidence Interval</th>
+                <th class="py-3 px-4 text-[#e2fe6b]">Impact / Gain</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-[#e6e9ee] text-[#2a3b5c]">
-              <tr>
+              <tr class="bg-[#f8fafc]">
                 <td class="py-2.5 px-4 font-bold text-[#173462]">Selective Redaction Rate</td>
                 <td class="py-2.5 px-4">43.20%</td>
                 <td class="py-2.5 px-4 font-bold text-[#089582]">68.00%</td>
                 <td class="py-2.5 px-4 mono text-[11px]">[59.40%, 75.50%]</td>
-                <td class="py-2.5 px-4 font-bold text-[#62b33a]">+24.8% gain (85/125 sanitized)</td>
+                <td class="py-2.5 px-4 font-bold text-[#089582]">+24.8% gain (85/125 sanitized)</td>
               </tr>
-              <tr>
+              <tr class="bg-white">
                 <td class="py-2.5 px-4 font-bold text-[#173462]">Fallback Block Rate</td>
                 <td class="py-2.5 px-4 text-red-600">56.80%</td>
                 <td class="py-2.5 px-4 font-bold text-[#089582]">32.00%</td>
                 <td class="py-2.5 px-4 mono text-[11px]">[24.50%, 40.60%]</td>
-                <td class="py-2.5 px-4 font-bold text-[#62b33a]">Blocks cut nearly in half</td>
+                <td class="py-2.5 px-4 font-bold text-[#65327d]">Blocks cut nearly in half</td>
               </tr>
-              <tr>
+              <tr class="bg-[#f8fafc]">
                 <td class="py-2.5 px-4 font-bold text-[#173462]">Legitimate Content Retained</td>
                 <td class="py-2.5 px-4">38.55%</td>
                 <td class="py-2.5 px-4 font-bold text-[#089582]">57.84%</td>
                 <td class="py-2.5 px-4 mono text-[11px]">[50.50%, 64.50%]</td>
-                <td class="py-2.5 px-4 font-bold text-[#62b33a]">+19.3% absolute gain in utility</td>
+                <td class="py-2.5 px-4 font-bold text-[#62b33a]">+19.3% absolute utility gain</td>
               </tr>
-              <tr>
+              <tr class="bg-white">
                 <td class="py-2.5 px-4 font-bold text-[#173462]">Span Detection Recall (1-to-1)</td>
                 <td class="py-2.5 px-4">99.20%</td>
                 <td class="py-2.5 px-4 font-bold text-[#089582]">99.20%</td>
                 <td class="py-2.5 px-4 mono text-[11px]">[95.61%, 99.86%]</td>
                 <td class="py-2.5 px-4">124 / 125 attacks localized</td>
               </tr>
-              <tr>
+              <tr class="bg-[#f8fafc]">
                 <td class="py-2.5 px-4 font-bold text-[#173462]">Gold Span Character Coverage</td>
                 <td class="py-2.5 px-4">98.51%</td>
                 <td class="py-2.5 px-4 font-bold text-[#089582]">98.96%</td>
                 <td class="py-2.5 px-4 mono text-[11px]">[97.70%, 99.90%]</td>
                 <td class="py-2.5 px-4">98.96% attack chars excised</td>
               </tr>
-              <tr>
+              <tr class="bg-white">
                 <td class="py-2.5 px-4 font-bold text-[#173462]">Residual Leaking Samples</td>
                 <td class="py-2.5 px-4 text-red-600">17.60% (22/125)</td>
                 <td class="py-2.5 px-4 font-bold text-[#089582]">5.60% (7/125)</td>
                 <td class="py-2.5 px-4 mono text-[11px]">[2.70%, 11.10%]</td>
                 <td class="py-2.5 px-4 font-bold text-[#62b33a]">68% drop in leaking samples</td>
               </tr>
-              <tr>
+              <tr class="bg-[#f8fafc]">
                 <td class="py-2.5 px-4 font-bold text-[#173462]">CPU Inference Latency</td>
                 <td class="py-2.5 px-4">—</td>
                 <td class="py-2.5 px-4 font-bold text-[#089582]">0.871s median</td>
@@ -495,17 +503,17 @@
         </div>
       </div>
       <div class="flex justify-between items-center text-[10px] text-[#5f6b80] pt-4 border-t border-[#e6e9ee]">
-        <span>Slide 7 / 10 · Component P4 (Harshit Kandpal)</span>
+        <span>Slide 8 / 11 · Harshit Kandpal (Audit Scorecard)</span>
         <span>Sources: 1/ reports/metrics.json; 2/ reports/audit/raw_test_predictions.jsonl (n=206 total).</span>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 8: P4 DEFENSE & ERROR TAXONOMY (HARSHIT KANDPAL - FULL CONTENT) -->
-  <div class="slide" id="slide-8">
+  <!-- SLIDE 9: HARSHIT KANDPAL - DEFENSE & ERROR TAXONOMY (CHART-ONLY EXHIBIT) -->
+  <div class="slide" id="slide-9">
     <div class="panel panel-orchid">
       <div>
-        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">P4 Defense · Harshit Kandpal</div>
+        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">Scientific Rigor · Harshit Kandpal</div>
         <h2 class="text-[27px] font-bold text-[#173462] leading-[1.25] tracking-tight mb-6">
           Rigorous error triage reveals that 94.4% of attacks were neutralized with <span class="hl-magenta">zero surviving characters</span>.
         </h2>
@@ -518,48 +526,27 @@
     </div>
     <div class="exhibit">
       <div>
-        <h2 class="text-[18px] font-bold text-[#173462] mb-1">
-          <span class="s-purple">Harmless whitespace shifts¹</span> vs. <span class="s-orange">Substantive code loop residuals²</span> (7 cases out of 125)
+        <h2 class="text-[18px] font-bold text-[#173462] mb-3">
+          <span class="s-teal">Attack Payload Neutralization (94.4%)¹</span> & <span class="s-purple">Token-Level Sample Rigor² (>450k)</span>
         </h2>
-        <p class="text-[12px] italic text-[#5f6b80] mb-6">
-          Categorized error taxonomy and defense of token-level dataset size.
-        </p>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
-          <div class="p-4 border border-[#e6e9ee] rounded-lg bg-white">
-            <h3 class="text-[14px] font-bold text-[#65327d] mb-2">Error Taxonomy (7 Residual Cases)</h3>
-            <ul class="space-y-2 text-[12px] text-[#2a3b5c]">
-              <li>• <strong class="text-[#173462]">118 / 125 Attacks (94.4%):</strong> Neutralized cleanly with zero residual payload characters.</li>
-              <li>• <strong class="text-[#173462]">3 Whitespace Shifts:</strong> Indices 31, 124, 199 leaked exactly 1 character ('
-') because the model cleanly stopped at the word boundary. Completely benign.</li>
-              <li>• <strong class="text-[#173462]">1 Subtle Table Cell:</strong> Index 3 leaked 13 chars in a table cell where confidence hovered at 0.34.</li>
-              <li>• <strong class="text-[#173462]">2 Multi-Line Loops:</strong> Indices 28 & 87 (scapy & multiprocessing loop) exceeded the 2.5x expansion cap.</li>
-              <li>• <strong class="text-[#173462]">1 Multi-Sentence Prompt:</strong> Index 66 had 42 surviving characters from secondary sentence.</li>
-            </ul>
-          </div>
-          <div class="p-4 border-2 border-[#089582] rounded-lg bg-[#f0fdf4]">
-            <h3 class="text-[14px] font-bold text-[#089582] mb-2">Viva Defense: "Why 386 Documents?"</h3>
-            <ul class="space-y-2 text-[12px] text-[#2a3b5c]">
-              <li>• <strong class="text-[#173462]">Token Instances > 450,000:</strong> We trained a sequence token tagger, not a document classifier. Across 386 documents, the model received >450k supervised token loss gradients.</li>
-              <li>• <strong class="text-[#173462]">Pretrained Transfer Learning:</strong> DeBERTa-v3 already possesses dense English and code syntax; token extraction requires only hundreds of annotated examples (like CoNLL-2003).</li>
-              <li>• <strong class="text-[#173462]">Exact Ground Truth Spans:</strong> 99% of datasets only have binary 0/1 labels. BIPIA provides verified character offsets with 100% round-trip fidelity.</li>
-              <li>• <strong class="text-[#173462]">Proven Generalization:</strong> Tested on 25 unseen attack categories; 99.20% recall proves it did not overfit.</li>
-            </ul>
-          </div>
+        <!-- High-Res Error Taxonomy Chart Embedded (Chart-only, zero lingering text) -->
+        <div class="border border-[#e6e9ee] rounded-lg p-2 bg-white flex justify-center shadow-sm">
+          <img src="figures/error_taxonomy_chart.png" alt="Error Taxonomy & Sample Rigor Chart" class="max-h-[520px] w-auto object-contain">
         </div>
       </div>
       <div class="flex justify-between items-center text-[10px] text-[#5f6b80] pt-4 border-t border-[#e6e9ee]">
-        <span>Slide 8 / 10 · Component P4 (Harshit Kandpal)</span>
+        <span>Slide 9 / 11 · Harshit Kandpal (Defense Rationale)</span>
         <span>Sources: 1/ reports/p4_token_head_report.md Section 4; 2/ data/splits/DATA_CARD.md.</span>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 9: PLACEHOLDER P5 (Kinshuk Gupta) -->
-  <div class="slide" id="slide-9">
+  <!-- SLIDE 10: PLACEHOLDER (Kinshuk Gupta) -->
+  <div class="slide" id="slide-10">
     <div class="panel panel-mint">
       <div>
-        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">P5 Downstream · Kinshuk Gupta</div>
+        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">Downstream & UI · Kinshuk Gupta</div>
         <h2 class="text-[27px] font-bold text-[#173462] leading-[1.25] tracking-tight mb-6">
           Sanitized carrier documents allow downstream LLMs to maintain a <span class="hl-lime">98.40% protected success rate</span>.
         </h2>
@@ -573,12 +560,12 @@
     <div class="exhibit">
       <div>
         <h2 class="text-[18px] font-bold text-[#173462] mb-1">
-          P5: Downstream LLM Evaluation & UI Dashboard [PLACEHOLDER — Kinshuk Gupta]
+          Downstream LLM Evaluation & UI Dashboard [PLACEHOLDER — Kinshuk Gupta]
         </h2>
         <p class="text-[12px] italic text-[#5f6b80] mb-6">Designated component exhibit reserved for Kinshuk Gupta.</p>
 
         <div class="placeholder-box p-6 space-y-4 max-w-3xl">
-          <div class="text-[11px] font-bold text-[#f0a656] uppercase tracking-wider">[ PLACEHOLDER: P5 DOWNSTREAM & UI ]</div>
+          <div class="text-[11px] font-bold text-[#f0a656] uppercase tracking-wider">[ PLACEHOLDER: DOWNSTREAM & UI ]</div>
           <div class="text-[15px] font-bold text-[#173462]">Content to be finalized by Kinshuk Gupta</div>
           <ul class="space-y-2 text-[12px] text-[#2a3b5c]">
             <li>• Downstream generation harness: Protected Success Rate (<code class="mono text-[11px] text-[#089582] font-bold">PSR = 98.40%</code>) and semantic ROUGE-1 on clean queries.</li>
@@ -589,14 +576,14 @@
         </div>
       </div>
       <div class="flex justify-between items-center text-[10px] text-[#5f6b80] pt-4 border-t border-[#e6e9ee]">
-        <span>Slide 9 / 10 · Placeholder</span>
-        <span>Sources: 1/ results/p5/downstream.json; 2/ ui/server.py.</span>
+        <span>Slide 10 / 11 · Placeholder</span>
+        <span>Sources: 1/ results/downstream_evaluation.json; 2/ ui/server.py.</span>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 10: Conclusion & Unified Defense Readiness -->
-  <div class="slide" id="slide-10">
+  <!-- SLIDE 11: CONCLUSION & DEFENSE READINESS -->
+  <div class="slide" id="slide-11">
     <div class="panel panel-mint">
       <div>
         <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">Conclusion & Defense</div>
@@ -622,10 +609,10 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
           <div class="p-4 border border-[#e6e9ee] rounded-lg bg-white">
             <h3 class="text-[13px] font-bold text-[#173462] mb-1">Unified Defense Pipeline</h3>
-            <p class="text-[12px] text-[#2a3b5c]">Seamless integration from P1 character normalization to P2 task conditioning, P3 DeBERTa multi-task model, P4 surgical redaction, and P5 downstream evaluation.</p>
+            <p class="text-[12px] text-[#2a3b5c]">Seamless integration from Tanmay Jaiswal (data/spans) to Utkarsh Chatterjee (conditioning), Sujal Som (DeBERTa model), Harshit Kandpal (surgical redaction), and Kinshuk Gupta (downstream evaluation).</p>
           </div>
           <div class="p-4 border-2 border-[#089582] rounded-lg bg-[#f0fdf4]">
-            <h3 class="text-[13px] font-bold text-[#089582] mb-1">P4 Core Breakthrough</h3>
+            <h3 class="text-[13px] font-bold text-[#089582] mb-1">Harshit Kandpal Core Breakthrough</h3>
             <p class="text-[12px] text-[#2a3b5c]">Eliminated the false-block crisis (cut blocks from 56.8% to 32.0%), boosted selective redaction to 68.0%, and retained 57.8% clean context with 98.96% character coverage.</p>
           </div>
           <div class="p-4 border border-[#e6e9ee] rounded-lg bg-white">
@@ -639,7 +626,7 @@
         </div>
       </div>
       <div class="flex justify-between items-center text-[10px] text-[#5f6b80] pt-4 border-t border-[#e6e9ee]">
-        <span>Slide 10 / 10 · Thank you! Open for Questions.</span>
+        <span>Slide 11 / 11 · Thank you! Open for Questions.</span>
         <span>Sources: 1/ reports/FINAL_PROJECT_REPORT.md; 2/ reports/FINAL_PROJECT_REPORT.pdf.</span>
       </div>
     </div>
@@ -648,13 +635,13 @@
   <!-- Bottom Floating Navigation Controls -->
   <div class="fixed bottom-4 right-6 flex items-center gap-2 bg-white/95 border border-[#e6e9ee] px-3 py-1.5 rounded-full shadow-lg">
     <button id="prevBtn" class="text-[#5f6b80] hover:text-[#173462] px-2 py-1 text-sm font-bold">← Prev</button>
-    <span id="slideIndicator" class="text-xs font-semibold text-[#089582] px-2">1 / 10</span>
+    <span id="slideIndicator" class="text-xs font-semibold text-[#089582] px-2">1 / 11</span>
     <button id="nextBtn" class="text-[#5f6b80] hover:text-[#173462] px-2 py-1 text-sm font-bold">Next →</button>
   </div>
 
   <script>
     let currentSlide = 1;
-    const totalSlides = 10;
+    const totalSlides = 11;
 
     function showSlide(n) {
       if (n < 1) n = 1;
