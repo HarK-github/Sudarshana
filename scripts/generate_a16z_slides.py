@@ -1,23 +1,22 @@
-"""Generate publication-grade 'a16z Style' Presentation Deck for Project Sudarshana.
-Unofficial homage to the State of Crypto report slides:
-- Canvas: Pure White #ffffff
-- Typography: 'Noto Sans' (Google Fonts)
-  - Headlines: 700 at 27-30px (Cover: 52px)
-  - Subtitles: 400 italic 12px
-  - Body: 400 at 12-14px
-  - Footnotes: 10px #5f6b80
-- Palette:
-  - Text: Navy #173462 headlines, #2a3b5c body, #5f6b80 notes/sources
-  - Mint Panel: gradient #c5e9df to #fcf8d5 with 4px edge #3fb59a to #d6dc6c
-  - Orchid Panel: gradient #ffe6f1 to #efd8f6 with 4px edge #e596c3 to #8a3fa0
-  - Highlighter Blocks (strictly one per headline):
-    - Lime #e2fe6b with navy #173462 text on mint
-    - Magenta #ea2ce8 with white #ffffff text on orchid
-  - Series Colors: Purple #65327d, Teal #089582, Green #62b33a, Orange #f0a656, Gray #b8bfcb, Lilac #b5a0bf
-- Strict Constraints:
-  - NO mentions of P1, P2, P3, P4, P5, or PX. ONLY people's names!
-  - Harshit Kandpal's work is fully detailed with pipeline flowchart, architecture, algorithms, and audit metrics.
-  - Teammates' sections (Tanmay Jaiswal, Utkarsh Chatterjee, Sujal Som, Kinshuk Gupta) are clean, designated placeholders.
+"""Generate publication-grade brief 'a16z Style' Presentation Deck for Project Sudarshana.
+Covers all five project contributors briefly with dedicated visual charts and zero lingering text:
+- Slide 1: Cover Slide & Unified 5-Layer Defense Architecture (All Authors)
+- Slide 2: Tanmay Jaiswal — Data Engineering & Zero-Leakage Dataset (Figure: rep_f4_position_category.png)
+- Slide 3: Utkarsh Chatterjee — Task Conditioning & Intent Disambiguation (Figure: task_conditioning_diagram.png)
+- Slide 4: Sujal Som — Multi-Task DeBERTa & 6-Step Ablation Ladder (Figure: rep_f2_ladder.png)
+- Slide 5: Harshit Kandpal — Token Head & 7-Stage Architecture Flowchart (Figure: p4_pipeline_flowchart.png)
+- Slide 6: Harshit Kandpal — Structure-Aware Redaction Engine (Figure: rep_f5_redaction.png)
+- Slide 7: Kinshuk Gupta — Downstream LLM Evaluation & CPU Latency (Figure: rep_f6_latency.png)
+- Slide 8: Conclusion & Defense Readiness — Audited Scorecard Table (All Authors)
+
+Strict a16z Style Rules:
+- Pure white canvas #ffffff
+- Typography: 'Noto Sans'
+- Soft gradient panels (mint #c5e9df to #fcf8d5 / orchid #ffe6f1 to #efd8f6) with 4px edge
+- Strictly ONE highlight block per headline (lime #e2fe6b on mint, magenta #ea2ce8 on orchid)
+- Chart titles double as legends with underlined series names
+- Strictly ZERO mentions of P1, P2, P3, P4, P5, or PX — only real names!
+- Exhibits contain strictly the visual chart/table with zero lingering text clutter.
 """
 
 import os
@@ -32,10 +31,14 @@ from pptx.enum.shapes import MSO_SHAPE
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REPORTS_DIR = REPO_ROOT / "reports"
 FIGURES_DIR = REPORTS_DIR / "figures"
+
+# Figure Paths for all contributors
+POSITION_CAT_FIG_PATH = FIGURES_DIR / "rep_f4_position_category.png"
+TASK_COND_FIG_PATH = FIGURES_DIR / "task_conditioning_diagram.png"
+LADDER_FIG_PATH = FIGURES_DIR / "rep_f2_ladder.png"
 FLOWCHART_PATH = FIGURES_DIR / "p4_pipeline_flowchart.png"
-TOKEN_GAP_FIG_PATH = FIGURES_DIR / "token_gap_bridging.png"
 REDACTION_FIG_PATH = FIGURES_DIR / "rep_f5_redaction.png"
-ERROR_TAXONOMY_FIG_PATH = FIGURES_DIR / "error_taxonomy_chart.png"
+LATENCY_FIG_PATH = FIGURES_DIR / "rep_f6_latency.png"
 
 # Color Constants
 C_WHITE = RGBColor(255, 255, 255)
@@ -66,6 +69,7 @@ def create_pptx_deck():
     prs.slide_width = Inches(13.333)
     prs.slide_height = Inches(7.5)
     blank_layout = prs.slide_layouts[6]
+    total_slides = 8
 
     def set_white_bg(slide):
         bg = slide.background
@@ -173,7 +177,7 @@ def create_pptx_deck():
             p.alignment = align
 
     # =========================================================================
-    # SLIDE 1: Cover Slide
+    # SLIDE 1: Cover Slide & Unified Defense Architecture (All Authors)
     # =========================================================================
     s1 = prs.slides.add_slide(blank_layout)
     set_white_bg(s1)
@@ -208,7 +212,7 @@ def create_pptx_deck():
     p.space_after = Pt(28)
 
     p = tf1_p.add_paragraph()
-    p.text = "PROJECT AUTHORS\nHarshit Kandpal (Token Head & Redaction Engine)\nTanmay Jaiswal (Data Engineering & Schema)\nUtkarsh Chatterjee (Task Conditioning & Disambiguation)\nSujal Som (Model Architecture & Ladder)\nKinshuk Gupta (Downstream Evaluation & UI)"
+    p.text = "PROJECT AUTHORS\nTanmay Jaiswal (Data Engineering & Normalizer)\nUtkarsh Chatterjee (Task Conditioning & Disambiguation)\nSujal Som (Model Architecture & Ladder)\nHarshit Kandpal (Token Head & Redaction Engine)\nKinshuk Gupta (Downstream Evaluation & UI)"
     p.font.name = "Noto Sans"
     p.font.size = Pt(11)
     p.font.color.rgb = C_NAVY
@@ -233,11 +237,11 @@ def create_pptx_deck():
     p.space_after = Pt(24)
 
     layers = [
-        ("Layer 1 · Normalizer & Encodings", "Tanmay Jaiswal: NFKC, zero-width stripping, Base64/Hex decoders", C_GRAY),
-        ("Layer 2 · Task-Pair Conditioning", "Utkarsh Chatterjee: [CLS] user_task [SEP] chunk [SEP] cross-attention", C_PURPLE),
-        ("Layer 3 · Multi-Task DeBERTa Model", "Sujal Som: DeBERTa-v3 multi-task filter & 6-step ablation ladder", C_ORANGE),
-        ("Layer 4 · Token Head & Surgical Redaction", "Harshit Kandpal: Subword gap-bridging & structure-aware expander", C_TEAL),
-        ("Layer 5 · Downstream LLM Evaluation & UI", "Kinshuk Gupta: 98.40% Protected Success Rate & live web dashboard", C_GREEN),
+        ("Layer 1 · Normalizer & Encodings", "Tanmay Jaiswal: NFKC normalization, zero-width stripping, and Base64/Hex decoders.", C_GRAY),
+        ("Layer 2 · Task Conditioning", "Utkarsh Chatterjee: [CLS] user_task [SEP] chunk [SEP] cross-attention disambiguation.", C_PURPLE),
+        ("Layer 3 · Multi-Task DeBERTa Model", "Sujal Som: DeBERTa-v3 multi-task filter & 6-step ablation training ladder.", C_ORANGE),
+        ("Layer 4 · Token Head & Surgical Redaction", "Harshit Kandpal: Subword gap-bridging & structure-aware boundary container expansion.", C_TEAL),
+        ("Layer 5 · Downstream LLM Evaluation & UI", "Kinshuk Gupta: 98.40% Protected Success Rate, ROUGE-1 utility, and live web dashboard.", C_GREEN),
     ]
     for cat_title, cat_sub, color in layers:
         p = tf1_e.add_paragraph()
@@ -255,10 +259,10 @@ def create_pptx_deck():
         p.font.color.rgb = C_BODY
         p.space_after = Pt(14)
 
-    add_footer(s1, 1, 11, "Sources: 1/ Microsoft BIPIA Benchmark (50 Attack Types); Sudarshana architecture (2026).")
+    add_footer(s1, 1, total_slides, "Sources: 1/ Microsoft BIPIA Benchmark (50 Attack Types); Sudarshana architecture (2026).")
 
     # =========================================================================
-    # SLIDE 2: PLACEHOLDER (Tanmay Jaiswal)
+    # SLIDE 2: TANMAY JAISWAL — DATA ENGINEERING & ZERO-LEAKAGE SPLIT
     # =========================================================================
     s2 = prs.slides.add_slide(blank_layout)
     set_white_bg(s2)
@@ -269,43 +273,22 @@ def create_pptx_deck():
         "50", "disjoint attack categories (25 train / 25 strictly held-out test)"
     )
 
-    tb2_e = s2.shapes.add_textbox(Inches(4.0), Inches(0.8), Inches(8.8), Inches(6.0))
+    tb2_e = s2.shapes.add_textbox(Inches(3.8), Inches(0.55), Inches(9.2), Inches(0.5))
     tf2_e = tb2_e.text_frame
-    tf2_e.word_wrap = True
-
     p = tf2_e.paragraphs[0]
-    p.text = "Unified Data Pipeline & Schema [PLACEHOLDER — Tanmay Jaiswal]"
+    p.text = "Task-Category Distribution¹ vs. Position Invariance² (Start / Middle / End)"
     p.font.name = "Noto Sans"
     p.font.size = Pt(16)
     p.font.bold = True
     p.font.color.rgb = C_NAVY
-    p.space_after = Pt(20)
 
-    tanmay_items = [
-        ("Designated Component Exhibit:", "This slide is reserved for Tanmay Jaiswal to present the data engineering pipeline.", C_PURPLE),
-        ("Microsoft BIPIA Benchmark Integration:", "Spanning 5 diverse RAG tasks: Text QA, Code QA, Table QA, Email, and Summarization.", C_TEAL),
-        ("Exact Character Offsets:", "Verified 100% round-trip character offset match (start_char, end_char) for token supervision.", C_GRAY),
-        ("Instructional Hard Negatives:", "Curated real-world Linux tutorials, READMEs, and recipes with empty spans [].", C_BODY)
-    ]
-    for h, b, col in tanmay_items:
-        p = tf2_e.add_paragraph()
-        p.text = f"■  {h}"
-        p.font.name = "Noto Sans"
-        p.font.size = Pt(13)
-        p.font.bold = True
-        p.font.color.rgb = col
-        p.space_after = Pt(2)
-        p = tf2_e.add_paragraph()
-        p.text = f"    {b}"
-        p.font.name = "Noto Sans"
-        p.font.size = Pt(11)
-        p.font.color.rgb = C_BODY
-        p.space_after = Pt(14)
+    if POSITION_CAT_FIG_PATH.exists():
+        s2.shapes.add_picture(str(POSITION_CAT_FIG_PATH), Inches(3.8), Inches(1.15), width=Inches(9.2))
 
-    add_footer(s2, 2, 11, "Sources: 1/ data/splits/train.jsonl (n=386); 2/ data/splits/test.jsonl (n=206).", "Lead: Tanmay Jaiswal")
+    add_footer(s2, 2, total_slides, "Sources: 1/ data/splits/train.jsonl (n=386); 2/ data/splits/test.jsonl (n=206).", "Lead: Tanmay Jaiswal")
 
     # =========================================================================
-    # SLIDE 3: PLACEHOLDER (Utkarsh Chatterjee)
+    # SLIDE 3: UTKARSH CHATTERJEE — TASK CONDITIONING & DISAMBIGUATION
     # =========================================================================
     s3 = prs.slides.add_slide(blank_layout)
     set_white_bg(s3)
@@ -316,90 +299,48 @@ def create_pptx_deck():
         "83% → 17%", "hard-negative False Positive Rate drop under calibrated threshold"
     )
 
-    tb3_e = s3.shapes.add_textbox(Inches(4.0), Inches(0.8), Inches(8.8), Inches(6.0))
+    tb3_e = s3.shapes.add_textbox(Inches(3.8), Inches(0.55), Inches(9.2), Inches(0.5))
     tf3_e = tb3_e.text_frame
-    tf3_e.word_wrap = True
-
     p = tf3_e.paragraphs[0]
-    p.text = "Pair-Input Conditioning & Disambiguation [PLACEHOLDER — Utkarsh Chatterjee]"
+    p.text = "Unconditioned Imperative Confusion¹ vs. Task-Conditioned Disambiguation²"
     p.font.name = "Noto Sans"
     p.font.size = Pt(16)
     p.font.bold = True
     p.font.color.rgb = C_NAVY
-    p.space_after = Pt(20)
 
-    utkarsh_items = [
-        ("Designated Component Exhibit:", "This slide is reserved for Utkarsh Chatterjee to present pair-input conditioning.", C_PURPLE),
-        ("Cross-Attention Conditioning:", "Encoding [CLS] user_task [SEP] chunk [SEP] allows attention heads to contrast intent.", C_TEAL),
-        ("Breaking Keyword Shortcuts:", "Legitimate technical documentation like 'run sudo rm -rf' is safely distinguished from attacks.", C_GRAY),
-        ("Zero Recall Trade-Off:", "Maintains 100% recall on task-relevant and targeted indirect attacks.", C_BODY)
-    ]
-    for h, b, col in utkarsh_items:
-        p = tf3_e.add_paragraph()
-        p.text = f"■  {h}"
-        p.font.name = "Noto Sans"
-        p.font.size = Pt(13)
-        p.font.bold = True
-        p.font.color.rgb = col
-        p.space_after = Pt(2)
-        p = tf3_e.add_paragraph()
-        p.text = f"    {b}"
-        p.font.name = "Noto Sans"
-        p.font.size = Pt(11)
-        p.font.color.rgb = C_BODY
-        p.space_after = Pt(14)
+    if TASK_COND_FIG_PATH.exists():
+        s3.shapes.add_picture(str(TASK_COND_FIG_PATH), Inches(3.8), Inches(1.15), width=Inches(9.2))
 
-    add_footer(s3, 3, 11, "Sources: 1/ data/splits/hard_negatives.jsonl; 2/ results/calibration_day6.json.", "Lead: Utkarsh Chatterjee")
+    add_footer(s3, 3, total_slides, "Sources: 1/ data/splits/hard_negatives.jsonl; 2/ results/calibration_day6.json.", "Lead: Utkarsh Chatterjee")
 
     # =========================================================================
-    # SLIDE 4: PLACEHOLDER (Sujal Som)
+    # SLIDE 4: SUJAL SOM — MULTI-TASK MODEL & ABLATION LADDER
     # =========================================================================
     s4 = prs.slides.add_slide(blank_layout)
     set_white_bg(s4)
     add_panel(s4, "mint", 3.6)
     add_panel_content(
-        s4, "mint", "Model & Training Ladder", "Sujal Som",
+        s4, "mint", "Model Architecture", "Sujal Som",
         "Sliding-window chunking and adversarial augmentations drove test recall to 100.00% across all positions.",
         "17% → 100%", "recall on end-of-document injections after 256-token chunking"
     )
 
-    tb4_e = s4.shapes.add_textbox(Inches(4.0), Inches(0.8), Inches(8.8), Inches(6.0))
+    tb4_e = s4.shapes.add_textbox(Inches(3.8), Inches(0.55), Inches(9.2), Inches(0.5))
     tf4_e = tb4_e.text_frame
-    tf4_e.word_wrap = True
-
     p = tf4_e.paragraphs[0]
-    p.text = "Multi-Task Model & 6-Step Ablation Ladder [PLACEHOLDER — Sujal Som]"
+    p.text = "Step 1 Baseline (512 tokens)¹ to Step 6 Augmented Ladder² (Full Obfuscation Defense)"
     p.font.name = "Noto Sans"
     p.font.size = Pt(16)
     p.font.bold = True
     p.font.color.rgb = C_NAVY
-    p.space_after = Pt(20)
 
-    sujal_items = [
-        ("Designated Component Exhibit:", "This slide is reserved for Sujal Som to present the model and training ladder.", C_PURPLE),
-        ("DeBERTa-v3 Multi-Task Filter:", "Shared encoder with joint detection and 3-class sequence classification head.", C_TEAL),
-        ("The 6-Step Ablation Ladder:", "Step 1 (512 Baseline) to Step 6 (Adversarial Augmentations: Leetspeak, Homoglyphs, Base64).", C_GRAY),
-        ("Validated Hypotheses (H1–H4):", "Chunking, normalizer, pair-input, and token-head hypotheses empirically validated.", C_BODY)
-    ]
-    for h, b, col in sujal_items:
-        p = tf4_e.add_paragraph()
-        p.text = f"■  {h}"
-        p.font.name = "Noto Sans"
-        p.font.size = Pt(13)
-        p.font.bold = True
-        p.font.color.rgb = col
-        p.space_after = Pt(2)
-        p = tf4_e.add_paragraph()
-        p.text = f"    {b}"
-        p.font.name = "Noto Sans"
-        p.font.size = Pt(11)
-        p.font.color.rgb = C_BODY
-        p.space_after = Pt(14)
+    if LADDER_FIG_PATH.exists():
+        s4.shapes.add_picture(str(LADDER_FIG_PATH), Inches(3.8), Inches(1.15), width=Inches(9.2))
 
-    add_footer(s4, 4, 11, "Sources: 1/ reports/ablation_ladder_tables.json; 2/ models/final_step1..6/.", "Lead: Sujal Som")
+    add_footer(s4, 4, total_slides, "Sources: 1/ reports/ablation_ladder_tables.json; 2/ models/final_step1..6/.", "Lead: Sujal Som")
 
     # =========================================================================
-    # SLIDE 5: HARSHIT KANDPAL - PIPELINE FLOWCHART (CHART-ONLY EXHIBIT)
+    # SLIDE 5: HARSHIT KANDPAL — TOKEN HEAD & PIPELINE FLOWCHART
     # =========================================================================
     s5 = prs.slides.add_slide(blank_layout)
     set_white_bg(s5)
@@ -422,49 +363,23 @@ def create_pptx_deck():
     if FLOWCHART_PATH.exists():
         s5.shapes.add_picture(str(FLOWCHART_PATH), Inches(3.8), Inches(1.15), width=Inches(9.2))
 
-    add_footer(s5, 5, 11, "Sources: 1/ sudarshana/models/token_head.py; 2/ sudarshana/redaction/redact.py.", "Lead: Harshit Kandpal")
+    add_footer(s5, 5, total_slides, "Sources: 1/ sudarshana/models/token_head.py; 2/ sudarshana/redaction/redact.py.", "Lead: Harshit Kandpal")
 
     # =========================================================================
-    # SLIDE 6: HARSHIT KANDPAL - TOKEN HEAD & GAP BRIDGING (CHART-ONLY EXHIBIT)
+    # SLIDE 6: HARSHIT KANDPAL — STRUCTURE-AWARE SURGICAL REDACTION
     # =========================================================================
     s6 = prs.slides.add_slide(blank_layout)
     set_white_bg(s6)
-    add_panel(s6, "mint", 3.6)
+    add_panel(s6, "orchid", 3.6)
     add_panel_content(
-        s6, "mint", "Token Localization", "Harshit Kandpal",
-        "Bridging subword token gaps merges fragmented attack detections into coherent malicious spans.",
-        "8.0×", "loss weighting on positive injection tokens (O vs B-INJ / I-INJ)"
+        s6, "orchid", "Surgical Redaction", "Harshit Kandpal",
+        "Syntactic container expansion prevents prose sentence splitters from destroying markdown tables and code.",
+        "68.0%", "selective redaction rate (up from 43.20% in baseline; +24.8% absolute gain)"
     )
 
     tb6_e = s6.shapes.add_textbox(Inches(3.8), Inches(0.55), Inches(9.2), Inches(0.5))
     tf6_e = tb6_e.text_frame
     p = tf6_e.paragraphs[0]
-    p.text = "Raw Subword Token Confidences¹ vs. Gap-Bridged Injection Spans² (G ≤ 2)"
-    p.font.name = "Noto Sans"
-    p.font.size = Pt(16)
-    p.font.bold = True
-    p.font.color.rgb = C_NAVY
-
-    if TOKEN_GAP_FIG_PATH.exists():
-        s6.shapes.add_picture(str(TOKEN_GAP_FIG_PATH), Inches(3.8), Inches(1.15), width=Inches(9.2))
-
-    add_footer(s6, 6, 11, "Sources: 1/ sudarshana/models/token_head.py; 2/ sudarshana/redaction/redact.py (predict_spans).", "Lead: Harshit Kandpal")
-
-    # =========================================================================
-    # SLIDE 7: HARSHIT KANDPAL - STRUCTURE-AWARE REDACTION (CHART-ONLY EXHIBIT)
-    # =========================================================================
-    s7 = prs.slides.add_slide(blank_layout)
-    set_white_bg(s7)
-    add_panel(s7, "orchid", 3.6)
-    add_panel_content(
-        s7, "orchid", "Surgical Redaction", "Harshit Kandpal",
-        "Syntactic container expansion prevents prose sentence splitters from destroying markdown tables and code.",
-        "2.5×", "relative expansion cap: max(150 chars, 2.5x raw span)"
-    )
-
-    tb7_e = s7.shapes.add_textbox(Inches(3.8), Inches(0.55), Inches(9.2), Inches(0.5))
-    tf7_e = tb7_e.text_frame
-    p = tf7_e.paragraphs[0]
     p.text = "Baseline PySBD (35%)¹ vs. Hierarchical Structure-Aware Redaction (50%)²"
     p.font.name = "Noto Sans"
     p.font.size = Pt(16)
@@ -472,26 +387,52 @@ def create_pptx_deck():
     p.font.color.rgb = C_NAVY
 
     if REDACTION_FIG_PATH.exists():
-        s7.shapes.add_picture(str(REDACTION_FIG_PATH), Inches(3.8), Inches(1.15), width=Inches(9.2))
+        s6.shapes.add_picture(str(REDACTION_FIG_PATH), Inches(3.8), Inches(1.15), width=Inches(9.2))
 
-    add_footer(s7, 7, 11, "Sources: 1/ sudarshana/redaction/redact.py; 2/ results/model_redaction.json (N=125 attacks).", "Lead: Harshit Kandpal")
+    add_footer(s6, 6, total_slides, "Sources: 1/ sudarshana/redaction/redact.py; 2/ results/model_redaction.json (N=125 attacks).", "Lead: Harshit Kandpal")
 
     # =========================================================================
-    # SLIDE 8: HARSHIT KANDPAL - EMPIRICAL AUDIT SCORECARD (TABLE-ONLY EXHIBIT)
+    # SLIDE 7: KINSHUK GUPTA — DOWNSTREAM EVALUATION & CPU LATENCY
+    # =========================================================================
+    s7 = prs.slides.add_slide(blank_layout)
+    set_white_bg(s7)
+    add_panel(s7, "mint", 3.6)
+    add_panel_content(
+        s7, "mint", "Downstream & Latency", "Kinshuk Gupta",
+        "Sanitized carrier documents allow downstream LLMs to maintain a 98.40% protected success rate.",
+        "0.871s", "median CPU inference latency per 1,362-token document"
+    )
+
+    tb7_e = s7.shapes.add_textbox(Inches(3.8), Inches(0.55), Inches(9.2), Inches(0.5))
+    tf7_e = tb7_e.text_frame
+    p = tf7_e.paragraphs[0]
+    p.text = "Pipeline Stage Latency (p50)¹ vs. Tail Execution Budget (p95) < 1.05s²"
+    p.font.name = "Noto Sans"
+    p.font.size = Pt(16)
+    p.font.bold = True
+    p.font.color.rgb = C_NAVY
+
+    if LATENCY_FIG_PATH.exists():
+        s7.shapes.add_picture(str(LATENCY_FIG_PATH), Inches(3.8), Inches(1.15), width=Inches(9.2))
+
+    add_footer(s7, 7, total_slides, "Sources: 1/ results/downstream_evaluation.json; 2/ ui/server.py.", "Lead: Kinshuk Gupta")
+
+    # =========================================================================
+    # SLIDE 8: CONCLUSION & AUDITED SCORECARD (All Authors)
     # =========================================================================
     s8 = prs.slides.add_slide(blank_layout)
     set_white_bg(s8)
     add_panel(s8, "mint", 3.6)
     add_panel_content(
-        s8, "mint", "Audit Scorecard", "Harshit Kandpal",
-        "Structure-aware redaction cut unnecessary document blocks in half while preserving 57.84% of clean context.",
-        "68.0%", "selective redaction rate (up from 43.20% in baseline; +24.8% absolute gain)"
+        s8, "mint", "Conclusion & Scorecard", "All Authors",
+        "Project Sudarshana demonstrates that surgical token-level redaction is a production-ready reality.",
+        "78 / 78", "unit tests passing across all repository components (100%)"
     )
 
     tb8_e = s8.shapes.add_textbox(Inches(3.8), Inches(0.55), Inches(9.2), Inches(0.5))
     tf8_e = tb8_e.text_frame
     p = tf8_e.paragraphs[0]
-    p.text = "Baseline PySBD configuration¹ vs. Structure-Aware Engine² on held-out test split (n=206)"
+    p.text = "Pre-redaction security vulnerability¹ vs. Post-redaction RAG context preservation²"
     p.font.name = "Noto Sans"
     p.font.size = Pt(16)
     p.font.bold = True
@@ -528,127 +469,7 @@ def create_pptx_deck():
         format_cell(table.cell(r_idx, 3), ci_val, bold=False, font_size=8.5, text_color=C_NOTES, bg_color=bg)
         format_cell(table.cell(r_idx, 4), imp_val, bold=True, font_size=9, text_color=imp_col, bg_color=bg)
 
-    add_footer(s8, 8, 11, "Sources: 1/ reports/metrics.json; 2/ reports/audit/raw_test_predictions.jsonl (n=206 total).", "Lead: Harshit Kandpal · Wilson & Bootstrap 95% CIs reported")
-
-    # =========================================================================
-    # SLIDE 9: HARSHIT KANDPAL - DEFENSE & ERROR TAXONOMY (CHART-ONLY EXHIBIT)
-    # =========================================================================
-    s9 = prs.slides.add_slide(blank_layout)
-    set_white_bg(s9)
-    add_panel(s9, "orchid", 3.6)
-    add_panel_content(
-        s9, "orchid", "Scientific Rigor", "Harshit Kandpal",
-        "Rigorous error triage reveals that 94.4% of attacks were neutralized with zero surviving characters.",
-        ">450,000", "supervised token decisions across 386 documents (DeBERTa transfer learning)"
-    )
-
-    tb9_e = s9.shapes.add_textbox(Inches(3.8), Inches(0.55), Inches(9.2), Inches(0.5))
-    tf9_e = tb9_e.text_frame
-    p = tf9_e.paragraphs[0]
-    p.text = "Attack Payload Neutralization (94.4%)¹ & Token-Level Sample Rigor² (>450k)"
-    p.font.name = "Noto Sans"
-    p.font.size = Pt(16)
-    p.font.bold = True
-    p.font.color.rgb = C_NAVY
-
-    if ERROR_TAXONOMY_FIG_PATH.exists():
-        s9.shapes.add_picture(str(ERROR_TAXONOMY_FIG_PATH), Inches(3.8), Inches(1.15), width=Inches(9.2))
-
-    add_footer(s9, 9, 11, "Sources: 1/ reports/p4_token_head_report.md Section 4; 2/ data/splits/DATA_CARD.md.", "Lead: Harshit Kandpal")
-
-    # =========================================================================
-    # SLIDE 10: PLACEHOLDER (Kinshuk Gupta)
-    # =========================================================================
-    s10 = prs.slides.add_slide(blank_layout)
-    set_white_bg(s10)
-    add_panel(s10, "mint", 3.6)
-    add_panel_content(
-        s10, "mint", "Downstream & UI", "Kinshuk Gupta",
-        "Sanitized carrier documents allow downstream LLMs to maintain a 98.40% protected success rate.",
-        "0.871s", "median CPU inference latency per 1,362-token document"
-    )
-
-    tb10_e = s10.shapes.add_textbox(Inches(4.0), Inches(0.8), Inches(8.8), Inches(6.0))
-    tf10_e = tb10_e.text_frame
-    tf10_e.word_wrap = True
-
-    p = tf10_e.paragraphs[0]
-    p.text = "Downstream LLM Evaluation & UI Dashboard [PLACEHOLDER — Kinshuk Gupta]"
-    p.font.name = "Noto Sans"
-    p.font.size = Pt(16)
-    p.font.bold = True
-    p.font.color.rgb = C_NAVY
-    p.space_after = Pt(20)
-
-    kinshuk_items = [
-        ("Designated Component Exhibit:", "This slide is reserved for Kinshuk Gupta to present downstream LLM generation and UI.", C_PURPLE),
-        ("Protected Success Rate (PSR = 98.40%):", "Under attack, downstream LLMs complete user tasks successfully with near-zero hijacking.", C_TEAL),
-        ("Semantic Generation Utility (ROUGE-1):", "Preserving clean carrier context directly maintains downstream generation quality.", C_GRAY),
-        ("Interactive Web Dashboard (ui/index.html):", "Real-time visualization of token heatmaps, boundary expansions, and live redaction.", C_BODY)
-    ]
-    for h, b, col in kinshuk_items:
-        p = tf10_e.add_paragraph()
-        p.text = f"■  {h}"
-        p.font.name = "Noto Sans"
-        p.font.size = Pt(13)
-        p.font.bold = True
-        p.font.color.rgb = col
-        p.space_after = Pt(2)
-        p = tf10_e.add_paragraph()
-        p.text = f"    {b}"
-        p.font.name = "Noto Sans"
-        p.font.size = Pt(11)
-        p.font.color.rgb = C_BODY
-        p.space_after = Pt(14)
-
-    add_footer(s10, 10, 11, "Sources: 1/ results/downstream_evaluation.json; 2/ ui/server.py.", "Lead: Kinshuk Gupta")
-
-    # =========================================================================
-    # SLIDE 11: CONCLUSION & DEFENSE READINESS
-    # =========================================================================
-    s11 = prs.slides.add_slide(blank_layout)
-    set_white_bg(s11)
-    add_panel(s11, "mint", 3.6)
-    add_panel_content(
-        s11, "mint", "Conclusion & Defense", "All Authors",
-        "Project Sudarshana demonstrates that surgical token-level redaction is a production-ready reality.",
-        "78 / 78", "unit tests passing across all repository components (100%)"
-    )
-
-    tb11_e = s11.shapes.add_textbox(Inches(4.0), Inches(0.8), Inches(8.8), Inches(6.0))
-    tf11_e = tb11_e.text_frame
-    tf11_e.word_wrap = True
-
-    p = tf11_e.paragraphs[0]
-    p.text = "Pre-redaction security vulnerability¹ vs. Post-redaction RAG context preservation²"
-    p.font.name = "Noto Sans"
-    p.font.size = Pt(16)
-    p.font.bold = True
-    p.font.color.rgb = C_NAVY
-    p.space_after = Pt(20)
-
-    c_items = [
-        ("Unified Modular Defense Pipeline:", "Seamless handoffs from Tanmay Jaiswal (data/spans) to Utkarsh Chatterjee (conditioning), Sujal Som (DeBERTa model), Harshit Kandpal (surgical redaction), and Kinshuk Gupta (downstream evaluation).", C_PURPLE),
-        ("Harshit Kandpal Core Breakthrough:", "Eliminated the false-block crisis (cut blocks from 56.8% to 32.0%), boosted selective redaction to 68.0%, and retained 57.8% clean context.", C_TEAL),
-        ("Scientific Rigor & Reproducibility:", "Strict train/val/test isolation, Wilson/Bootstrap 95% intervals, frozen checkpoints, and reproducible audit runner.", C_GREEN),
-        ("Deployment Readiness:", "Sub-second CPU latency (<0.9s), zero GPU cluster requirement, and interactive live demonstration UI.", C_BODY)
-    ]
-    for h, b, col in c_items:
-        p = tf11_e.add_paragraph()
-        p.text = f"■  {h}"
-        p.font.name = "Noto Sans"
-        p.font.size = Pt(13)
-        p.font.bold = True
-        p.font.color.rgb = col
-        p.space_after = Pt(2)
-        p = tf11_e.add_paragraph()
-        p.text = f"    {b}"
-        p.font.name = "Noto Sans"
-        p.font.size = Pt(11)
-        p.font.color.rgb = C_BODY
-        p.space_after = Pt(14)
-
-    add_footer(s11, 11, 11, "Sources: 1/ reports/FINAL_PROJECT_REPORT.md; 2/ reports/FINAL_PROJECT_REPORT.pdf.", "Project Sudarshana · Academic Session 2026")
+    add_footer(s8, 8, total_slides, "Sources: 1/ reports/metrics.json; 2/ reports/FINAL_PROJECT_REPORT.pdf.", "Project Sudarshana · Academic Session 2026")
 
     out_pptx = REPORTS_DIR / "Sudarshana_a16z_Presentation.pptx"
     prs.save(str(out_pptx))
@@ -663,7 +484,7 @@ def create_html_deck():
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project Sudarshana: a16z Style Defense Deck</title>
+  <title>Project Sudarshana: a16z Style Brief Presentation</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -739,23 +560,16 @@ def create_html_deck():
       justify-content: space-between;
       background: #ffffff;
     }
-
-    /* Placeholder Box */
-    .placeholder-box {
-      border: 2px dashed #b8bfcb;
-      background: #f8fafc;
-      border-radius: 8px;
-    }
   </style>
 </head>
 <body>
 
   <!-- Top Progress Bar -->
   <div class="fixed top-0 left-0 w-full h-1 bg-[#e6e9ee] z-50">
-    <div id="progress" class="h-full bg-[#089582] transition-all duration-300" style="width: 9%;"></div>
+    <div id="progress" class="h-full bg-[#089582] transition-all duration-300" style="width: 12.5%;"></div>
   </div>
 
-  <!-- SLIDE 1: Cover Slide -->
+  <!-- SLIDE 1: Cover Slide & Unified Architecture -->
   <div class="slide active" id="slide-1">
     <div class="panel panel-mint" style="width: 380px; min-width: 380px;">
       <div>
@@ -765,16 +579,16 @@ def create_html_deck():
           <span class="hl-lime">2026</span>
         </h1>
         <p class="text-[12px] italic text-[#2a3b5c] mt-4 leading-relaxed">
-          Token-Level Indirect Prompt Injection Localization and Structure-Aware Redaction for Secure Retrieval-Augmented Generation.
+          Token-Level Indirect Prompt Injection Localization and Surgical Redaction for Secure Retrieval-Augmented Generation.
         </p>
       </div>
       <div>
         <div class="text-[11px] font-bold text-[#173462] uppercase mb-2">Project Authors</div>
         <div class="text-[12px] text-[#173462] space-y-1">
-          <div><strong class="text-[#089582]">Harshit Kandpal:</strong> Token Head & Redaction Engine</div>
-          <div><strong>Tanmay Jaiswal:</strong> Data Pipeline & Schema</div>
+          <div><strong>Tanmay Jaiswal:</strong> Data Pipeline & Encodings</div>
           <div><strong>Utkarsh Chatterjee:</strong> Task Conditioning & Disambiguation</div>
           <div><strong>Sujal Som:</strong> Model Architecture & Training Ladder</div>
+          <div><strong class="text-[#089582]">Harshit Kandpal:</strong> Token Head & Surgical Redaction</div>
           <div><strong>Kinshuk Gupta:</strong> Downstream Evaluation & UI</div>
         </div>
         <div class="text-[10px] text-[#5f6b80] mt-4">November 2026 · IIT Bhilai</div>
@@ -829,19 +643,19 @@ def create_html_deck():
         </div>
       </div>
       <div class="flex justify-between items-center text-[10px] text-[#5f6b80] pt-4 border-t border-[#e6e9ee]">
-        <span>Slide 1 / 11 · Use [←] and [→] keys</span>
+        <span>Slide 1 / 8 · Use [←] and [→] keys</span>
         <span>Sources: 1/ Microsoft BIPIA Benchmark (50 Attack Types); Sudarshana architecture (2026).</span>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 2: PLACEHOLDER (Tanmay Jaiswal) -->
+  <!-- SLIDE 2: TANMAY JAISWAL — DATA ENGINEERING -->
   <div class="slide" id="slide-2">
     <div class="panel panel-mint">
       <div>
         <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">Data Engineering · Tanmay Jaiswal</div>
         <h2 class="text-[27px] font-bold text-[#173462] leading-[1.25] tracking-tight mb-6">
-          Deterministic character span ground truth is the foundational prerequisite for <span class="hl-lime">training subword sequence taggers</span>.
+          Deterministic character span ground truth is the prerequisite for <span class="hl-lime">training subword sequence taggers</span>.
         </h2>
         <div class="mt-8">
           <div class="text-[48px] font-bold text-[#089582] leading-none mb-1">50</div>
@@ -852,30 +666,23 @@ def create_html_deck():
     </div>
     <div class="exhibit">
       <div>
-        <h2 class="text-[18px] font-bold text-[#173462] mb-1">
-          Unified Data Pipeline & Schema [PLACEHOLDER — Tanmay Jaiswal]
+        <h2 class="text-[18px] font-bold text-[#173462] mb-3">
+          <span class="s-purple">Task-Category Distribution¹</span> vs. <span class="s-teal">Position Invariance² (Start / Middle / End)</span>
         </h2>
-        <p class="text-[12px] italic text-[#5f6b80] mb-6">Designated component exhibit reserved for Tanmay Jaiswal.</p>
 
-        <div class="placeholder-box p-6 space-y-4 max-w-3xl">
-          <div class="text-[11px] font-bold text-[#f0a656] uppercase tracking-wider">[ PLACEHOLDER: DATA PIPELINE ]</div>
-          <div class="text-[15px] font-bold text-[#173462]">Content to be finalized by Tanmay Jaiswal</div>
-          <ul class="space-y-2 text-[12px] text-[#2a3b5c]">
-            <li>• Microsoft BIPIA benchmark across 5 application domains (Text QA, Code QA, Table QA, Email, Summarization).</li>
-            <li>• Exact character offset verification (start_char, end_char) with 100% round-trip match.</li>
-            <li>• Zero-leakage split strategy: 50 disjoint attack types (25 train / 25 strictly held-out test).</li>
-            <li>• Curated instructional Hard Negatives dataset (Linux tutorials, READMEs, recipes) with empty spans [].</li>
-          </ul>
+        <!-- Visual Chart: rep_f4_position_category.png -->
+        <div class="border border-[#e6e9ee] rounded-lg p-2 bg-white flex justify-center shadow-sm">
+          <img src="figures/rep_f4_position_category.png" alt="Slice Analysis across Tasks and Positions" class="max-h-[520px] w-auto object-contain">
         </div>
       </div>
       <div class="flex justify-between items-center text-[10px] text-[#5f6b80] pt-4 border-t border-[#e6e9ee]">
-        <span>Slide 2 / 11 · Placeholder</span>
+        <span>Slide 2 / 8 · Tanmay Jaiswal</span>
         <span>Sources: 1/ data/splits/train.jsonl (n=386); 2/ data/splits/test.jsonl (n=206).</span>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 3: PLACEHOLDER (Utkarsh Chatterjee) -->
+  <!-- SLIDE 3: UTKARSH CHATTERJEE — TASK CONDITIONING -->
   <div class="slide" id="slide-3">
     <div class="panel panel-orchid">
       <div>
@@ -892,34 +699,27 @@ def create_html_deck():
     </div>
     <div class="exhibit">
       <div>
-        <h2 class="text-[18px] font-bold text-[#173462] mb-1">
-          Pair-Input Conditioning & Disambiguation [PLACEHOLDER — Utkarsh Chatterjee]
+        <h2 class="text-[18px] font-bold text-[#173462] mb-3">
+          <span class="s-purple">Unconditioned Imperative Confusion¹</span> vs. <span class="s-teal">Task-Conditioned Disambiguation²</span>
         </h2>
-        <p class="text-[12px] italic text-[#5f6b80] mb-6">Designated component exhibit reserved for Utkarsh Chatterjee.</p>
 
-        <div class="placeholder-box p-6 space-y-4 max-w-3xl">
-          <div class="text-[11px] font-bold text-[#f0a656] uppercase tracking-wider">[ PLACEHOLDER: PAIR INPUT ]</div>
-          <div class="text-[15px] font-bold text-[#173462]">Content to be finalized by Utkarsh Chatterjee</div>
-          <ul class="space-y-2 text-[12px] text-[#2a3b5c]">
-            <li>• Conditioning architecture: <code class="mono text-[11px] bg-slate-200 px-1 py-0.5 rounded text-[#173462]">[CLS] user_task [SEP] document_chunk [SEP]</code>.</li>
-            <li>• Disambiguating legitimate imperative commands from malicious prompt injections.</li>
-            <li>• Hard-negative false positive rate reduction: Dropped from 83.33% to 16.67% under calibrated thresholds.</li>
-            <li>• Cross-attention maps preserving recall on task-relevant attacks.</li>
-          </ul>
+        <!-- Visual Chart: task_conditioning_diagram.png -->
+        <div class="border border-[#e6e9ee] rounded-lg p-2 bg-white flex justify-center shadow-sm">
+          <img src="figures/task_conditioning_diagram.png" alt="Task Conditioning Disambiguation" class="max-h-[520px] w-auto object-contain">
         </div>
       </div>
       <div class="flex justify-between items-center text-[10px] text-[#5f6b80] pt-4 border-t border-[#e6e9ee]">
-        <span>Slide 3 / 11 · Placeholder</span>
+        <span>Slide 3 / 8 · Utkarsh Chatterjee</span>
         <span>Sources: 1/ data/splits/hard_negatives.jsonl; 2/ results/calibration_day6.json.</span>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 4: PLACEHOLDER (Sujal Som) -->
+  <!-- SLIDE 4: SUJAL SOM — MODEL ARCHITECTURE & LADDER -->
   <div class="slide" id="slide-4">
     <div class="panel panel-mint">
       <div>
-        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">Model & Ladder · Sujal Som</div>
+        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">Model Architecture · Sujal Som</div>
         <h2 class="text-[27px] font-bold text-[#173462] leading-[1.25] tracking-tight mb-6">
           Sliding-window chunking and adversarial augmentations drove test recall to <span class="hl-lime">100.00% across all positions</span>.
         </h2>
@@ -932,56 +732,27 @@ def create_html_deck():
     </div>
     <div class="exhibit">
       <div>
-        <h2 class="text-[18px] font-bold text-[#173462] mb-1">
-          Multi-Task Model & 6-Step Ablation Ladder [PLACEHOLDER — Sujal Som]
+        <h2 class="text-[18px] font-bold text-[#173462] mb-3">
+          <span class="s-purple">Step 1 Baseline (512 tokens)¹</span> to <span class="s-teal">Step 6 Augmented Ladder² (Full Obfuscation Defense)</span>
         </h2>
-        <p class="text-[12px] italic text-[#5f6b80] mb-6">Designated component exhibit reserved for Sujal Som.</p>
 
-        <div class="placeholder-box p-6 space-y-4 max-w-3xl">
-          <div class="text-[11px] font-bold text-[#f0a656] uppercase tracking-wider">[ PLACEHOLDER: MODEL & ABLATION LADDER ]</div>
-          <div class="text-[15px] font-bold text-[#173462]">Content to be finalized by Sujal Som</div>
-          <ul class="space-y-2 text-[12px] text-[#2a3b5c]">
-            <li>• DeBERTa-v3 multi-task filter architecture with decoupled heads and joint loss (<code class="mono text-[11px]">L_detect + 0.5 * L_tok</code>).</li>
-            <li>• 6-step ablation ladder: Step 1 (512 Baseline) to Step 6 (Adversarial Augmentations).</li>
-            <li>• Context preservation: 256-token chunking eliminating end-of-document truncation failures (100% end recall).</li>
-            <li>• Obfuscation suite evaluation: Robustness against Leetspeak, Homoglyphs, Zero-Width chars, and Base64 wrappers.</li>
-          </ul>
+        <!-- Visual Chart: rep_f2_ladder.png -->
+        <div class="border border-[#e6e9ee] rounded-lg p-2 bg-white flex justify-center shadow-sm">
+          <img src="figures/rep_f2_ladder.png" alt="Ablation Ladder Recall vs FPR" class="max-h-[520px] w-auto object-contain">
         </div>
       </div>
       <div class="flex justify-between items-center text-[10px] text-[#5f6b80] pt-4 border-t border-[#e6e9ee]">
-        <span>Slide 4 / 11 · Placeholder</span>
+        <span>Slide 4 / 8 · Sujal Som</span>
         <span>Sources: 1/ reports/ablation_ladder_tables.json; 2/ models/final_step1..6/.</span>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 5: HARSHIT KANDPAL - PIPELINE FLOWCHART (NEW!) -->
+  <!-- SLIDE 5: HARSHIT KANDPAL — ARCHITECTURE FLOWCHART -->
   <div class="slide" id="slide-5">
     <div class="panel panel-mint">
       <div>
-        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">Pipeline Architecture · Harshit Kandpal</div>
-        <h2 class="text-[27px] font-bold text-[#173462] leading-[1.25] tracking-tight mb-6">
-          Surgical redaction operates across seven sequential stages from raw windows to <span class="hl-lime">sanitized carrier output</span>.
-        </h2>
-        <div class="mt-8">
-          <div class="text-[44px] font-bold text-[#089582] leading-none mb-1">7 Stages</div>
-          <div class="text-[11px] italic text-[#2a3b5c]">end-to-end token detection and container expansion pipeline</div>
-        </div>
-      </div>
-      <div class="text-[10px] text-[#8a93a3]">©2026  Sudarshana</div>
-    </div>
-    <div class="exhibit">
-      <div>
-        <h2 class="text-[18px] font-bold text-[#173462] mb-1">
-          Harshit Kandpal: Token Detection & Structure-Aware Redaction Pipeline¹
-        </h2>
-        <p class="text-[12px] italic text-[#5f6b80] mb-3">
-          Sliding-Window Inference → Subword Gap-Bridging → Syntactic Container Expansion → Fallback Calibration.
-  <!-- SLIDE 5: HARSHIT KANDPAL - PIPELINE FLOWCHART (CHART-ONLY EXHIBIT) -->
-  <div class="slide" id="slide-5">
-    <div class="panel panel-mint">
-      <div>
-        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">Pipeline Architecture · Harshit Kandpal</div>
+        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">Redaction Architecture · Harshit Kandpal</div>
         <h2 class="text-[27px] font-bold text-[#173462] leading-[1.25] tracking-tight mb-6">
           Surgical redaction operates across seven sequential stages from raw windows to <span class="hl-lime">sanitized carrier output</span>.
         </h2>
@@ -998,53 +769,20 @@ def create_html_deck():
           <span class="s-purple">Token Classification Sequence Head¹</span> & <span class="s-teal">Structure-Aware Redaction Pipeline²</span>
         </h2>
 
-        <!-- High-Res Flowchart Image Embedded (Chart-only, zero lingering text) -->
+        <!-- Visual Chart: p4_pipeline_flowchart.png -->
         <div class="border border-[#e6e9ee] rounded-lg p-2 bg-white flex justify-center shadow-sm">
           <img src="figures/p4_pipeline_flowchart.png" alt="Pipeline Flowchart" class="max-h-[520px] w-auto object-contain">
         </div>
       </div>
       <div class="flex justify-between items-center text-[10px] text-[#5f6b80] pt-4 border-t border-[#e6e9ee]">
-        <span>Slide 5 / 11 · Harshit Kandpal (Flowchart)</span>
+        <span>Slide 5 / 8 · Harshit Kandpal (Architecture)</span>
         <span>Sources: 1/ sudarshana/models/token_head.py; 2/ sudarshana/redaction/redact.py.</span>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 6: HARSHIT KANDPAL - TOKEN HEAD & GAP-BRIDGING (CHART-ONLY EXHIBIT) -->
+  <!-- SLIDE 6: HARSHIT KANDPAL — SURGICAL REDACTION -->
   <div class="slide" id="slide-6">
-    <div class="panel panel-mint">
-      <div>
-        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">Token Localization · Harshit Kandpal</div>
-        <h2 class="text-[27px] font-bold text-[#173462] leading-[1.25] tracking-tight mb-6">
-          Bridging subword token gaps merges fragmented attack detections into <span class="hl-lime">coherent malicious spans</span>.
-        </h2>
-        <div class="mt-8">
-          <div class="text-[48px] font-bold text-[#089582] leading-none mb-1">8.0×</div>
-          <div class="text-[11px] italic text-[#2a3b5c]">loss weighting on positive injection tokens (O vs B-INJ / I-INJ)</div>
-        </div>
-      </div>
-      <div class="text-[10px] text-[#8a93a3]">©2026  Sudarshana</div>
-    </div>
-    <div class="exhibit">
-      <div>
-        <h2 class="text-[18px] font-bold text-[#173462] mb-3">
-          <span class="s-purple">Raw Subword Token Confidences¹</span> vs. <span class="s-teal">Gap-Bridged Injection Spans² (G ≤ 2)</span>
-        </h2>
-
-        <!-- High-Res Token Gap-Bridging Diagram Embedded (Chart-only, zero lingering text) -->
-        <div class="border border-[#e6e9ee] rounded-lg p-2 bg-white flex justify-center shadow-sm">
-          <img src="figures/token_gap_bridging.png" alt="Token Gap-Bridging Diagram" class="max-h-[520px] w-auto object-contain">
-        </div>
-      </div>
-      <div class="flex justify-between items-center text-[10px] text-[#5f6b80] pt-4 border-t border-[#e6e9ee]">
-        <span>Slide 6 / 11 · Harshit Kandpal (Token Localization)</span>
-        <span>Sources: 1/ sudarshana/models/token_head.py; 2/ sudarshana/redaction/redact.py (predict_spans).</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- SLIDE 7: HARSHIT KANDPAL - STRUCTURE-AWARE REDACTION (CHART-ONLY EXHIBIT) -->
-  <div class="slide" id="slide-7">
     <div class="panel panel-orchid">
       <div>
         <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">Surgical Redaction · Harshit Kandpal</div>
@@ -1052,8 +790,8 @@ def create_html_deck():
           Syntactic container expansion prevents prose sentence splitters from <span class="hl-magenta">destroying markdown tables and code</span>.
         </h2>
         <div class="mt-8">
-          <div class="text-[44px] font-bold text-[#65327d] leading-none mb-1">2.5×</div>
-          <div class="text-[11px] italic text-[#2a3b5c]">relative expansion cap: max(150 chars, 2.5x raw span)</div>
+          <div class="text-[44px] font-bold text-[#65327d] leading-none mb-1">68.0%</div>
+          <div class="text-[11px] italic text-[#2a3b5c]">selective redaction rate (up from 43.20% in baseline; +24.8% gain)</div>
         </div>
       </div>
       <div class="text-[10px] text-[#8a93a3]">©2026  Sudarshana</div>
@@ -1064,29 +802,29 @@ def create_html_deck():
           <span class="s-purple">Baseline PySBD (35%)¹</span> vs. <span class="s-teal">Hierarchical Structure-Aware Redaction (50%)²</span>
         </h2>
 
-        <!-- High-Res Empirical Redaction Chart Embedded (Chart-only, zero lingering text) -->
+        <!-- Visual Chart: rep_f5_redaction.png -->
         <div class="border border-[#e6e9ee] rounded-lg p-2 bg-white flex justify-center shadow-sm">
           <img src="figures/rep_f5_redaction.png" alt="Redaction Trade-Off Chart" class="max-h-[520px] w-auto object-contain">
         </div>
       </div>
       <div class="flex justify-between items-center text-[10px] text-[#5f6b80] pt-4 border-t border-[#e6e9ee]">
-        <span>Slide 7 / 11 · Harshit Kandpal (Redaction Engine)</span>
+        <span>Slide 6 / 8 · Harshit Kandpal (Redaction Engine)</span>
         <span>Sources: 1/ sudarshana/redaction/redact.py; 2/ results/model_redaction.json (N=125 attacks).</span>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 8: HARSHIT KANDPAL - EMPIRICAL AUDIT SCORECARD (TABLE-ONLY EXHIBIT) -->
-  <div class="slide" id="slide-8">
+  <!-- SLIDE 7: KINSHUK GUPTA — DOWNSTREAM EVALUATION & CPU LATENCY -->
+  <div class="slide" id="slide-7">
     <div class="panel panel-mint">
       <div>
-        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">Audit Scorecard · Harshit Kandpal</div>
+        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">Downstream & Latency · Kinshuk Gupta</div>
         <h2 class="text-[27px] font-bold text-[#173462] leading-[1.25] tracking-tight mb-6">
-          Structure-aware redaction cut unnecessary document blocks in half while preserving <span class="hl-lime">57.84% of clean context</span>.
+          Sanitized carrier documents allow downstream LLMs to maintain a <span class="hl-lime">98.40% protected success rate</span>.
         </h2>
         <div class="mt-8">
-          <div class="text-[48px] font-bold text-[#089582] leading-none mb-1">68.0%</div>
-          <div class="text-[11px] italic text-[#2a3b5c]">selective redaction rate (+24.8% gain over baseline)</div>
+          <div class="text-[44px] font-bold text-[#089582] leading-none mb-1">0.871s</div>
+          <div class="text-[11px] italic text-[#2a3b5c]">median CPU inference latency per 1,362-token document</div>
         </div>
       </div>
       <div class="text-[10px] text-[#8a93a3]">©2026  Sudarshana</div>
@@ -1094,7 +832,40 @@ def create_html_deck():
     <div class="exhibit">
       <div>
         <h2 class="text-[18px] font-bold text-[#173462] mb-3">
-          <span class="s-purple">Baseline PySBD configuration¹</span> vs. <span class="s-teal">Structure-Aware Engine²</span> on held-out test split (n=206)
+          <span class="s-purple">Pipeline Stage Latency (p50)¹</span> vs. <span class="s-teal">Tail Execution Budget (p95) < 1.05s²</span>
+        </h2>
+
+        <!-- Visual Chart: rep_f6_latency.png -->
+        <div class="border border-[#e6e9ee] rounded-lg p-2 bg-white flex justify-center shadow-sm">
+          <img src="figures/rep_f6_latency.png" alt="CPU Latency Distribution across Pipeline Stages" class="max-h-[520px] w-auto object-contain">
+        </div>
+      </div>
+      <div class="flex justify-between items-center text-[10px] text-[#5f6b80] pt-4 border-t border-[#e6e9ee]">
+        <span>Slide 7 / 8 · Kinshuk Gupta</span>
+        <span>Sources: 1/ results/downstream_evaluation.json; 2/ ui/server.py.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: CONCLUSION & AUDITED SCORECARD -->
+  <div class="slide" id="slide-8">
+    <div class="panel panel-mint">
+      <div>
+        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">Conclusion & Scorecard · All Authors</div>
+        <h2 class="text-[27px] font-bold text-[#173462] leading-[1.25] tracking-tight mb-6">
+          Project Sudarshana demonstrates that surgical token-level redaction is a <span class="hl-lime">production-ready reality</span>.
+        </h2>
+        <div class="mt-8">
+          <div class="text-[44px] font-bold text-[#089582] leading-none mb-1">78 / 78</div>
+          <div class="text-[11px] italic text-[#2a3b5c]">unit tests passing across all repository components (100%)</div>
+        </div>
+      </div>
+      <div class="text-[10px] text-[#8a93a3]">©2026  Sudarshana</div>
+    </div>
+    <div class="exhibit">
+      <div>
+        <h2 class="text-[18px] font-bold text-[#173462] mb-3">
+          <span class="s-purple">Pre-redaction security vulnerability¹</span> vs. <span class="s-teal">Post-redaction RAG context preservation²</span>
         </h2>
 
         <div class="border border-[#e6e9ee] rounded-lg overflow-hidden max-w-5xl shadow-sm">
@@ -1163,169 +934,49 @@ def create_html_deck():
         </div>
       </div>
       <div class="flex justify-between items-center text-[10px] text-[#5f6b80] pt-4 border-t border-[#e6e9ee]">
-        <span>Slide 8 / 11 · Harshit Kandpal (Audit Scorecard)</span>
-        <span>Sources: 1/ reports/metrics.json; 2/ reports/audit/raw_test_predictions.jsonl (n=206 total).</span>
+        <span>Slide 8 / 8 · All Authors (Audit Scorecard)</span>
+        <span>Sources: 1/ reports/metrics.json; 2/ reports/FINAL_PROJECT_REPORT.pdf.</span>
       </div>
     </div>
   </div>
 
-  <!-- SLIDE 9: HARSHIT KANDPAL - DEFENSE & ERROR TAXONOMY (CHART-ONLY EXHIBIT) -->
-  <div class="slide" id="slide-9">
-    <div class="panel panel-orchid">
-      <div>
-        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">Scientific Rigor · Harshit Kandpal</div>
-        <h2 class="text-[27px] font-bold text-[#173462] leading-[1.25] tracking-tight mb-6">
-          Rigorous error triage reveals that 94.4% of attacks were neutralized with <span class="hl-magenta">zero surviving characters</span>.
-        </h2>
-        <div class="mt-8">
-          <div class="text-[44px] font-bold text-[#65327d] leading-none mb-1">>450k</div>
-          <div class="text-[11px] italic text-[#2a3b5c]">supervised token decisions across 386 training documents</div>
-        </div>
-      </div>
-      <div class="text-[10px] text-[#8a93a3]">©2026  Sudarshana</div>
-    </div>
-    <div class="exhibit">
-      <div>
-        <h2 class="text-[18px] font-bold text-[#173462] mb-3">
-          <span class="s-teal">Attack Payload Neutralization (94.4%)¹</span> & <span class="s-purple">Token-Level Sample Rigor² (>450k)</span>
-        </h2>
-
-        <!-- High-Res Error Taxonomy Chart Embedded (Chart-only, zero lingering text) -->
-        <div class="border border-[#e6e9ee] rounded-lg p-2 bg-white flex justify-center shadow-sm">
-          <img src="figures/error_taxonomy_chart.png" alt="Error Taxonomy & Sample Rigor Chart" class="max-h-[520px] w-auto object-contain">
-        </div>
-      </div>
-      <div class="flex justify-between items-center text-[10px] text-[#5f6b80] pt-4 border-t border-[#e6e9ee]">
-        <span>Slide 9 / 11 · Harshit Kandpal (Defense Rationale)</span>
-        <span>Sources: 1/ reports/p4_token_head_report.md Section 4; 2/ data/splits/DATA_CARD.md.</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- SLIDE 10: PLACEHOLDER (Kinshuk Gupta) -->
-  <div class="slide" id="slide-10">
-    <div class="panel panel-mint">
-      <div>
-        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">Downstream & UI · Kinshuk Gupta</div>
-        <h2 class="text-[27px] font-bold text-[#173462] leading-[1.25] tracking-tight mb-6">
-          Sanitized carrier documents allow downstream LLMs to maintain a <span class="hl-lime">98.40% protected success rate</span>.
-        </h2>
-        <div class="mt-8">
-          <div class="text-[44px] font-bold text-[#089582] leading-none mb-1">0.871s</div>
-          <div class="text-[11px] italic text-[#2a3b5c]">median CPU inference latency per 1,362-token document</div>
-        </div>
-      </div>
-      <div class="text-[10px] text-[#8a93a3]">©2026  Sudarshana</div>
-    </div>
-    <div class="exhibit">
-      <div>
-        <h2 class="text-[18px] font-bold text-[#173462] mb-1">
-          Downstream LLM Evaluation & UI Dashboard [PLACEHOLDER — Kinshuk Gupta]
-        </h2>
-        <p class="text-[12px] italic text-[#5f6b80] mb-6">Designated component exhibit reserved for Kinshuk Gupta.</p>
-
-        <div class="placeholder-box p-6 space-y-4 max-w-3xl">
-          <div class="text-[11px] font-bold text-[#f0a656] uppercase tracking-wider">[ PLACEHOLDER: DOWNSTREAM & UI ]</div>
-          <div class="text-[15px] font-bold text-[#173462]">Content to be finalized by Kinshuk Gupta</div>
-          <ul class="space-y-2 text-[12px] text-[#2a3b5c]">
-            <li>• Downstream generation harness: Protected Success Rate (<code class="mono text-[11px] text-[#089582] font-bold">PSR = 98.40%</code>) and semantic ROUGE-1 on clean queries.</li>
-            <li>• Decision threshold calibration on validation data.</li>
-            <li>• CPU latency profiling: Median 0.871s per 1,362-token document; throughput ~15-20 docs/sec.</li>
-            <li>• Interactive web UI dashboard (<code class="mono text-[11px]">ui/index.html & ui/server.py</code>) demonstrating real-time token heatmaps and live redaction.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="flex justify-between items-center text-[10px] text-[#5f6b80] pt-4 border-t border-[#e6e9ee]">
-        <span>Slide 10 / 11 · Placeholder</span>
-        <span>Sources: 1/ results/downstream_evaluation.json; 2/ ui/server.py.</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- SLIDE 11: CONCLUSION & DEFENSE READINESS -->
-  <div class="slide" id="slide-11">
-    <div class="panel panel-mint">
-      <div>
-        <div class="text-[10px] font-bold text-[#173462] uppercase tracking-wider mb-4">Conclusion & Defense</div>
-        <h2 class="text-[27px] font-bold text-[#173462] leading-[1.25] tracking-tight mb-6">
-          Project Sudarshana demonstrates that surgical token-level redaction is a <span class="hl-lime">production-ready reality</span>.
-        </h2>
-        <div class="mt-8">
-          <div class="text-[44px] font-bold text-[#089582] leading-none mb-1">78 / 78</div>
-          <div class="text-[11px] italic text-[#2a3b5c]">unit tests passing across all repository components (100%)</div>
-        </div>
-      </div>
-      <div class="text-[10px] text-[#8a93a3]">©2026  Sudarshana</div>
-    </div>
-    <div class="exhibit">
-      <div>
-        <h2 class="text-[18px] font-bold text-[#173462] mb-1">
-          <span class="s-purple">Pre-redaction security vulnerability¹</span> vs. <span class="s-teal">Post-redaction RAG context preservation²</span>
-        </h2>
-        <p class="text-[12px] italic text-[#5f6b80] mb-6">
-          Complete defense system summary and production readiness verification.
-        </p>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
-          <div class="p-4 border border-[#e6e9ee] rounded-lg bg-white">
-            <h3 class="text-[13px] font-bold text-[#173462] mb-1">Unified Defense Pipeline</h3>
-            <p class="text-[12px] text-[#2a3b5c]">Seamless integration from Tanmay Jaiswal (data/spans) to Utkarsh Chatterjee (conditioning), Sujal Som (DeBERTa model), Harshit Kandpal (surgical redaction), and Kinshuk Gupta (downstream evaluation).</p>
-          </div>
-          <div class="p-4 border-2 border-[#089582] rounded-lg bg-[#f0fdf4]">
-            <h3 class="text-[13px] font-bold text-[#089582] mb-1">Harshit Kandpal Core Breakthrough</h3>
-            <p class="text-[12px] text-[#2a3b5c]">Eliminated the false-block crisis (cut blocks from 56.8% to 32.0%), boosted selective redaction to 68.0%, and retained 57.8% clean context with 98.96% character coverage.</p>
-          </div>
-          <div class="p-4 border border-[#e6e9ee] rounded-lg bg-white">
-            <h3 class="text-[13px] font-bold text-[#173462] mb-1">Rigorous Methodology</h3>
-            <p class="text-[12px] text-[#2a3b5c]">Zero evaluation leakage. Tuning strictly on validation data; evaluated once on held-out test data with 95% Wilson and Bootstrap confidence intervals.</p>
-          </div>
-          <div class="p-4 border border-[#e6e9ee] rounded-lg bg-white">
-            <h3 class="text-[13px] font-bold text-[#173462] mb-1">Production Viability</h3>
-            <p class="text-[12px] text-[#2a3b5c]">Sub-second CPU latency (&lt;0.9s), zero GPU cluster requirement, all 78 repository tests passing (100%), and interactive web dashboard.</p>
-          </div>
-        </div>
-      </div>
-      <div class="flex justify-between items-center text-[10px] text-[#5f6b80] pt-4 border-t border-[#e6e9ee]">
-        <span>Slide 11 / 11 · Thank you! Open for Questions.</span>
-        <span>Sources: 1/ reports/FINAL_PROJECT_REPORT.md; 2/ reports/FINAL_PROJECT_REPORT.pdf.</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Bottom Floating Navigation Controls -->
+  <!-- Bottom Floating Navigation -->
   <div class="fixed bottom-4 right-6 flex items-center gap-2 bg-white/95 border border-[#e6e9ee] px-3 py-1.5 rounded-full shadow-lg">
     <button id="prevBtn" class="text-[#5f6b80] hover:text-[#173462] px-2 py-1 text-sm font-bold">← Prev</button>
-    <span id="slideIndicator" class="text-xs font-semibold text-[#089582] px-2">1 / 11</span>
+    <span id="slideIndicator" class="text-xs font-semibold text-[#089582] px-2">1 / 8</span>
     <button id="nextBtn" class="text-[#5f6b80] hover:text-[#173462] px-2 py-1 text-sm font-bold">Next →</button>
   </div>
 
   <script>
     let currentSlide = 1;
-    const totalSlides = 11;
+    const totalSlides = 8;
 
     function showSlide(n) {
       if (n < 1) n = 1;
       if (n > totalSlides) n = totalSlides;
       currentSlide = n;
 
-      for (let i = 1; i <= totalSlides; i++) {
-        const slide = document.getElementById(`slide-${i}`);
-        if (slide) slide.classList.remove('active');
-      }
+      document.querySelectorAll('.slide').forEach((slide, idx) => {
+        if (idx + 1 === currentSlide) {
+          slide.classList.add('active');
+        } else {
+          slide.classList.remove('active');
+        }
+      });
 
-      const activeSlide = document.getElementById(`slide-${currentSlide}`);
-      if (activeSlide) activeSlide.classList.add('active');
-
-      document.getElementById('slideIndicator').innerText = `${currentSlide} / ${totalSlides}`;
-      document.getElementById('progress').style.width = `${(currentSlide / totalSlides) * 100}%`;
+      document.getElementById('slideIndicator').innerText = currentSlide + ' / ' + totalSlides;
+      document.getElementById('progress').style.width = ((currentSlide / totalSlides) * 100) + '%';
     }
 
     document.getElementById('prevBtn').addEventListener('click', () => showSlide(currentSlide - 1));
     document.getElementById('nextBtn').addEventListener('click', () => showSlide(currentSlide + 1));
 
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') showSlide(currentSlide + 1);
-      else if (e.key === 'ArrowLeft' || e.key === 'PageUp') showSlide(currentSlide - 1);
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        showSlide(currentSlide + 1);
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        showSlide(currentSlide - 1);
+      }
     });
   </script>
 </body>
@@ -1341,12 +992,12 @@ def create_html_deck():
 
 
 def main():
-    print("=== Generating 'a16z Style' Presentation Decks (Zero PX tags, Flowchart Embedded) ===")
-    out_pptx = create_pptx_deck()
-    out_html = create_html_deck()
-    print("\n✅ a16z Style Slide Decks Generated:")
-    print(f"  1. PowerPoint File (.pptx): {out_pptx}")
-    print(f"  2. Interactive HTML Deck:   {out_html}")
+    print("=== Generating 'a16z Style' Brief Presentation Decks (All Authors, Pure Charts) ===")
+    create_pptx_deck()
+    create_html_deck()
+    print("\n✅ a16z Style Slide Decks Successfully Generated:")
+    print(f"  1. PowerPoint File (.pptx): {REPORTS_DIR / 'Sudarshana_a16z_Presentation.pptx'}")
+    print(f"  2. Interactive HTML Deck:   {REPORTS_DIR / 'presentation_a16z.html'}")
 
 
 if __name__ == "__main__":
