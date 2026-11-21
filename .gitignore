@@ -23,6 +23,8 @@ checkpoints/**/predictions_*.json
 __pycache__/
 *.py[cod]
 *$py.class
+.~lock.*
+*.tmp
 .venv/
 .pytest_cache/
 *.egg-info/
