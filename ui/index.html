@@ -483,7 +483,7 @@
       }
     }
 
-    let currentSample = null;  // P5: last REPLAY sample loaded from the picker
+    let currentSample = null;  // Kinshuk: last REPLAY sample loaded from the picker
     async function loadSampleById(id) {
       try {
         const res = await fetch(`/api/sample?id=${id}`);
@@ -505,7 +505,7 @@
         alert("Please paste document content to analyze.");
         return;
       }
-      // P5: unedited picked sample -> keep REPLAY result (recorded model predictions)
+      // Kinshuk: unedited picked sample -> keep REPLAY result (recorded model predictions)
       if (currentSample && text.replace(/\r\n/g, "\n") === (currentSample.document || "").replace(/\r\n/g, "\n") && userTask === (currentSample.user_task || "")) {
         const vb = document.getElementById('verdict-badge');
         vb.textContent = "SCANNING…";
